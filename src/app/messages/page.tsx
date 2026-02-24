@@ -1,9 +1,22 @@
 'use client'
 
-import { useEffect, useState, useRef, Suspense } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+
+interface Notification {
+  id: string
+  type: 'interest' | 'message'
+  job_id: string
+  job_title: string
+  from_user_id: string
+  from_name: string
+  from_company: string
+  message: string
+  created_at: string
+  read: boolean
+}
 
 interface Message {
   id: string
@@ -27,17 +40,37 @@ function MessagesContent() {
   const searchParams = useSearchParams()
   const supabase = createClient()
   const [user, setUser] = useState<any>(null)
+  const [notifications, setNotifications] = useState<Notification[]>([])
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeConversation, setActiveConversation] = useState<string | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [sending, setSending] = useState(false)
   const [loading, setLoading] = useState(true)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [activeTab, setActiveTab] = useState<'notifications' | 'messages'>('notifications')
 
   useEffect(() => {
     checkUser()
   }, [])
+
+  useEffect(() => {
+    if (user) {
+      loadNotifications()
+      loadConversations()
+    }
+  }, [user])
+
+  useEffect(() => {
+    const jobId = searchParams.get('job')
+    const otherUserId = searchParams.get('user')
+    
+    if (jobId && otherUserId && user) {
+      setActiveConversation(jobId)
+      setActiveTab('messages')
+      loadMessages(jobId, otherUserId)
+      router.replace('/messages')
+    }
+  }, [searchParams, user])
 
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -46,30 +79,49 @@ function MessagesContent() {
       return
     }
     setUser(user)
-    loadConversations().then(() => setLoading(false))
+    setLoading(false)
   }
 
-  useEffect(() => {
-    // Check for new conversation from URL params
-    const jobId = searchParams.get('job')
-    const otherUserId = searchParams.get('user')
+  const loadNotifications = async () => {
+    // Get jobs posted by user
+    const { data: myJobs } = await supabase
+      .from('jobs')
+      .select('id, title')
+      .eq('posted_by', user.id)
     
-    if (jobId && otherUserId && user) {
-      setActiveConversation(jobId)
-      loadMessages(jobId, otherUserId)
-      router.replace('/messages')
+    if (!myJobs || myJobs.length === 0) {
+      setNotifications([])
+      return
     }
-  }, [searchParams, user])
 
-  useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    const jobIds = myJobs.map(j => j.id)
+    const jobMap = myJobs.reduce((acc, j) => ({ ...acc, [j.id]: j.title }), {})
+
+    // Get interests on user's jobs
+    const { data: interestsData } = await supabase
+      .from('interests')
+      .select('*, users(first_name, last_name, company_name)')
+      .in('job_id', jobIds)
+      .order('created_at', { ascending: false })
+
+    if (interestsData) {
+      const notifications: Notification[] = interestsData.map(interest => ({
+        id: interest.id,
+        type: 'interest' as const,
+        job_id: interest.job_id,
+        job_title: jobMap[interest.job_id] || 'Job',
+        from_user_id: interest.user_id,
+        from_name: `${interest.users?.first_name || ''} ${interest.users?.last_name || ''}`.trim(),
+        from_company: interest.users?.company_name || 'Individual',
+        message: interest.message || '',
+        created_at: interest.created_at,
+        read: false
+      }))
+      setNotifications(notifications)
     }
-  }, [messages])
+  }
 
   const loadConversations = async () => {
-    if (!user) return
-    
     const { data: allMessages } = await supabase
       .from('messages')
       .select('job_id, sender_id, receiver_id, created_at')
@@ -79,7 +131,6 @@ function MessagesContent() {
     if (!allMessages) return
 
     const uniqueJobs = [...new Set(allMessages.map(m => m.job_id))]
-    
     const convos: Conversation[] = []
     
     for (const jobId of uniqueJobs) {
@@ -88,7 +139,7 @@ function MessagesContent() {
       
       const { data: jobData } = await supabase
         .from('jobs')
-        .select('title, posted_by')
+        .select('title')
         .eq('id', jobId)
         .single()
       
@@ -98,7 +149,7 @@ function MessagesContent() {
       
       const { data: userData } = await supabase
         .from('users')
-        .select('first_name, last_name, company_name')
+        .select('first_name, last_name')
         .eq('id', otherUserId)
         .single()
 
@@ -114,14 +165,13 @@ function MessagesContent() {
         job_id: jobId,
         job_title: jobData.title,
         other_user_id: otherUserId,
-        other_user_name: userData ? 
-          `${userData.first_name} ${userData.last_name}` : 'Unknown',
+        other_user_name: userData ? `${userData.first_name} ${userData.last_name}` : 'Unknown',
         last_message: lastMsgText?.message_text || '',
         last_message_at: lastMsg.created_at
       })
     }
 
-    convos.sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime())
+    convos.sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()))
     setConversations(convos)
   }
 
@@ -139,7 +189,7 @@ function MessagesContent() {
   }
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !activeConversation || !user) return
+    if (!newMessage.trim() || !activeConversation) return
 
     const otherUserId = conversations.find(c => c.job_id === activeConversation)?.other_user_id
     if (!otherUserId) return
@@ -169,44 +219,117 @@ function MessagesContent() {
     }
   }
 
+  const getNotificationCount = () => notifications.length
+
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading...
-      </div>
-    )
+    return <div className="flex-1 flex items-center justify-center">Loading...</div>
   }
 
   return (
     <div className="flex h-[calc(100vh-64px)]">
-      {/* Conversations List */}
+      {/* Sidebar */}
       <div className="w-1/3 border-r overflow-y-auto">
         <div className="p-4 border-b">
           <h1 className="text-xl font-bold">Messages</h1>
         </div>
         
-        {conversations.length === 0 ? (
-          <div className="p-4 text-slate-500 text-center">
-            No conversations yet. Express interest in jobs to start chatting!
-          </div>
-        ) : (
+        {/* Tabs */}
+        <div className="flex border-b">
+          <button
+            onClick={() => setActiveTab('notifications')}
+            className={`flex-1 p-3 text-center font-medium ${
+              activeTab === 'notifications' 
+                ? 'border-b-2 border-slate-900 text-slate-900' 
+                : 'text-slate-500'
+            }`}
+          >
+            Interests ({getNotificationCount()})
+          </button>
+          <button
+            onClick={() => setActiveTab('messages')}
+            className={`flex-1 p-3 text-center font-medium ${
+              activeTab === 'messages' 
+                ? 'border-b-2 border-slate-900 text-slate-900' 
+                : 'text-slate-500'
+            }`}
+          >
+            Chats ({conversations.length})
+          </button>
+        </div>
+
+        {/* Notifications Tab */}
+        {activeTab === 'notifications' && (
           <div>
-            {conversations.map(convo => (
-              <div
-                key={convo.job_id}
-                onClick={() => {
-                  setActiveConversation(convo.job_id)
-                  loadMessages(convo.job_id, convo.other_user_id)
-                }}
-                className={`p-4 border-b cursor-pointer hover:bg-slate-50 ${
-                  activeConversation === convo.job_id ? 'bg-slate-100' : ''
-                }`}
-              >
-                <div className="font-medium">{convo.job_title}</div>
-                <div className="text-sm text-slate-500">{convo.other_user_name}</div>
-                <div className="text-sm text-slate-400 truncate">{convo.last_message}</div>
+            {notifications.length === 0 ? (
+              <div className="p-4 text-slate-500 text-center">
+                No new interests on your jobs.
               </div>
-            ))}
+            ) : (
+              <div>
+                {notifications.map(notif => (
+                  <Link
+                    key={notif.id}
+                    href={`/jobs/${notif.job_id}`}
+                    className="block p-4 border-b hover:bg-slate-50"
+                  >
+                    <div className="font-medium">{notif.from_name}</div>
+                    <div className="text-sm text-slate-500">{notif.from_company}</div>
+                    <div className="text-xs text-slate-400 mt-1">re: {notif.job_title}</div>
+                    {notif.message && (
+                      <div className="mt-2 text-sm text-slate-600 italic line-clamp-2">
+                        "{notif.message}"
+                      </div>
+                    )}
+                    <div className="mt-2 flex gap-2">
+                      <Link 
+                        href={`/contractor/${notif.from_user_id}`}
+                        onClick={e => e.stopPropagation()}
+                        className="text-xs text-blue-600 hover:underline"
+                      >
+                        View Profile
+                      </Link>
+                      <Link 
+                        href={`/messages?job=${notif.job_id}&user=${notif.from_user_id}`}
+                        onClick={e => e.stopPropagation()}
+                        className="text-xs text-blue-600 hover:underline"
+                      >
+                        Message
+                      </Link>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Messages Tab */}
+        {activeTab === 'messages' && (
+          <div>
+            {conversations.length === 0 ? (
+              <div className="p-4 text-slate-500 text-center">
+                No conversations yet.
+              </div>
+            ) : (
+              <div>
+                {conversations.map(convo => (
+                  <div
+                    key={convo.job_id}
+                    onClick={() => {
+                      setActiveConversation(convo.job_id)
+                      loadMessages(convo.job_id, convo.other_user_id)
+                    }}
+                    className={`p-4 border-b cursor-pointer hover:bg-slate-50 ${
+                      activeConversation === convo.job_id ? 'bg-slate-100' : ''
+                    }`}
+                  >
+                    <div className="font-medium">{convo.job_title}</div>
+                    <div className="text-sm text-slate-500">{convo.other_user_name}</div>
+                    <div className="text-sm text-slate-400 truncate">{convo.last_message}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -237,7 +360,6 @@ function MessagesContent() {
                   </div>
                 </div>
               ))}
-              <div ref={messagesEndRef} />
             </div>
 
             <div className="border-t p-4">
@@ -262,7 +384,7 @@ function MessagesContent() {
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center text-slate-500">
-            Select a conversation to view messages
+            Select a conversation or interest to view
           </div>
         )}
       </div>
@@ -276,15 +398,8 @@ export default function Messages() {
       <header className="border-b">
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
           <Link href="/" className="text-xl font-bold">TradeSource</Link>
-          <nav className="flex gap-4 items-center text-sm">
-            <Link href="/feed">Feed</Link>
-            <Link href="/jobs/post">Post</Link>
-            <Link href="/messages" className="font-medium">Messages</Link>
-            <Link href="/profile">Profile</Link>
-          </nav>
         </div>
       </header>
-
       <Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
         <MessagesContent />
       </Suspense>
