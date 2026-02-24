@@ -121,7 +121,10 @@ function MessagesContent() {
       }
 
       const jobIds = myJobs.map(j => j.id)
-      const jobMap = myJobs.reduce((acc, j) => ({ ...acc, [j.id]: j.title }), {})
+      const jobMap: Record<string, string> = {}
+      myJobs.forEach(j => {
+        jobMap[j.id] = j.title
+      })
 
       // Get interests on user's jobs
       const { data: interestsData, error: interestsError } = await supabase
