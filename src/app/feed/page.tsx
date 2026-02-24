@@ -26,6 +26,7 @@ export default function Feed() {
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
   const [countyFilter, setCountyFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -41,6 +42,15 @@ export default function Feed() {
       return
     }
     setUser(user)
+    // Check if admin
+    const { data: userData } = await supabase
+      .from('users')
+      .select('is_admin')
+      .eq('id', user.id)
+      .single()
+    if (userData?.is_admin) {
+      setIsAdmin(true)
+    }
     fetchJobs()
   }
 
@@ -96,6 +106,9 @@ export default function Feed() {
             <Link href="/feed" className="font-medium">Feed</Link>
             <Link href="/jobs/post" className="text-slate-600 hover:text-slate-900">Post</Link>
             <Link href="/messages" className="text-slate-600 hover:text-slate-900">Messages</Link>
+            {isAdmin && (
+              <Link href="/admin" className="text-green-600 hover:text-green-700 font-medium">Admin</Link>
+            )}
             <Link href="/profile" className="text-slate-600 hover:text-slate-900">Profile</Link>
             <button onClick={handleSignOut} className="text-slate-600 hover:text-slate-900">Sign out</button>
           </nav>
