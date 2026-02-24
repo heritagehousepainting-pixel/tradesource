@@ -16,6 +16,7 @@ interface Notification {
   message: string
   created_at: string
   read: boolean
+  status?: string
 }
 
 interface Message {
