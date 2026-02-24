@@ -171,7 +171,7 @@ function MessagesContent() {
       })
     }
 
-    convos.sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime()))
+    convos.sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime())
     setConversations(convos)
   }
 
