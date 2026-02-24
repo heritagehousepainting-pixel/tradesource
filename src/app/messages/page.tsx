@@ -501,36 +501,6 @@ function MessagesContent() {
             )}
           </div>
         )}
-
-        {/* Messages Tab */}
-        {activeTab === 'messages' && (
-          <div>
-            {conversations.length === 0 ? (
-              <div className="p-4 text-slate-500 text-center">
-                No conversations yet.
-              </div>
-            ) : (
-              <div>
-                {conversations.map(convo => (
-                  <div
-                    key={convo.job_id}
-                    onClick={() => {
-                      setActiveConversation(convo.job_id)
-                      loadMessages(convo.job_id, convo.other_user_id)
-                    }}
-                    className={`p-4 border-b cursor-pointer hover:bg-slate-50 ${
-                      activeConversation === convo.job_id ? 'bg-slate-100' : ''
-                    }`}
-                  >
-                    <div className="font-medium">{convo.job_title}</div>
-                    <div className="text-sm text-slate-500">{convo.other_user_name}</div>
-                    <div className="text-sm text-slate-400 truncate">{convo.last_message}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Message Thread */}
