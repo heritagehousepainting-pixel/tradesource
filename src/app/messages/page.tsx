@@ -119,43 +119,65 @@ function MessagesContent() {
         return
       }
 
-      if (!myJobs || myJobs.length === 0) {
-        return
+      // Get interests on user's jobs (as a poster)
+      let notifications: Notification[] = []
+      
+      if (myJobs && myJobs.length > 0) {
+        const jobIds = myJobs.map(j => j.id)
+        const jobMap: Record<string, string> = {}
+        myJobs.forEach(j => {
+          jobMap[j.id] = j.title
+        })
+
+        const { data: interestsData } = await supabase
+          .from('interests')
+          .select('*, users(first_name, last_name, company_name)')
+          .in('job_id', jobIds)
+          .order('created_at', { ascending: false })
+
+        if (interestsData) {
+          notifications = interestsData.map(interest => ({
+            id: interest.id,
+            type: 'interest' as const,
+            job_id: interest.job_id,
+            job_title: jobMap[interest.job_id] || 'Job',
+            from_user_id: interest.user_id,
+            from_name: `${interest.users?.first_name || ''} ${interest.users?.last_name || ''}`.trim(),
+            from_company: interest.users?.company_name || 'Individual',
+            message: interest.message || '',
+            created_at: interest.created_at,
+            read: false,
+            status: interest.status || 'INTERESTED'
+          }))
+        }
       }
 
-      const jobIds = myJobs.map(j => j.id)
-      const jobMap: Record<string, string> = {}
-      myJobs.forEach(j => {
-        jobMap[j.id] = j.title
-      })
-
-      // Get ALL interests on user's jobs
-      const { data: interestsData, error: interestsError } = await supabase
+      // ALSO get notifications where user was interested and got accepted/declined
+      const { data: myInterests } = await supabase
         .from('interests')
-        .select('*, users(first_name, last_name, company_name)')
-        .in('job_id', jobIds)
+        .select('*, jobs(title)')
+        .eq('user_id', user.id)
+        .in('status', ['SELECTED', 'DECLINED'])
         .order('created_at', { ascending: false })
 
-      if (interestsError) {
-        console.error('Interests error:', interestsError)
-      }
-
-      if (interestsData) {
-        const notifications: Notification[] = interestsData.map(interest => ({
+      if (myInterests && myInterests.length > 0) {
+        const myNotifications: Notification[] = myInterests.map(interest => ({
           id: interest.id,
-          type: 'interest' as const,
+          type: 'my_response' as const,
           job_id: interest.job_id,
-          job_title: jobMap[interest.job_id] || 'Job',
-          from_user_id: interest.user_id,
-          from_name: `${interest.users?.first_name || ''} ${interest.users?.last_name || ''}`.trim(),
-          from_company: interest.users?.company_name || 'Individual',
-          message: interest.message || '',
+          job_title: interest.jobs?.title || 'Job',
+          from_user_id: interest.posted_by,
+          from_name: interest.status === 'SELECTED' ? '✓ You were accepted!' : '✗ You were declined',
+          from_company: interest.status === 'SELECTED' ? 'Start chatting now' : 'Job not awarded',
+          message: '',
           created_at: interest.created_at,
           read: false,
-          status: interest.status || 'INTERESTED'
+          status: interest.status
         }))
-        setNotifications(notifications)
+        notifications = [...notifications, ...myNotifications]
       }
+
+      setNotifications(notifications)
     } catch (err) {
       console.error('Load notifications error:', err)
     }
