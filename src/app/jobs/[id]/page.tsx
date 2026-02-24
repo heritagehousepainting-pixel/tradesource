@@ -138,7 +138,6 @@ export default function JobDetail() {
   const handleStartChat = async (interest: Interest) => {
     if (!user || !job) return
     
-    // Create or get existing conversation
     const { data: existingMessages } = await supabase
       .from('messages')
       .select('id')
@@ -151,6 +150,45 @@ export default function JobDetail() {
       router.push(`/messages?conversation=${job.id}`)
     } else {
       router.push(`/messages?job=${job.id}&user=${interest.user_id}`)
+    }
+  }
+
+  const handleAccept = async (interest: Interest) => {
+    if (!user || !job) return
+    
+    // Update interest status
+    await supabase
+      .from('interests')
+      .update({ status: 'SELECTED' })
+      .eq('id', interest.id)
+
+    // Update job status to awarded
+    await supabase
+      .from('jobs')
+      .update({ status: 'AWARDED' })
+      .eq('id', job.id)
+    
+    // Start chat
+    router.push(`/messages?job=${job.id}&user=${interest.user_id}`)
+  }
+
+  const handleDecline = async (interest: Interest) => {
+    if (!user || !job) return
+    
+    await supabase
+      .from('interests')
+      .update({ status: 'DECLINED' })
+      .eq('id', interest.id)
+    
+    // Refresh interests
+    const { data: interestsData } = await supabase
+      .from('interests')
+      .select('*, users(first_name, last_name, company_name, trade_type)')
+      .eq('job_id', job.id)
+      .order('created_at', { ascending: false })
+    
+    if (interestsData) {
+      setInterests(interestsData)
     }
   }
 
@@ -233,13 +271,37 @@ export default function JobDetail() {
                           <p className="text-sm text-slate-500">
                             {interest.users?.company_name || 'Individual'} • {interest.users?.trade_type}
                           </p>
+                          {interest.status === 'SELECTED' && (
+                            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Selected</span>
+                          )}
+                          {interest.status === 'DECLINED' && (
+                            <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">Declined</span>
+                          )}
                         </div>
-                        <button
-                          onClick={() => handleStartChat(interest)}
-                          className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm"
-                        >
-                          Message
-                        </button>
+                        {interest.status !== 'SELECTED' && interest.status !== 'DECLINED' && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleAccept(interest)}
+                              className="bg-green-600 text-white px-3 py-2 rounded-lg text-sm"
+                            >
+                              Accept
+                            </button>
+                            <button
+                              onClick={() => handleDecline(interest)}
+                              className="bg-red-100 text-red-700 px-3 py-2 rounded-lg text-sm"
+                            >
+                              Decline
+                            </button>
+                          </div>
+                        )}
+                        {interest.status === 'SELECTED' && (
+                          <button
+                            onClick={() => handleStartChat(interest)}
+                            className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm"
+                          >
+                            Message
+                          </button>
+                        )}
                       </div>
                       {interest.message && (
                         <div className="mt-3 p-3 bg-slate-50 rounded">
