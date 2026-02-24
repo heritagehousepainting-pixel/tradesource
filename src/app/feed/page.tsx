@@ -30,6 +30,7 @@ export default function Feed() {
   const [countyFilter, setCountyFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [notificationCount, setNotificationCount] = useState(0)
 
   useEffect(() => {
     checkUser()
@@ -52,6 +53,26 @@ export default function Feed() {
       setIsAdmin(true)
     }
     fetchJobs()
+    fetchNotifications(user.id)
+  }
+
+  const fetchNotifications = async (userId: string) => {
+    // Get jobs posted by user
+    const { data: myJobs } = await supabase
+      .from('jobs')
+      .select('id')
+      .eq('posted_by', userId)
+    
+    if (myJobs && myJobs.length > 0) {
+      const jobIds = myJobs.map(j => j.id)
+      // Count interests on user's jobs
+      const { count } = await supabase
+        .from('interests')
+        .select('*', { count: 'exact', head: true })
+        .in('job_id', jobIds)
+      
+      setNotificationCount(count || 0)
+    }
   }
 
   const fetchJobs = async () => {
@@ -105,7 +126,14 @@ export default function Feed() {
           <nav className="flex gap-4 items-center text-sm">
             <Link href="/feed" className="font-medium">Feed</Link>
             <Link href="/jobs/post" className="text-slate-600 hover:text-slate-900">Post</Link>
-            <Link href="/messages" className="text-slate-600 hover:text-slate-900">Messages</Link>
+            <Link href="/messages" className="text-slate-600 hover:text-slate-900 relative">
+              Messages
+              {notificationCount > 0 && (
+                <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {notificationCount}
+                </span>
+              )}
+            </Link>
             {isAdmin && (
               <Link href="/admin" className="text-green-600 hover:text-green-700 font-medium">Admin</Link>
             )}
