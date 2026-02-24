@@ -69,7 +69,8 @@ function MessagesContent() {
     
     if (jobId && otherUserId && user) {
       setActiveConversation(jobId)
-      setActiveTab('messages')
+      setCurrentJobId(jobId)
+      setCurrentUserId(otherUserId)
       loadMessages(jobId, otherUserId)
       router.replace('/messages')
     }
@@ -231,15 +232,20 @@ function MessagesContent() {
   }
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !activeConversation) return
+    if (!newMessage.trim() || !currentJobId || !currentUserId) {
+      // Try to get from activeConversation as fallback
+      if (!activeConversation || !newMessage.trim()) return
+    }
 
-    const otherUserId = conversations.find(c => c.job_id === activeConversation)?.other_user_id
-    if (!otherUserId) return
+    const jobId = currentJobId || activeConversation
+    const otherUserId = currentUserId || conversations.find(c => c.job_id === activeConversation)?.other_user_id
+    
+    if (!jobId || !otherUserId) return
 
     setSending(true)
 
     const { error } = await supabase.from('messages').insert({
-      job_id: activeConversation,
+      job_id: jobId,
       sender_id: user.id,
       receiver_id: otherUserId,
       message_text: newMessage,
@@ -247,8 +253,9 @@ function MessagesContent() {
 
     if (!error) {
       setNewMessage('')
-      loadMessages(activeConversation, otherUserId)
+      loadMessages(jobId, otherUserId)
       loadConversations()
+      loadNotifications()
     }
 
     setSending(false)
