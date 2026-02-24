@@ -300,6 +300,9 @@ function MessagesContent() {
       .update({ status: 'AWARDED' })
       .eq('id', jobId)
 
+    // Reload notifications so they appear in accepted tab
+    await loadNotifications()
+    
     // Show success then switch to accepted tab and open chat
     setShowAcceptSuccess(true)
     setCurrentJobId(jobId)
