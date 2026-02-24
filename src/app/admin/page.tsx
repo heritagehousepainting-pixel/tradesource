@@ -121,8 +121,9 @@ export default function AdminVerification() {
     )
   }
 
-  const pendingVerification = contractors.filter(c => !c.is_verified)
-  const verified = contractors.filter(c => c.is_verified)
+  const pendingVerification = contractors.filter(c => c.is_verified === null || c.is_verified === undefined)
+  const verified = contractors.filter(c => c.is_verified === true)
+  const rejected = contractors.filter(c => c.is_verified === false)
 
   return (
     <div className="min-h-screen bg-white">
@@ -208,6 +209,28 @@ export default function AdminVerification() {
             </div>
           )}
         </div>
+
+        {/* Rejected Section */}
+        {rejected.length > 0 && (
+          <div className="pt-6 border-t">
+            <h2 className="text-lg font-semibold mb-4 text-red-600">
+              Rejected ({rejected.length})
+            </h2>
+            <div className="grid grid-cols-2 gap-3">
+              {rejected.map(contractor => (
+                <div key={contractor.id} className="border border-red-200 rounded-lg p-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-red-600">✗</span>
+                    <span className="font-medium">
+                      {contractor.first_name} {contractor.last_name}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500">{contractor.company_name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
     </div>
   )
