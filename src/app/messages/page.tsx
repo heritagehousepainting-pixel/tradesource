@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase'
 
 interface Notification {
   id: string
-  type: 'interest' | 'message'
+  type: 'interest' | 'message' | 'my_response'
   job_id: string
   job_title: string
   from_user_id: string
