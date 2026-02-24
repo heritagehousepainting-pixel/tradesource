@@ -47,6 +47,7 @@ function MessagesContent() {
   const [newMessage, setNewMessage] = useState('')
   const [sending, setSending] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<'notifications' | 'messages'>('notifications')
 
   useEffect(() => {
@@ -55,8 +56,7 @@ function MessagesContent() {
 
   useEffect(() => {
     if (user) {
-      loadNotifications()
-      loadConversations()
+      loadData()
     }
   }, [user])
 
@@ -73,106 +73,143 @@ function MessagesContent() {
   }, [searchParams, user])
 
   const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      router.push('/signin')
-      return
+    try {
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      if (authError) {
+        console.error('Auth error:', authError)
+        router.push('/signin')
+        return
+      }
+      if (!user) {
+        router.push('/signin')
+        return
+      }
+      setUser(user)
+      setLoading(false)
+    } catch (err) {
+      console.error('Check user error:', err)
+      setError('Error loading user')
+      setLoading(false)
     }
-    setUser(user)
-    setLoading(false)
+  }
+
+  const loadData = async () => {
+    try {
+      await Promise.all([loadNotifications(), loadConversations()])
+    } catch (err) {
+      console.error('Load data error:', err)
+    }
   }
 
   const loadNotifications = async () => {
-    // Get jobs posted by user
-    const { data: myJobs } = await supabase
-      .from('jobs')
-      .select('id, title')
-      .eq('posted_by', user.id)
+    try {
+      // Get jobs posted by user
+      const { data: myJobs, error: jobsError } = await supabase
+        .from('jobs')
+        .select('id, title')
+        .eq('posted_by', user.id)
     
-    if (!myJobs || myJobs.length === 0) {
-      setNotifications([])
-      return
-    }
+      if (jobsError) {
+        console.error('Jobs error:', jobsError)
+        setNotifications([])
+        return
+      }
 
-    const jobIds = myJobs.map(j => j.id)
-    const jobMap = myJobs.reduce((acc, j) => ({ ...acc, [j.id]: j.title }), {})
+      if (!myJobs || myJobs.length === 0) {
+        setNotifications([])
+        return
+      }
 
-    // Get interests on user's jobs
-    const { data: interestsData } = await supabase
-      .from('interests')
-      .select('*, users(first_name, last_name, company_name)')
-      .in('job_id', jobIds)
-      .order('created_at', { ascending: false })
+      const jobIds = myJobs.map(j => j.id)
+      const jobMap = myJobs.reduce((acc, j) => ({ ...acc, [j.id]: j.title }), {})
 
-    if (interestsData) {
-      const notifications: Notification[] = interestsData.map(interest => ({
-        id: interest.id,
-        type: 'interest' as const,
-        job_id: interest.job_id,
-        job_title: jobMap[interest.job_id] || 'Job',
-        from_user_id: interest.user_id,
-        from_name: `${interest.users?.first_name || ''} ${interest.users?.last_name || ''}`.trim(),
-        from_company: interest.users?.company_name || 'Individual',
-        message: interest.message || '',
-        created_at: interest.created_at,
-        read: false
-      }))
-      setNotifications(notifications)
+      // Get interests on user's jobs
+      const { data: interestsData, error: interestsError } = await supabase
+        .from('interests')
+        .select('*, users(first_name, last_name, company_name)')
+        .in('job_id', jobIds)
+        .order('created_at', { ascending: false })
+
+      if (interestsError) {
+        console.error('Interests error:', interestsError)
+      }
+
+      if (interestsData) {
+        const notifications: Notification[] = interestsData.map(interest => ({
+          id: interest.id,
+          type: 'interest' as const,
+          job_id: interest.job_id,
+          job_title: jobMap[interest.job_id] || 'Job',
+          from_user_id: interest.user_id,
+          from_name: `${interest.users?.first_name || ''} ${interest.users?.last_name || ''}`.trim(),
+          from_company: interest.users?.company_name || 'Individual',
+          message: interest.message || '',
+          created_at: interest.created_at,
+          read: false
+        }))
+        setNotifications(notifications)
+      }
+    } catch (err) {
+      console.error('Load notifications error:', err)
     }
   }
 
   const loadConversations = async () => {
-    const { data: allMessages } = await supabase
-      .from('messages')
-      .select('job_id, sender_id, receiver_id, created_at')
-      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-      .order('created_at', { ascending: false })
-
-    if (!allMessages) return
-
-    const uniqueJobs = [...new Set(allMessages.map(m => m.job_id))]
-    const convos: Conversation[] = []
-    
-    for (const jobId of uniqueJobs) {
-      const jobMessages = allMessages.filter(m => m.job_id === jobId)
-      const lastMsg = jobMessages[0]
-      
-      const { data: jobData } = await supabase
-        .from('jobs')
-        .select('title')
-        .eq('id', jobId)
-        .single()
-      
-      if (!jobData) continue
-
-      const otherUserId = lastMsg.sender_id === user.id ? lastMsg.receiver_id : lastMsg.sender_id
-      
-      const { data: userData } = await supabase
-        .from('users')
-        .select('first_name, last_name')
-        .eq('id', otherUserId)
-        .single()
-
-      const { data: lastMsgText } = await supabase
+    try {
+      const { data: allMessages } = await supabase
         .from('messages')
-        .select('message_text')
-        .eq('job_id', jobId)
+        .select('job_id, sender_id, receiver_id, created_at')
+        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
         .order('created_at', { ascending: false })
-        .limit(1)
-        .single()
 
-      convos.push({
-        job_id: jobId,
-        job_title: jobData.title,
-        other_user_id: otherUserId,
-        other_user_name: userData ? `${userData.first_name} ${userData.last_name}` : 'Unknown',
-        last_message: lastMsgText?.message_text || '',
-        last_message_at: lastMsg.created_at
-      })
+      if (!allMessages) return
+
+      const uniqueJobs = [...new Set(allMessages.map(m => m.job_id))]
+      const convos: Conversation[] = []
+      
+      for (const jobId of uniqueJobs.slice(0, 10)) {
+        const jobMessages = allMessages.filter(m => m.job_id === jobId)
+        const lastMsg = jobMessages[0]
+        
+        const { data: jobData } = await supabase
+          .from('jobs')
+          .select('title')
+          .eq('id', jobId)
+          .single()
+        
+        if (!jobData) continue
+
+        const otherUserId = lastMsg.sender_id === user.id ? lastMsg.receiver_id : lastMsg.sender_id
+        
+        const { data: userData } = await supabase
+          .from('users')
+          .select('first_name, last_name')
+          .eq('id', otherUserId)
+          .single()
+
+        const { data: lastMsgText } = await supabase
+          .from('messages')
+          .select('message_text')
+          .eq('job_id', jobId)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single()
+
+        convos.push({
+          job_id: jobId,
+          job_title: jobData.title,
+          other_user_id: otherUserId,
+          other_user_name: userData ? `${userData.first_name} ${userData.last_name}` : 'Unknown',
+          last_message: lastMsgText?.message_text || '',
+          last_message_at: lastMsg.created_at
+        })
+      }
+
+      convos.sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime())
+      setConversations(convos)
+    } catch (err) {
+      console.error('Load conversations error:', err)
     }
-
-    convos.sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime())
-    setConversations(convos)
   }
 
   const loadMessages = async (jobId: string, otherUserId: string) => {
@@ -223,6 +260,10 @@ function MessagesContent() {
 
   if (loading) {
     return <div className="flex-1 flex items-center justify-center">Loading...</div>
+  }
+
+  if (error) {
+    return <div className="flex-1 flex items-center justify-center text-red-500">{error}</div>
   }
 
   return (
