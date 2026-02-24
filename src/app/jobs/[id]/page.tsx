@@ -199,15 +199,12 @@ export default function JobDetail() {
             <p className="text-sm text-slate-500 mb-2">Posted by</p>
             <div className="flex items-center gap-2">
               <span className="font-medium">
-                {job.users?.first_name} {job.users?.last_name}
+                {job.users?.company_name || 'Individual Contractor'}
               </span>
               {job.users?.is_verified && (
                 <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">✓ Verified</span>
               )}
             </div>
-            {job.users?.company_name && (
-              <p className="text-sm text-slate-500">{job.users.company_name}</p>
-            )}
           </div>
 
           {/* If user is the poster, show interests */}
