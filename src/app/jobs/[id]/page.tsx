@@ -22,6 +22,20 @@ interface Job {
   posted_by: string
 }
 
+interface Interest {
+  id: string
+  user_id: string
+  message: string
+  status: string
+  created_at: string
+  users: {
+    first_name: string
+    last_name: string
+    company_name: string
+    trade_type: string
+  }
+}
+
 export default function JobDetail() {
   const router = useRouter()
   const params = useParams()
@@ -33,6 +47,8 @@ export default function JobDetail() {
   const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [isPoster, setIsPoster] = useState(false)
+  const [interests, setInterests] = useState<Interest[]>([])
 
   useEffect(() => {
     checkUser()
@@ -51,7 +67,7 @@ export default function JobDetail() {
   const fetchJob = async () => {
     const jobId = params.id as string
     
-    const { data: jobData, error: jobError } = await supabase
+    const { data: jobData } = await supabase
       .from('jobs')
       .select('*')
       .eq('id', jobId)
@@ -60,15 +76,30 @@ export default function JobDetail() {
     if (jobData) {
       setJob(jobData)
       
-      // Check if already interested
-      const { data: interestData } = await supabase
-        .from('interests')
-        .select('*')
-        .eq('job_id', jobId)
-        .eq('user_id', user?.id)
-      
-      if (interestData && interestData.length > 0) {
-        setAlreadyInterested(true)
+      // Check if current user is the poster
+      if (jobData.posted_by === user?.id) {
+        setIsPoster(true)
+        // Fetch interests for this job
+        const { data: interestsData } = await supabase
+          .from('interests')
+          .select('*, users(first_name, last_name, company_name, trade_type)')
+          .eq('job_id', jobId)
+          .order('created_at', { ascending: false })
+        
+        if (interestsData) {
+          setInterests(interestsData)
+        }
+      } else {
+        // Check if already interested
+        const { data: interestData } = await supabase
+          .from('interests')
+          .select('*')
+          .eq('job_id', jobId)
+          .eq('user_id', user?.id)
+        
+        if (interestData && interestData.length > 0) {
+          setAlreadyInterested(true)
+        }
       }
     }
     setLoading(false)
@@ -94,6 +125,25 @@ export default function JobDetail() {
     setSubmitting(false)
   }
 
+  const handleStartChat = async (interest: Interest) => {
+    if (!user || !job) return
+    
+    // Create or get existing conversation
+    const { data: existingMessages } = await supabase
+      .from('messages')
+      .select('id')
+      .eq('job_id', job.id)
+      .eq('sender_id', interest.user_id)
+      .eq('receiver_id', user.id)
+      .limit(1)
+
+    if (existingMessages && existingMessages.length > 0) {
+      router.push(`/messages?conversation=${job.id}`)
+    } else {
+      router.push(`/messages?job=${job.id}&user=${interest.user_id}`)
+    }
+  }
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>
   }
@@ -110,6 +160,7 @@ export default function JobDetail() {
           <nav className="flex gap-4 text-sm">
             <Link href="/feed">Feed</Link>
             <Link href="/jobs/post">Post</Link>
+            <Link href="/messages">Messages</Link>
           </nav>
         </div>
       </header>
@@ -137,8 +188,45 @@ export default function JobDetail() {
 
           <p className="text-slate-600 mb-6">{job.description}</p>
 
-          {/* Interested Section */}
-          {!alreadyInterested && !submitted && job.posted_by !== user?.id && (
+          {/* If user is the poster, show interests */}
+          {isPoster && (
+            <div className="border-t pt-6">
+              <h3 className="font-semibold mb-4">Contractors Interested ({interests.length})</h3>
+              
+              {interests.length === 0 ? (
+                <p className="text-slate-500">No contractors have expressed interest yet.</p>
+              ) : (
+                <div className="space-y-3">
+                  {interests.map(interest => (
+                    <div key={interest.id} className="border rounded-lg p-4">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-medium">
+                            {interest.users?.first_name} {interest.users?.last_name}
+                          </p>
+                          <p className="text-sm text-slate-500">
+                            {interest.users?.company_name || 'Individual'} • {interest.users?.trade_type}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => handleStartChat(interest)}
+                          className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm"
+                        >
+                          Message
+                        </button>
+                      </div>
+                      {interest.message && (
+                        <p className="text-sm text-slate-600 mt-2">"{interest.message}"</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* If user is NOT the poster, show interested button */}
+          {!isPoster && !alreadyInterested && !submitted && (
             <div className="border-t pt-6">
               <h3 className="font-semibold mb-3">Express Interest</h3>
               <textarea
