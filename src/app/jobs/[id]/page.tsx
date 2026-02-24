@@ -52,6 +52,7 @@ export default function JobDetail() {
   const [alreadyInterested, setAlreadyInterested] = useState(false)
   const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [isPoster, setIsPoster] = useState(false)
   const [interests, setInterests] = useState<Interest[]>([])
@@ -115,6 +116,7 @@ export default function JobDetail() {
     if (!user || !job) return
     
     setSubmitting(true)
+    setError('')
     
     const { error } = await supabase.from('interests').insert({
       job_id: job.id,
@@ -123,7 +125,9 @@ export default function JobDetail() {
       status: 'INTERESTED',
     })
 
-    if (!error) {
+    if (error) {
+      setError(error.message)
+    } else {
       setAlreadyInterested(true)
       setSubmitted(true)
     }
@@ -248,6 +252,11 @@ export default function JobDetail() {
           {!isPoster && !alreadyInterested && !submitted && (
             <div className="border-t pt-6">
               <h3 className="font-semibold mb-3">Express Interest</h3>
+              {error && (
+                <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-3 text-sm">
+                  {error}
+                </div>
+              )}
               <textarea
                 className="w-full border rounded-lg p-3 mb-3"
                 rows={3}
