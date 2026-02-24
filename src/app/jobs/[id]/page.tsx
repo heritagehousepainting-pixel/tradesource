@@ -20,6 +20,12 @@ interface Job {
   status: string
   created_at: string
   posted_by: string
+  users: {
+    first_name: string
+    last_name: string
+    company_name: string
+    is_verified: boolean
+  }
 }
 
 interface Interest {
@@ -69,7 +75,7 @@ export default function JobDetail() {
     
     const { data: jobData } = await supabase
       .from('jobs')
-      .select('*')
+      .select('*, users(first_name, last_name, company_name, is_verified)')
       .eq('id', jobId)
       .single()
     
@@ -186,7 +192,23 @@ export default function JobDetail() {
             <span>📋 {job.job_type}</span>
           </div>
 
-          <p className="text-slate-600 mb-6">{job.description}</p>
+          <p className="text-slate-600 mb-4">{job.description}</p>
+
+          {/* Posted by */}
+          <div className="bg-slate-50 rounded-lg p-4 mb-6">
+            <p className="text-sm text-slate-500 mb-2">Posted by</p>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">
+                {job.users?.first_name} {job.users?.last_name}
+              </span>
+              {job.users?.is_verified && (
+                <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">✓ Verified</span>
+              )}
+            </div>
+            {job.users?.company_name && (
+              <p className="text-sm text-slate-500">{job.users.company_name}</p>
+            )}
+          </div>
 
           {/* If user is the poster, show interests */}
           {isPoster && (
