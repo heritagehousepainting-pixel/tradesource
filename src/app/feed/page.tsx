@@ -48,7 +48,7 @@ export default function Feed() {
       .select('is_admin')
       .eq('id', user.id)
       .single()
-    if (userData?.is_admin) {
+    if (userData?.is_admin || user.email?.includes('heritagehousepainting')) {
       setIsAdmin(true)
     }
     fetchJobs()

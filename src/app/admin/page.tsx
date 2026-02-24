@@ -43,14 +43,15 @@ export default function AdminVerification() {
     }
     setUser(user)
     
-    // Check if admin
+    // Check if admin by email or is_admin flag
     const { data: userData } = await supabase
       .from('users')
-      .select('is_admin')
+      .select('is_admin, email')
       .eq('id', user.id)
       .single()
     
-    if (userData?.is_admin) {
+    // Allow access if is_admin is true OR email contains heritagehousepainting
+    if (userData?.is_admin || user.email?.includes('heritagehousepainting')) {
       setIsAdmin(true)
       fetchContractors()
     } else {
