@@ -48,10 +48,10 @@ function MessagesContent() {
   const [sending, setSending] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState<'notifications' | 'messages'>('notifications')
-  const [declinedIds, setDeclinedIds] = useState<string[]>([])
-  const [acceptedId, setAcceptedId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'interests' | 'accepted' | 'declined'>('interests')
   const [showAcceptSuccess, setShowAcceptSuccess] = useState(false)
+  const [currentJobId, setCurrentJobId] = useState<string | null>(null)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
   useEffect(() => {
     checkUser()
@@ -114,12 +114,10 @@ function MessagesContent() {
     
       if (jobsError) {
         console.error('Jobs error:', jobsError)
-        setNotifications([])
         return
       }
 
       if (!myJobs || myJobs.length === 0) {
-        setNotifications([])
         return
       }
 
@@ -129,7 +127,7 @@ function MessagesContent() {
         jobMap[j.id] = j.title
       })
 
-      // Get interests on user's jobs
+      // Get ALL interests on user's jobs
       const { data: interestsData, error: interestsError } = await supabase
         .from('interests')
         .select('*, users(first_name, last_name, company_name)')
@@ -151,7 +149,8 @@ function MessagesContent() {
           from_company: interest.users?.company_name || 'Individual',
           message: interest.message || '',
           created_at: interest.created_at,
-          read: false
+          read: false,
+          status: interest.status || 'INTERESTED'
         }))
         setNotifications(notifications)
       }
@@ -264,8 +263,22 @@ function MessagesContent() {
 
   const getNotificationCount = () => notifications.filter(n => !declinedIds.includes(`${n.job_id}-${n.from_user_id}`)).length
 
-  // Filter out declined notifications for display
-  const displayedNotifications = notifications.filter(n => !declinedIds.includes(`${n.job_id}-${n.from_user_id}`))
+  // Categorize notifications
+  const interestsList = notifications.filter(n => !n.status || n.status === 'INTERESTED')
+  const acceptedList = notifications.filter(n => n.status === 'SELECTED')
+  const declinedList = notifications.filter(n => n.status === 'DECLINED')
+
+  const getNotificationCount = () => interestsList.length
+
+  // Combine accepted + conversations for "Chats"
+  const allChats = [...acceptedList.map(a => ({
+    job_id: a.job_id,
+    job_title: a.job_title,
+    other_user_id: a.from_user_id,
+    other_user_name: a.from_name,
+    last_message: a.message,
+    last_message_at: a.created_at
+  })), ...conversations]
 
   const handleAcceptFromMessages = async (jobId: string, userId: string, name: string) => {
     // Update interest status
@@ -281,25 +294,29 @@ function MessagesContent() {
       .update({ status: 'AWARDED' })
       .eq('id', jobId)
 
-    // Show success then redirect
-    setAcceptedId(`${jobId}-${userId}`)
+    // Show success then switch to accepted tab and open chat
     setShowAcceptSuccess(true)
+    setCurrentJobId(jobId)
+    setCurrentUserId(userId)
     
     setTimeout(() => {
       setShowAcceptSuccess(false)
+      setActiveTab('accepted')
       router.push(`/messages?job=${jobId}&user=${userId}`)
-    }, 2000)
+    }, 1500)
   }
 
   const handleDeclineFromMessages = async (jobId: string, userId: string) => {
-    const uniqueId = `${jobId}-${userId}`
-    setDeclinedIds(prev => [...prev, uniqueId])
+    await supabase
+      .from('interests')
+      .update({ status: 'DECLINED' })
+      .eq('job_id', jobId)
+      .eq('user_id', userId)
+
+    loadNotifications()
   }
 
   const handleUndoDecline = async (jobId: string, userId: string) => {
-    const uniqueId = `${jobId}-${userId}`
-    setDeclinedIds(prev => prev.filter(id => id !== uniqueId))
-    
     // Reset status back to interested
     await supabase
       .from('interests')
@@ -329,9 +346,9 @@ function MessagesContent() {
         {/* Tabs */}
         <div className="flex border-b">
           <button
-            onClick={() => setActiveTab('notifications')}
+            onClick={() => setActiveTab('interests')}
             className={`flex-1 p-3 text-center font-medium ${
-              activeTab === 'notifications' 
+              activeTab === 'interests' 
                 ? 'border-b-2 border-slate-900 text-slate-900' 
                 : 'text-slate-500'
             }`}
@@ -339,70 +356,139 @@ function MessagesContent() {
             Interests ({getNotificationCount()})
           </button>
           <button
-            onClick={() => setActiveTab('messages')}
+            onClick={() => setActiveTab('accepted')}
             className={`flex-1 p-3 text-center font-medium ${
-              activeTab === 'messages' 
+              activeTab === 'accepted' 
                 ? 'border-b-2 border-slate-900 text-slate-900' 
                 : 'text-slate-500'
             }`}
           >
-            Chats ({conversations.length})
+            Accepted ({acceptedList.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('declined')}
+            className={`flex-1 p-3 text-center font-medium ${
+              activeTab === 'declined' 
+                ? 'border-b-2 border-slate-900 text-slate-900' 
+                : 'text-slate-500'
+            }`}
+          >
+            Declined ({declinedList.length})
           </button>
         </div>
 
-        {/* Notifications Tab */}
-        {activeTab === 'notifications' && (
+        {/* Interests Tab */}
+        {activeTab === 'interests' && (
           <div>
-            {displayedNotifications.length === 0 ? (
+            {interestsList.length === 0 ? (
               <div className="p-4 text-slate-500 text-center">
                 No new interests on your jobs.
               </div>
             ) : (
               <div>
-                {displayedNotifications.map(notif => (
+                {interestsList.map(notif => (
                   <div
                     key={notif.id}
-                    className={`block p-4 border-b hover:bg-slate-50 ${acceptedId === `${notif.job_id}-${notif.from_user_id}` ? 'bg-green-50' : ''}`}
+                    className="block p-4 border-b hover:bg-slate-50"
                   >
-                    {acceptedId === `${notif.job_id}-${notif.from_user_id}` && showAcceptSuccess ? (
-                      <div className="text-center py-4">
-                        <div className="text-green-600 font-medium text-lg">✓ Accepted!</div>
-                        <div className="text-sm text-green-500">Starting chat...</div>
-                      </div>
-                    ) : (
-                      <>
-                        <Link href={`/jobs/${notif.job_id}`}>
-                          <div className="font-medium cursor-pointer">{notif.from_name}</div>
-                          <div className="text-sm text-slate-500">{notif.from_company}</div>
-                          <div className="text-xs text-slate-400 mt-1">re: {notif.job_title}</div>
-                          {notif.message && (
-                            <div className="mt-2 text-sm text-slate-600 italic line-clamp-2">
-                              "{notif.message}"
-                            </div>
-                          )}
-                        </Link>
-                        <div className="mt-2 flex gap-4 items-center">
-                          <Link 
-                            href={`/contractor/${notif.from_user_id}`}
-                            className="text-xs text-blue-600 hover:underline"
-                          >
-                            View Profile
-                          </Link>
-                          <button 
-                            onClick={() => handleAcceptFromMessages(notif.job_id, notif.from_user_id, notif.from_name)}
-                            className="text-xs text-green-600 hover:underline"
-                          >
-                            Accept
-                          </button>
-                          <button 
-                            onClick={() => handleDeclineFromMessages(notif.job_id, notif.from_user_id)}
-                            className="text-xs text-red-600 hover:underline"
-                          >
-                            Decline
-                          </button>
+                    <Link href={`/jobs/${notif.job_id}`}>
+                      <div className="font-medium cursor-pointer">{notif.from_name}</div>
+                      <div className="text-sm text-slate-500">{notif.from_company}</div>
+                      <div className="text-xs text-slate-400 mt-1">re: {notif.job_title}</div>
+                      {notif.message && (
+                        <div className="mt-2 text-sm text-slate-600 italic line-clamp-2">
+                          "{notif.message}"
                         </div>
-                      </>
-                    )}
+                      )}
+                    </Link>
+                    <div className="mt-2 flex gap-4 items-center">
+                      <Link 
+                        href={`/contractor/${notif.from_user_id}`}
+                        className="text-xs text-blue-600 hover:underline"
+                      >
+                        View Profile
+                      </Link>
+                      <button 
+                        onClick={() => handleAcceptFromMessages(notif.job_id, notif.from_user_id, notif.from_name)}
+                        className="text-xs text-green-600 hover:underline"
+                      >
+                        Accept
+                      </button>
+                      <button 
+                        onClick={() => handleDeclineFromMessages(notif.job_id, notif.from_user_id)}
+                        className="text-xs text-red-600 hover:underline"
+                      >
+                        Decline
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Accepted Tab */}
+        {activeTab === 'accepted' && (
+          <div>
+            {acceptedList.length === 0 ? (
+              <div className="p-4 text-slate-500 text-center">
+                No accepted contractors yet.
+              </div>
+            ) : (
+              <div>
+                {acceptedList.map(notif => (
+                  <div
+                    key={notif.id}
+                    className="block p-4 border-b hover:bg-slate-50"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="font-medium text-green-600">✓ {notif.from_name}</div>
+                        <div className="text-sm text-slate-500">{notif.from_company}</div>
+                        <div className="text-xs text-slate-400">re: {notif.job_title}</div>
+                      </div>
+                      <Link 
+                        href={`/messages?job=${notif.job_id}&user=${notif.from_user_id}`}
+                        className="bg-slate-900 text-white px-3 py-1 rounded text-sm"
+                      >
+                        Chat
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Declined Tab */}
+        {activeTab === 'declined' && (
+          <div>
+            {declinedList.length === 0 ? (
+              <div className="p-4 text-slate-500 text-center">
+                No declined contractors.
+              </div>
+            ) : (
+              <div>
+                {declinedList.map(notif => (
+                  <div
+                    key={notif.id}
+                    className="block p-4 border-b hover:bg-slate-50"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="font-medium text-red-600">✗ {notif.from_name}</div>
+                        <div className="text-sm text-slate-500">{notif.from_company}</div>
+                        <div className="text-xs text-slate-400">re: {notif.job_title}</div>
+                      </div>
+                      <button 
+                        onClick={() => handleUndoDecline(notif.job_id, notif.from_user_id)}
+                        className="text-xs text-blue-600 hover:underline"
+                      >
+                        Undo
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
