@@ -1,0 +1,178 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase'
+
+interface Job {
+  id: string
+  title: string
+  description: string
+  county: string
+  job_type: string
+  work_category: string
+  price_type: string
+  price_amount: number
+  is_b2c: boolean
+  created_at: string
+}
+
+export default function Feed() {
+  const router = useRouter()
+  const supabase = createClient()
+  const [jobs, setJobs] = useState<Job[]>([])
+  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState<any>(null)
+  const [countyFilter, setCountyFilter] = useState('all')
+  const [typeFilter, setTypeFilter] = useState('all')
+  const [searchQuery, setSearchQuery] = useState('')
+
+  useEffect(() => {
+    checkUser()
+  }, [])
+
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      router.push('/signin')
+      return
+    }
+    setUser(user)
+    fetchJobs()
+  }
+
+  const fetchJobs = async () => {
+    let query = supabase
+      .from('jobs')
+      .select('*')
+      .eq('status', 'OPEN')
+      .order('created_at', { ascending: false })
+
+    if (countyFilter !== 'all') {
+      query = query.eq('county', countyFilter)
+    }
+
+    if (typeFilter !== 'all') {
+      if (typeFilter === 'b2c') {
+        query = query.eq('is_b2c', true)
+      } else {
+        query = query.eq('job_type', typeFilter.toUpperCase())
+      }
+    }
+
+    const { data, error } = await query
+    
+    if (!error && data) {
+      setJobs(data)
+    }
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    fetchJobs()
+  }, [countyFilter, typeFilter])
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.push('/')
+  }
+
+  const filteredJobs = jobs.filter(job => 
+    searchQuery === '' || 
+    job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    job.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
+  return (
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <header className="border-b sticky top-0 bg-white z-10">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+          <Link href="/" className="text-xl font-bold">TradeSource</Link>
+          <nav className="flex gap-4 items-center text-sm">
+            <Link href="/feed" className="font-medium">Feed</Link>
+            <Link href="/jobs/post" className="text-slate-600 hover:text-slate-900">Post</Link>
+            <Link href="/messages" className="text-slate-600 hover:text-slate-900">Messages</Link>
+            <Link href="/profile" className="text-slate-600 hover:text-slate-900">Profile</Link>
+            <button onClick={handleSignOut} className="text-slate-600 hover:text-slate-900">Sign out</button>
+          </nav>
+        </div>
+      </header>
+
+      <main className="max-w-4xl mx-auto px-4 py-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Job Feed</h1>
+          <Link href="/jobs/post" className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium">
+            Post a Job
+          </Link>
+        </div>
+
+        {/* Filters */}
+        <div className="flex gap-3 mb-6 flex-wrap">
+          <input
+            type="text"
+            placeholder="Search jobs..."
+            className="flex-1 min-w-[200px] px-3 py-2 border rounded-lg"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+          />
+          <select 
+            className="px-3 py-2 border rounded-lg"
+            value={countyFilter}
+            onChange={e => setCountyFilter(e.target.value)}
+          >
+            <option value="all">All Counties</option>
+            <option value="Montgomery">Montgomery</option>
+            <option value="Bucks">Bucks</option>
+            <option value="Philadelphia">Philadelphia</option>
+            <option value="Delaware">Delaware</option>
+          </select>
+          <select 
+            className="px-3 py-2 border rounded-lg"
+            value={typeFilter}
+            onChange={e => setTypeFilter(e.target.value)}
+          >
+            <option value="all">All Types</option>
+            <option value="FULL">Full Job</option>
+            <option value="PIECE">Piece Work</option>
+            <option value="b2c">Homeowner Projects</option>
+          </select>
+        </div>
+
+        {/* Jobs List */}
+        {loading ? (
+          <div className="text-center py-12 text-slate-500">Loading...</div>
+        ) : filteredJobs.length === 0 ? (
+          <div className="text-center py-12 text-slate-500">
+            No jobs found. Be the first to post!
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredJobs.map(job => (
+              <div key={job.id} className="border rounded-xl p-4 hover:shadow-md transition">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <span className={`text-xs px-2 py-1 rounded ${job.is_b2c ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                      {job.is_b2c ? 'Homeowner Project' : 'Overflow Job'}
+                    </span>
+                    <h3 className="font-semibold mt-2">{job.title}</h3>
+                  </div>
+                  <span className="text-lg font-bold text-green-700">
+                    ${job.price_amount?.toLocaleString()}
+                  </span>
+                </div>
+                <p className="text-slate-600 text-sm mb-2 line-clamp-2">{job.description}</p>
+                <div className="flex gap-4 text-sm text-slate-500">
+                  <span>📍 {job.county}</span>
+                  <span>🏠 {job.work_category}</span>
+                  <span>💰 {job.price_type}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </main>
+    </div>
+  )
+}
