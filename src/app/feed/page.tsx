@@ -152,25 +152,27 @@ export default function Feed() {
         ) : (
           <div className="space-y-4">
             {filteredJobs.map(job => (
-              <div key={job.id} className="border rounded-xl p-4 hover:shadow-md transition">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <span className={`text-xs px-2 py-1 rounded ${job.is_b2c ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
-                      {job.is_b2c ? 'Homeowner Project' : 'Overflow Job'}
+              <Link key={job.id} href={`/jobs/${job.id}`} className="block">
+                <div className="border rounded-xl p-4 hover:shadow-md transition cursor-pointer">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <span className={`text-xs px-2 py-1 rounded ${job.is_b2c ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                        {job.is_b2c ? 'Homeowner Project' : 'Overflow Job'}
+                      </span>
+                      <h3 className="font-semibold mt-2">{job.title}</h3>
+                    </div>
+                    <span className="text-lg font-bold text-green-700">
+                      ${job.price_amount?.toLocaleString()}
                     </span>
-                    <h3 className="font-semibold mt-2">{job.title}</h3>
                   </div>
-                  <span className="text-lg font-bold text-green-700">
-                    ${job.price_amount?.toLocaleString()}
-                  </span>
+                  <p className="text-slate-600 text-sm mb-2 line-clamp-2">{job.description}</p>
+                  <div className="flex gap-4 text-sm text-slate-500">
+                    <span>📍 {job.county}</span>
+                    <span>🏠 {job.work_category}</span>
+                    <span>💰 {job.price_type}</span>
+                  </div>
                 </div>
-                <p className="text-slate-600 text-sm mb-2 line-clamp-2">{job.description}</p>
-                <div className="flex gap-4 text-sm text-slate-500">
-                  <span>📍 {job.county}</span>
-                  <span>🏠 {job.work_category}</span>
-                  <span>💰 {job.price_type}</span>
-                </div>
-              </div>
+              </Link>
             ))}
           </div>
         )}
