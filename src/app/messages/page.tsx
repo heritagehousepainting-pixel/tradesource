@@ -340,49 +340,41 @@ function MessagesContent() {
             ) : (
               <div>
                 {notifications.map(notif => (
-                  <Link
+                  <div
                     key={notif.id}
-                    href={`/jobs/${notif.job_id}`}
                     className="block p-4 border-b hover:bg-slate-50"
                   >
-                    <div className="font-medium">{notif.from_name}</div>
-                    <div className="text-sm text-slate-500">{notif.from_company}</div>
-                    <div className="text-xs text-slate-400 mt-1">re: {notif.job_title}</div>
-                    {notif.message && (
-                      <div className="mt-2 text-sm text-slate-600 italic line-clamp-2">
-                        "{notif.message}"
-                      </div>
-                    )}
-                    <div className="mt-2 flex gap-2">
+                    <Link href={`/jobs/${notif.job_id}`}>
+                      <div className="font-medium cursor-pointer">{notif.from_name}</div>
+                      <div className="text-sm text-slate-500">{notif.from_company}</div>
+                      <div className="text-xs text-slate-400 mt-1">re: {notif.job_title}</div>
+                      {notif.message && (
+                        <div className="mt-2 text-sm text-slate-600 italic line-clamp-2">
+                          "{notif.message}"
+                        </div>
+                      )}
+                    </Link>
+                    <div className="mt-2 flex gap-4">
                       <Link 
                         href={`/contractor/${notif.from_user_id}`}
-                        onClick={e => e.stopPropagation()}
                         className="text-xs text-blue-600 hover:underline"
                       >
                         View Profile
                       </Link>
                       <button 
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          handleAcceptFromMessages(notif.job_id, notif.from_user_id)
-                        }}
+                        onClick={() => handleAcceptFromMessages(notif.job_id, notif.from_user_id)}
                         className="text-xs text-green-600 hover:underline"
                       >
                         Accept
                       </button>
                       <button 
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          handleDeclineFromMessages(notif.job_id, notif.from_user_id)
-                        }}
+                        onClick={() => handleDeclineFromMessages(notif.job_id, notif.from_user_id)}
                         className="text-xs text-red-600 hover:underline"
                       >
                         Decline
                       </button>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
             )}
