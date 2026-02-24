@@ -30,6 +30,7 @@ export default function AdminVerification() {
   const [loading, setLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
   const [actionLoading, setActionLoading] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'pending' | 'verified' | 'rejected'>('pending')
 
   useEffect(() => {
     checkUser()
@@ -43,14 +44,12 @@ export default function AdminVerification() {
     }
     setUser(user)
     
-    // Check if admin by email or is_admin flag
     const { data: userData } = await supabase
       .from('users')
       .select('is_admin, email')
       .eq('id', user.id)
       .single()
     
-    // Allow access if is_admin is true OR email contains heritagehousepainting
     if (userData?.is_admin || user.email?.includes('heritagehousepainting')) {
       setIsAdmin(true)
       fetchContractors()
@@ -74,27 +73,34 @@ export default function AdminVerification() {
 
   const handleVerify = async (userId: string) => {
     setActionLoading(userId)
-    const { error } = await supabase
+    await supabase
       .from('users')
       .update({ is_verified: true })
       .eq('id', userId)
     
-    if (!error) {
-      fetchContractors()
-    }
+    fetchContractors()
     setActionLoading(null)
   }
 
   const handleReject = async (userId: string) => {
     setActionLoading(userId)
-    const { error } = await supabase
+    await supabase
       .from('users')
       .update({ is_verified: false })
       .eq('id', userId)
     
-    if (!error) {
-      fetchContractors()
-    }
+    fetchContractors()
+    setActionLoading(null)
+  }
+
+  const handleResetToPending = async (userId: string) => {
+    setActionLoading(userId)
+    await supabase
+      .from('users')
+      .update({ is_verified: null })
+      .eq('id', userId)
+    
+    fetchContractors()
     setActionLoading(null)
   }
 
@@ -112,7 +118,6 @@ export default function AdminVerification() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-          <p className="text-slate-600 mb-4">You don't have admin access.</p>
           <button onClick={handleSignOut} className="text-slate-600 underline">
             Sign out
           </button>
@@ -121,9 +126,20 @@ export default function AdminVerification() {
     )
   }
 
-  const pendingVerification = contractors.filter(c => c.is_verified === null || c.is_verified === undefined)
+  // Filter by status
+  const pending = contractors.filter(c => c.is_verified === null || c.is_verified === undefined)
   const verified = contractors.filter(c => c.is_verified === true)
   const rejected = contractors.filter(c => c.is_verified === false)
+
+  const getContractors = () => {
+    switch (activeTab) {
+      case 'pending': return pending
+      case 'verified': return verified
+      case 'rejected': return rejected
+    }
+  }
+
+  const currentContractors = getContractors()
 
   return (
     <div className="min-h-screen bg-white">
@@ -141,94 +157,110 @@ export default function AdminVerification() {
       <main className="max-w-4xl mx-auto px-4 py-8">
         <h1 className="text-2xl font-bold mb-6">Contractor Verification</h1>
 
-        {/* Pending Section */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-4">
-            Pending Verification ({pendingVerification.length})
-          </h2>
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6 border-b">
+          <button
+            onClick={() => setActiveTab('pending')}
+            className={`px-4 py-2 font-medium ${
+              activeTab === 'pending' 
+                ? 'border-b-2 border-slate-900 text-slate-900' 
+                : 'text-slate-500'
+            }`}
+          >
+            Pending ({pending.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('verified')}
+            className={`px-4 py-2 font-medium ${
+              activeTab === 'verified' 
+                ? 'border-b-2 border-slate-900 text-slate-900' 
+                : 'text-slate-500'
+            }`}
+          >
+            Verified ({verified.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('rejected')}
+            className={`px-4 py-2 font-medium ${
+              activeTab === 'rejected' 
+                ? 'border-b-2 border-slate-900 text-slate-900' 
+                : 'text-slate-500'
+            }`}
+          >
+            Rejected ({rejected.length})
+          </button>
+        </div>
 
-          {pendingVerification.length === 0 ? (
-            <div className="text-center py-8 bg-slate-50 rounded-xl">
-              <p className="text-slate-500">No contractors pending verification.</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {pendingVerification.map(contractor => (
-                <div key={contractor.id} className="border rounded-xl p-4 flex justify-between items-center">
-                  <div>
-                    <p className="font-semibold">
-                      {contractor.first_name} {contractor.last_name}
-                    </p>
-                    <p className="text-sm text-slate-500">{contractor.company_name || 'No company'}</p>
-                    <p className="text-sm text-slate-500">{contractor.email}</p>
-                    <p className="text-sm text-slate-500">{contractor.trade_type?.replace('_', ' ')}</p>
-                  </div>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleVerify(contractor.id)}
-                      disabled={actionLoading === contractor.id}
-                      className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
-                    >
-                      {actionLoading === contractor.id ? 'Approving...' : 'Approve'}
-                    </button>
+        {/* List */}
+        {currentContractors.length === 0 ? (
+          <div className="text-center py-8 bg-slate-50 rounded-xl">
+            <p className="text-slate-500">
+              {activeTab === 'pending' && 'No contractors pending verification.'}
+              {activeTab === 'verified' && 'No verified contractors.'}
+              {activeTab === 'rejected' && 'No rejected contractors.'}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {currentContractors.map(contractor => (
+              <div key={contractor.id} className="border rounded-xl p-4 flex justify-between items-center">
+                <div>
+                  <p className="font-semibold">
+                    {contractor.first_name} {contractor.last_name}
+                  </p>
+                  <p className="text-sm text-slate-500">{contractor.company_name || 'No company'}</p>
+                  <p className="text-sm text-slate-500">{contractor.email}</p>
+                  <p className="text-sm text-slate-500">{contractor.trade_type?.replace('_', ' ')}</p>
+                </div>
+                <div className="flex gap-2">
+                  {activeTab === 'pending' && (
+                    <>
+                      <button
+                        onClick={() => handleVerify(contractor.id)}
+                        disabled={actionLoading === contractor.id}
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleReject(contractor.id)}
+                        disabled={actionLoading === contractor.id}
+                        className="bg-red-100 text-red-700 px-4 py-2 rounded-lg text-sm hover:bg-red-200 disabled:opacity-50"
+                      >
+                        Reject
+                      </button>
+                    </>
+                  )}
+                  {activeTab === 'verified' && (
                     <button
                       onClick={() => handleReject(contractor.id)}
                       disabled={actionLoading === contractor.id}
                       className="bg-red-100 text-red-700 px-4 py-2 rounded-lg text-sm hover:bg-red-200 disabled:opacity-50"
                     >
-                      Reject
+                      Revoke
                     </button>
-                  </div>
+                  )}
+                  {activeTab === 'rejected' && (
+                    <>
+                      <button
+                        onClick={() => handleVerify(contractor.id)}
+                        disabled={actionLoading === contractor.id}
+                        className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
+                      >
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleResetToPending(contractor.id)}
+                        disabled={actionLoading === contractor.id}
+                        className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-lg text-sm hover:bg-yellow-200 disabled:opacity-50"
+                      >
+                        Reset to Pending
+                      </button>
+                    </>
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Verified Section */}
-        <div className="pt-6 border-t">
-          <h2 className="text-lg font-semibold mb-4">
-            Verified Contractors ({verified.length})
-          </h2>
-
-          {verified.length === 0 ? (
-            <p className="text-slate-500">No verified contractors yet.</p>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              {verified.map(contractor => (
-                <div key={contractor.id} className="border rounded-lg p-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-green-600">✓</span>
-                    <span className="font-medium">
-                      {contractor.first_name} {contractor.last_name}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500">{contractor.company_name}</p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Rejected Section */}
-        {rejected.length > 0 && (
-          <div className="pt-6 border-t">
-            <h2 className="text-lg font-semibold mb-4 text-red-600">
-              Rejected ({rejected.length})
-            </h2>
-            <div className="grid grid-cols-2 gap-3">
-              {rejected.map(contractor => (
-                <div key={contractor.id} className="border border-red-200 rounded-lg p-3">
-                  <div className="flex items-center gap-2">
-                    <span className="text-red-600">✗</span>
-                    <span className="font-medium">
-                      {contractor.first_name} {contractor.last_name}
-                    </span>
-                  </div>
-                  <p className="text-xs text-slate-500">{contractor.company_name}</p>
-                </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         )}
       </main>
