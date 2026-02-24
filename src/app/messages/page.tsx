@@ -261,6 +261,35 @@ function MessagesContent() {
 
   const getNotificationCount = () => notifications.length
 
+  const handleAcceptFromMessages = async (jobId: string, userId: string) => {
+    // Update interest status
+    await supabase
+      .from('interests')
+      .update({ status: 'SELECTED' })
+      .eq('job_id', jobId)
+      .eq('user_id', userId)
+
+    // Update job status
+    await supabase
+      .from('jobs')
+      .update({ status: 'AWARDED' })
+      .eq('id', jobId)
+
+    // Refresh
+    loadNotifications()
+    router.push(`/messages?job=${jobId}&user=${userId}`)
+  }
+
+  const handleDeclineFromMessages = async (jobId: string, userId: string) => {
+    await supabase
+      .from('interests')
+      .update({ status: 'DECLINED' })
+      .eq('job_id', jobId)
+      .eq('user_id', userId)
+
+    loadNotifications()
+  }
+
   if (loading) {
     return <div className="flex-1 flex items-center justify-center">Loading...</div>
   }
@@ -332,13 +361,26 @@ function MessagesContent() {
                       >
                         View Profile
                       </Link>
-                      <Link 
-                        href={`/messages?job=${notif.job_id}&user=${notif.from_user_id}`}
-                        onClick={e => e.stopPropagation()}
-                        className="text-xs text-blue-600 hover:underline"
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          handleAcceptFromMessages(notif.job_id, notif.from_user_id)
+                        }}
+                        className="text-xs text-green-600 hover:underline"
                       >
-                        Message
-                      </Link>
+                        Accept
+                      </button>
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          handleDeclineFromMessages(notif.job_id, notif.from_user_id)
+                        }}
+                        className="text-xs text-red-600 hover:underline"
+                      >
+                        Decline
+                      </button>
                     </div>
                   </Link>
                 ))}
