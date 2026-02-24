@@ -268,8 +268,6 @@ function MessagesContent() {
     }
   }
 
-  const getNotificationCount = () => notifications.filter(n => !declinedIds.includes(`${n.job_id}-${n.from_user_id}`)).length
-
   // Categorize notifications
   const interestsList = notifications.filter(n => !n.status || n.status === 'INTERESTED')
   const acceptedList = notifications.filter(n => n.status === 'SELECTED')
