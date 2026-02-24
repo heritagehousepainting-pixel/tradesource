@@ -224,9 +224,12 @@ export default function JobDetail() {
                     <div key={interest.id} className="border rounded-lg p-4">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="font-medium">
+                          <Link 
+                            href={`/contractor/${interest.user_id}`}
+                            className="font-medium hover:underline"
+                          >
                             {interest.users?.first_name} {interest.users?.last_name}
-                          </p>
+                          </Link>
                           <p className="text-sm text-slate-500">
                             {interest.users?.company_name || 'Individual'} • {interest.users?.trade_type}
                           </p>
@@ -239,8 +242,13 @@ export default function JobDetail() {
                         </button>
                       </div>
                       {interest.message && (
-                        <p className="text-sm text-slate-600 mt-2">"{interest.message}"</p>
+                        <div className="mt-3 p-3 bg-slate-50 rounded">
+                          <p className="text-sm text-slate-600 italic">"{interest.message}"</p>
+                        </div>
                       )}
+                      <p className="text-xs text-slate-400 mt-2">
+                        Click name to view profile & reviews
+                      </p>
                     </div>
                   ))}
                 </div>
