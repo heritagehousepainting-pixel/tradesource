@@ -1,11 +1,11 @@
-export const dynamic = 'force-dynamic'
-
 'use client'
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+
+export const dynamic = 'force-dynamic'
 
 export default function PostJob() {
   const router = useRouter()
