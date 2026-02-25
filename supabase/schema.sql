@@ -27,6 +27,8 @@ create table users (
   jobs_completed integer default 0,
   verification_status text default 'PENDING',
   verification_notes text,
+  external_reviews text,  -- JSON array of review links
+  portfolio_urls text[],   -- Array of portfolio image URLs
   subscription_tier text check (subscription_tier in ('BASIC', 'PRO', 'PREMIUM')) default 'BASIC',
   subscription_status text check (subscription_status in ('ACTIVE', 'PAST_DUE', 'SUSPENDED', 'CANCELLED')) default 'ACTIVE',
   availability boolean default false,

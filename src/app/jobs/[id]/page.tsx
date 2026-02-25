@@ -295,12 +295,20 @@ export default function JobDetail() {
                           </div>
                         )}
                         {interest.status === 'SELECTED' && (
-                          <button
-                            onClick={() => handleStartChat(interest)}
-                            className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm"
-                          >
-                            Message
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleStartChat(interest)}
+                              className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm"
+                            >
+                              Message
+                            </button>
+                            <button
+                              onClick={() => {/* TODO: Mark complete and prompt review */}}
+                              className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
+                            >
+                              Mark Complete
+                            </button>
+                          </div>
                         )}
                       </div>
                       {interest.message && (

@@ -28,6 +28,8 @@ interface UserProfile {
   background_check_status: string
   years_experience: number
   profile_photo_url: string
+  external_reviews: string
+  portfolio_urls: string[]
   review_count: number
   avg_rating: number
   jobs_completed: number
@@ -492,6 +494,66 @@ export default function Profile() {
             </div>
           )}
         </div>
+
+        {/* Portfolio Section for Contractors */}
+        {isContractor && (
+          <div className="border rounded-xl p-6 mt-6">
+            <h2 className="text-xl font-bold mb-4">Portfolio</h2>
+            <p className="text-sm mb-4 opacity-70">Showcase your best work to homeowners.</p>
+            
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              {profile?.portfolio_urls && profile.portfolio_urls.length > 0 ? (
+                profile.portfolio_urls.map((url, i) => (
+                  <div key={i} className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                    <img src={url} alt="Portfolio" className="w-full h-full object-cover" />
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-3 text-center py-8 border-2 border-dashed rounded-lg">
+                  <p className="opacity-70">No portfolio images yet</p>
+                </div>
+              )}
+            </div>
+            
+            <button className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm">
+              Add Portfolio Images
+            </button>
+          </div>
+        )}
+
+        {/* External Reviews Section for Contractors */}
+        {isContractor && (
+          <div className="border rounded-xl p-6 mt-6">
+            <h2 className="text-xl font-bold mb-4">External Reviews</h2>
+            <p className="text-sm mb-4 opacity-70">Add links to your reviews on other platforms.</p>
+            
+            {profile?.external_reviews ? (
+              <div className="space-y-2">
+                {JSON.parse(profile.external_reviews).map((review: any, i: number) => (
+                  <a 
+                    key={i} 
+                    href={review.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 p-3 border rounded-lg hover:bg-gray-50"
+                  >
+                    <span className="text-lg">
+                      {review.platform === 'google' ? '🔍' : review.platform === 'yelp' ? '⭐' : '📘'}
+                    </span>
+                    <span className="font-medium">{review.platform}</span>
+                    <span className="text-sm opacity-70">→</span>
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <p className="opacity-70">No external reviews added yet.</p>
+            )}
+            
+            <button className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm mt-4">
+              Add Review Link
+            </button>
+          </div>
+        )}
       </main>
     </div>
   )

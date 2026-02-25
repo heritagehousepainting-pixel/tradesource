@@ -16,6 +16,7 @@ interface Contractor {
   company_name: string
   phone: string
   trade_type: string
+  service_counties: string[]
   is_verified: boolean
   is_insured: boolean
   is_background_checked: boolean
@@ -24,6 +25,8 @@ interface Contractor {
   avg_rating: number
   review_count: number
   bio: string
+  external_reviews: string
+  portfolio_urls: string[]
   created_at: string
 }
 
@@ -157,6 +160,69 @@ export default function ContractorProfile() {
               <p className="text-black">{contractor.bio}</p>
             </div>
           )}
+
+          {/* Service Area */}
+          {contractor.service_counties && contractor.service_counties.length > 0 && (
+            <div className="mb-4">
+              <h3 className="font-medium mb-2">Service Area</h3>
+              <div className="flex flex-wrap gap-2">
+                {contractor.service_counties.map((county, i) => (
+                  <span key={i} className="bg-gray-100 px-3 py-1 rounded-full text-sm">{county}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* External Reviews */}
+          {contractor.external_reviews && (
+            <div className="mb-4">
+              <h3 className="font-medium mb-2">Reviews</h3>
+              <div className="space-y-2">
+                {JSON.parse(contractor.external_reviews).map((review: any, i: number) => (
+                  <a 
+                    key={i} 
+                    href={review.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50"
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>{review.platform === 'google' ? '🔍' : review.platform === 'yelp' ? '⭐' : '📘'}</span>
+                      <span className="capitalize">{review.platform}</span>
+                    </span>
+                    <span>View →</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Portfolio */}
+        {contractor.portfolio_urls && contractor.portfolio_urls.length > 0 && (
+          <div className="border rounded-xl p-6 mb-6">
+            <h2 className="text-xl font-semibold mb-4">Portfolio</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {contractor.portfolio_urls.slice(0, 6).map((url, i) => (
+                <div key={i} className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                  <img src={url} alt="Portfolio" className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex gap-4">
+          <Link 
+            href={`/messages?contractor=${contractor.id}`}
+            className="flex-1 bg-slate-900 text-white py-3 rounded-lg text-center font-medium"
+          >
+            Message
+          </Link>
+          <button className="flex-1 bg-green-600 text-white py-3 rounded-lg font-medium">
+            Hire Now
+          </button>
         </div>
 
         {/* Reviews */}
