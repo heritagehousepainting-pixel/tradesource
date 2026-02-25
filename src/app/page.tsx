@@ -8,11 +8,11 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-slate-900">TradeSource</h1>
           <nav className="flex gap-6 items-center">
-            <Link href="/signin" className="text-slate-600 hover:text-slate-900">Sign In</Link>
+            <Link href="/signin" className="text-black hover:text-slate-900">Sign In</Link>
             <Link href="/contractor/signup" className="bg-slate-900 text-white px-4 py-2 rounded-lg hover:bg-slate-800">
               Contractor Sign Up
             </Link>
-            <Link href="/homeowner/signup" className="text-slate-600 hover:text-slate-900">
+            <Link href="/homeowner/signup" className="text-black hover:text-slate-900">
               Homeowner? Post Free
             </Link>
           </nav>
@@ -25,7 +25,7 @@ export default function Home() {
           <h2 className="text-4xl font-bold text-slate-900 mb-4">
             The Job Exchange for Construction Trades
           </h2>
-          <p className="text-xl text-slate-600 mb-8">
+          <p className="text-xl text-black mb-8">
             A private network for verified contractors to share overflow work, 
             find reliable subs, and grow your business.
           </p>
@@ -48,17 +48,17 @@ export default function Home() {
             <div className="text-center p-6">
               <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">1</div>
               <h4 className="font-semibold mb-2">Request Access</h4>
-              <p className="text-slate-600">Contractors apply and get verified. Homeowners sign up free.</p>
+              <p className="text-black">Contractors apply and get verified. Homeowners sign up free.</p>
             </div>
             <div className="text-center p-6">
               <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">2</div>
               <h4 className="font-semibold mb-2">Post or Browse Jobs</h4>
-              <p className="text-slate-600">Post overflow work or find jobs in your trade and area.</p>
+              <p className="text-black">Post overflow work or find jobs in your trade and area.</p>
             </div>
             <div className="text-center p-6">
               <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-xl font-bold">3</div>
               <h4 className="font-semibold mb-2">Connect & Get Work</h4>
-              <p className="text-slate-600">Express interest, chat, and complete the job. Leave reviews.</p>
+              <p className="text-black">Express interest, chat, and complete the job. Leave reviews.</p>
             </div>
           </div>
         </div>
@@ -93,7 +93,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="py-8 border-t">
-        <div className="max-w-6xl mx-auto px-4 text-center text-slate-500">
+        <div className="max-w-6xl mx-auto px-4 text-center text-black">
           <p>© 2026 TradeSource. The job exchange for construction trades.</p>
         </div>
       </footer>
