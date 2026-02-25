@@ -329,11 +329,20 @@ function MessagesContent() {
 
   const getNotificationCount = () => interestsList.length
 
+  // Deduplicate acceptedList by job_id
+  const acceptedMap = new Map<string, any>()
+  acceptedList.forEach(a => {
+    if (!acceptedMap.has(a.job_id)) {
+      acceptedMap.set(a.job_id, a)
+    }
+  })
+  const uniqueAccepted = Array.from(acceptedMap.values())
+
   // Combine accepted + conversations for "Chats" (deduplicated by job_id)
   const chatMap = new Map<string, any>()
   
   // Add accepted jobs first
-  acceptedList.forEach(a => {
+  uniqueAccepted.forEach(a => {
     chatMap.set(a.job_id, {
       job_id: a.job_id,
       job_title: a.job_title,
