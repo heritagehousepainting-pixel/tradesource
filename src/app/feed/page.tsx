@@ -125,8 +125,8 @@ export default function Feed() {
           <Link href="/" className="text-xl font-bold">TradeSource</Link>
           <nav className="flex gap-4 items-center text-sm">
             <Link href="/feed" className="font-medium">Feed</Link>
-            <Link href="/jobs/post" className="text-slate-600 hover:text-slate-900">Post</Link>
-            <Link href="/messages" className="text-slate-600 hover:text-slate-900 relative">
+            <Link href="/jobs/post" className="text-black hover:text-slate-900">Post</Link>
+            <Link href="/messages" className="text-black hover:text-slate-900 relative">
               Messages
               {notificationCount > 0 && (
                 <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -137,8 +137,8 @@ export default function Feed() {
             {isAdmin && (
               <Link href="/admin" className="text-green-600 hover:text-green-700 font-medium">Admin</Link>
             )}
-            <Link href="/profile" className="text-slate-600 hover:text-slate-900">Profile</Link>
-            <button onClick={handleSignOut} className="text-slate-600 hover:text-slate-900">Sign out</button>
+            <Link href="/profile" className="text-black hover:text-slate-900">Profile</Link>
+            <button onClick={handleSignOut} className="text-black hover:text-slate-900">Sign out</button>
           </nav>
         </div>
       </header>
@@ -185,9 +185,9 @@ export default function Feed() {
 
         {/* Jobs List */}
         {loading ? (
-          <div className="text-center py-12 text-slate-500">Loading...</div>
+          <div className="text-center py-12 text-black">Loading...</div>
         ) : filteredJobs.length === 0 ? (
-          <div className="text-center py-12 text-slate-500">
+          <div className="text-center py-12 text-black">
             No jobs found. Be the first to post!
           </div>
         ) : (
@@ -206,8 +206,8 @@ export default function Feed() {
                       ${job.price_amount?.toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-slate-600 text-sm mb-2 line-clamp-2">{job.description}</p>
-                  <div className="flex gap-4 text-sm text-slate-500">
+                  <p className="text-black text-sm mb-2 line-clamp-2">{job.description}</p>
+                  <div className="flex gap-4 text-sm text-black">
                     <span>📍 {job.county}</span>
                     <span>🏠 {job.work_category}</span>
                     <span>💰 {job.price_type}</span>
