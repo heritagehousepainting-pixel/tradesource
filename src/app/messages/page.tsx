@@ -165,7 +165,7 @@ function MessagesContent() {
           id: interest.id,
           type: 'my_response' as const,
           job_id: interest.job_id,
-          job_title: interest.jobs?.title || 'Job',
+          job_title: interest.jobs?.[0]?.title || 'Job',
           from_user_id: interest.posted_by,
           from_name: interest.status === 'SELECTED' ? '✓ You were accepted!' : '✗ You were declined',
           from_company: interest.status === 'SELECTED' ? 'Start chatting now' : 'Job not awarded',
@@ -256,8 +256,8 @@ function MessagesContent() {
 
           convos.push({
             job_id: accepted.job_id,
-            job_title: accepted.jobs?.title || 'Job',
-            other_user_id: accepted.jobs?.posted_by || '',
+            job_title: accepted.jobs?.[0]?.title || 'Job',
+            other_user_id: accepted.jobs?.[0]?.posted_by || '',
             other_user_name: 'Poster',
             last_message: 'Click to start chatting',
             last_message_at: new Date().toISOString()
