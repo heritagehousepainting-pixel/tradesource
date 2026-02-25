@@ -639,12 +639,12 @@ function MessagesContent() {
 export default function Messages() {
   return (
     <div className="min-h-screen bg-white">
-      <header className="border-b">
+      <header className="border-b bg-white">
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold">TradeSource</Link>
+          <Link href="/" className="text-xl font-bold text-slate-900">TradeSource</Link>
         </div>
       </header>
-      <Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
+      <Suspense fallback={<div className="p-8 text-center text-slate-900">Loading...</div>}>
         <MessagesContent />
       </Suspense>
     </div>
