@@ -160,22 +160,8 @@ function MessagesContent() {
         .in('status', ['SELECTED', 'DECLINED'])
         .order('created_at', { ascending: false })
 
-      if (myInterests && myInterests.length > 0) {
-        const myNotifications: Notification[] = myInterests.map(interest => ({
-          id: interest.id,
-          type: 'my_response' as const,
-          job_id: interest.job_id,
-          job_title: interest.jobs?.[0]?.title || 'Job',
-          from_user_id: interest.posted_by,
-          from_name: interest.status === 'SELECTED' ? '✓ You were accepted!' : '✗ You were declined',
-          from_company: interest.status === 'SELECTED' ? 'Start chatting now' : 'Job not awarded',
-          message: '',
-          created_at: interest.created_at,
-          read: false,
-          status: 'NOTIFIED'  // Don't use SELECTED/DECLINED to avoid duplicates in tabs
-        }))
-        notifications = [...notifications, ...myNotifications]
-      }
+      // Skip myInterests section - causing duplicates in poster's view
+      // This section was for subs to see if they were accepted, but causing issues
 
       setNotifications(notifications)
     } catch (err) {
