@@ -128,6 +128,7 @@ export default function ContractorProfile() {
             {contractor.is_insured && (
               <span className="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-medium">🛡️ Insured</span>
             )}
+            <span className="bg-orange-100 text-orange-700 text-xs px-3 py-1 rounded-full font-medium">📋 W-9</span>
             {contractor.external_reviews && (
               <span className="bg-yellow-100 text-yellow-700 text-xs px-3 py-1 rounded-full font-medium">⭐ External Reviews</span>
             )}

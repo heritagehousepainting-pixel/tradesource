@@ -42,15 +42,17 @@ interface UserProfile {
 }
 
 // Badge component
-function Badge({ type, label, verified }: { type: 'verified' | 'insured' | 'reviews'; label: string; verified: boolean }) {
+function Badge({ type, label, verified }: { type: 'verified' | 'insured' | 'tax' | 'reviews'; label: string; verified: boolean }) {
   const colors = {
     verified: 'bg-blue-100 text-blue-700 border-blue-300',
     insured: 'bg-green-100 text-green-700 border-green-300',
+    tax: 'bg-orange-100 text-orange-700 border-orange-300',
     reviews: 'bg-yellow-100 text-yellow-700 border-yellow-300',
   }
   const icons = {
     verified: '✓',
     insured: '🛡️',
+    tax: '📋',
     reviews: '⭐',
   }
 
@@ -110,6 +112,15 @@ function VerificationSection({ profile, onUpdate }: { profile: UserProfile; onUp
       color: 'green',
       verified: profile.is_insured,
       action: 'Upload COI',
+    },
+    {
+      key: 'tax',
+      title: 'W-9 Form',
+      description: 'IRS W-9 tax form',
+      icon: '📋',
+      color: 'orange',
+      verified: false, // TODO: add field
+      action: 'Upload W-9',
     },
     {
       key: 'reviews',
@@ -317,9 +328,10 @@ export default function Profile() {
             </div>
 
             {/* Verification Badges */}
-            <div className="grid grid-cols-3 gap-3 mb-6">
+            <div className="grid grid-cols-4 gap-3 mb-6">
               <Badge type="verified" label="Verified" verified={profile.is_verified || false} />
               <Badge type="insured" label="Insured" verified={profile.is_insured || false} />
+              <Badge type="tax" label="W-9" verified={false} />
               <Badge type="reviews" label="Reviews" verified={!!profile.external_reviews} />
             </div>
 
