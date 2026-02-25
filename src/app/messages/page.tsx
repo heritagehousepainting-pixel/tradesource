@@ -398,9 +398,9 @@ function MessagesContent() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-white">
+    <div className="flex h-[calc(100vh-64px)] bg-white text-slate-900">
       {/* Sidebar */}
-      <div className="w-1/3 border-r overflow-y-auto bg-white">
+      <div className="w-1/3 border-r overflow-y-auto bg-white text-slate-900">
         <div className="p-4 border-b">
           <h1 className="text-xl font-bold">Messages</h1>
         </div>
