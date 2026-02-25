@@ -19,7 +19,6 @@ interface Contractor {
   service_counties: string[]
   is_verified: boolean
   is_insured: boolean
-  is_background_checked: boolean
   years_experience: number
   jobs_completed: number
   avg_rating: number
@@ -129,8 +128,8 @@ export default function ContractorProfile() {
             {contractor.is_insured && (
               <span className="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-medium">🛡️ Insured</span>
             )}
-            {contractor.is_background_checked && (
-              <span className="bg-purple-100 text-purple-700 text-xs px-3 py-1 rounded-full font-medium">🔍 Background Checked</span>
+            {contractor.external_reviews && (
+              <span className="bg-yellow-100 text-yellow-700 text-xs px-3 py-1 rounded-full font-medium">⭐ External Reviews</span>
             )}
           </div>
 

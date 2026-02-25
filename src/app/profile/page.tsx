@@ -42,16 +42,16 @@ interface UserProfile {
 }
 
 // Badge component
-function Badge({ type, label, verified }: { type: 'verified' | 'insured' | 'background'; label: string; verified: boolean }) {
+function Badge({ type, label, verified }: { type: 'verified' | 'insured' | 'reviews'; label: string; verified: boolean }) {
   const colors = {
     verified: 'bg-blue-100 text-blue-700 border-blue-300',
     insured: 'bg-green-100 text-green-700 border-green-300',
-    background: 'bg-purple-100 text-purple-700 border-purple-300',
+    reviews: 'bg-yellow-100 text-yellow-700 border-yellow-300',
   }
   const icons = {
     verified: '✓',
     insured: '🛡️',
-    background: '🔍',
+    reviews: '⭐',
   }
 
   return (
@@ -96,7 +96,7 @@ function VerificationSection({ profile, onUpdate }: { profile: UserProfile; onUp
     {
       key: 'verified',
       title: 'Verified',
-      description: "Driver's license + PA HIC license or business registration",
+      description: "Driver's license + PA HIC license",
       icon: '✓',
       color: 'blue',
       verified: profile.is_verified,
@@ -105,20 +105,20 @@ function VerificationSection({ profile, onUpdate }: { profile: UserProfile; onUp
     {
       key: 'insured',
       title: 'Insured',
-      description: 'Certificate of Insurance ($1M+ liability)',
+      description: 'Certificate of Insurance + Workers Comp',
       icon: '🛡️',
       color: 'green',
       verified: profile.is_insured,
       action: 'Upload COI',
     },
     {
-      key: 'background',
-      title: 'Background Check',
-      description: 'Authorize background check',
-      icon: '🔍',
-      color: 'purple',
-      verified: profile.is_background_checked,
-      action: 'Authorize',
+      key: 'reviews',
+      title: 'External Reviews',
+      description: 'Google, Yelp, or Facebook reviews',
+      icon: '⭐',
+      color: 'yellow',
+      verified: !!profile.external_reviews,
+      action: 'Add Reviews',
     },
   ]
 
@@ -320,7 +320,7 @@ export default function Profile() {
             <div className="grid grid-cols-3 gap-3 mb-6">
               <Badge type="verified" label="Verified" verified={profile.is_verified || false} />
               <Badge type="insured" label="Insured" verified={profile.is_insured || false} />
-              <Badge type="background" label="Background" verified={profile.is_background_checked || false} />
+              <Badge type="reviews" label="Reviews" verified={!!profile.external_reviews} />
             </div>
 
             {/* Verification Section */}
