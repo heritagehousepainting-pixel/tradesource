@@ -152,11 +152,11 @@ function MessagesContent() {
         }
       }
 
-      // ALSO get notifications where user was interested and got accepted/declined
+      // Get notifications where user was interested and got accepted/declined (ONLY if user is the sub, not the poster)
       const { data: myInterests } = await supabase
         .from('interests')
-        .select('*, jobs(title)')
-        .eq('user_id', user.id)
+        .select('*, jobs(title, posted_by)')
+        .eq('user_id', user.id)  // User is the sub who applied
         .in('status', ['SELECTED', 'DECLINED'])
         .order('created_at', { ascending: false })
 
