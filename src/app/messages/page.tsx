@@ -100,7 +100,7 @@ function MessagesContent() {
 
   const loadData = async () => {
     try {
-      await Promise.all([loadNotifications(), loadConversations()])
+      await Promise.all([loadNotifications(), loadConversations(), loadMessageNotifications()])
     } catch (err) {
       console.error('Load data error:', err)
     }
@@ -166,6 +166,40 @@ function MessagesContent() {
       setNotifications(notifications)
     } catch (err) {
       console.error('Load notifications error:', err)
+    }
+  }
+
+  // Load message notifications
+  const loadMessageNotifications = async () => {
+    try {
+      const { data: msgNotifs } = await supabase
+        .from('message_notifications')
+        .select('*, from_user:users(first_name, last_name), job:jobs(title)')
+        .eq('user_id', user.id)
+        .eq('is_read', false)
+        .order('created_at', { ascending: false })
+        .limit(10)
+
+      if (msgNotifs && msgNotifs.length > 0) {
+        // Add to notifications state
+        const newNotifs: Notification[] = msgNotifs.map(n => ({
+          id: n.id,
+          type: 'message' as const,
+          job_id: n.job_id,
+          job_title: n.job?.title || 'Job',
+          from_user_id: n.from_user_id,
+          from_name: `${n.from_user?.first_name || ''} ${n.from_user?.last_name || ''}`.trim(),
+          from_company: 'New message',
+          message: n.message || '',
+          created_at: n.created_at,
+          read: n.is_read,
+          status: 'MESSAGE'
+        }))
+        
+        setNotifications(prev => [...newNotifs, ...prev])
+      }
+    } catch (err) {
+      console.error('Load message notifications error:', err)
     }
   }
 
@@ -290,6 +324,16 @@ function MessagesContent() {
       receiver_id: otherUserId,
       message_text: newMessage,
     })
+
+    // Also create a notification for the receiver
+    if (!error) {
+      await supabase.from('message_notifications').insert({
+        user_id: otherUserId,
+        from_user_id: user.id,
+        job_id: jobId,
+        message: newMessage.substring(0, 100),
+      })
+    }
 
     if (!error) {
       setNewMessage('')

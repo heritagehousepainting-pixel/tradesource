@@ -122,3 +122,19 @@ create policy "View reviews" on reviews for select using (
   reviewer_id = auth.uid() or reviewed_id = auth.uid()
 );
 create policy "Create reviews" on reviews for insert with check (auth.uid() = reviewer_id);
+
+-- Message notifications table
+create table message_notifications (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references users(id) not null,
+  from_user_id uuid references users(id) not null,
+  job_id uuid references jobs(id),
+  message text,
+  is_read boolean default false,
+  created_at timestamptz default now()
+);
+
+alter table message_notifications enable row level security;
+
+create policy "Users can view own notifications" on message_notifications for select 
+  using (auth.uid() = user_id);
