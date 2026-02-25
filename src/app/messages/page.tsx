@@ -49,7 +49,7 @@ function MessagesContent() {
   const [sending, setSending] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState<'interests' | 'accepted' | 'declined'>('interests')
+  const [activeTab, setActiveTab] = useState<'interests' | 'accepted' | 'declined' | 'applications'>('interests')
   const [showAcceptSuccess, setShowAcceptSuccess] = useState(false)
   const [currentJobId, setCurrentJobId] = useState<string | null>(null)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
@@ -185,53 +185,84 @@ function MessagesContent() {
 
   const loadConversations = async () => {
     try {
+      // Get all messages where user is sender or receiver
       const { data: allMessages } = await supabase
         .from('messages')
         .select('job_id, sender_id, receiver_id, created_at')
         .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
         .order('created_at', { ascending: false })
 
-      if (!allMessages) return
+      // Also get jobs where user was accepted (SELECTED)
+      const { data: acceptedJobs } = await supabase
+        .from('interests')
+        .select('job_id, jobs(title, posted_by)')
+        .eq('user_id', user.id)
+        .eq('status', 'SELECTED')
 
-      const uniqueJobs = [...new Set(allMessages.map(m => m.job_id))]
       const convos: Conversation[] = []
-      
-      for (const jobId of uniqueJobs.slice(0, 10)) {
-        const jobMessages = allMessages.filter(m => m.job_id === jobId)
-        const lastMsg = jobMessages[0]
-        
-        const { data: jobData } = await supabase
-          .from('jobs')
-          .select('title')
-          .eq('id', jobId)
-          .single()
-        
-        if (!jobData) continue
+      const processedJobIds = new Set<string>()
 
-        const otherUserId = lastMsg.sender_id === user.id ? lastMsg.receiver_id : lastMsg.sender_id
+      // Add jobs from messages
+      if (allMessages) {
+        const uniqueJobs = [...new Set(allMessages.map(m => m.job_id))]
         
-        const { data: userData } = await supabase
-          .from('users')
-          .select('first_name, last_name')
-          .eq('id', otherUserId)
-          .single()
+        for (const jobId of uniqueJobs.slice(0, 10)) {
+          if (processedJobIds.has(jobId)) continue
+          processedJobIds.add(jobId)
 
-        const { data: lastMsgText } = await supabase
-          .from('messages')
-          .select('message_text')
-          .eq('job_id', jobId)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single()
+          const jobMessages = allMessages.filter(m => m.job_id === jobId)
+          const lastMsg = jobMessages[0]
+          
+          const { data: jobData } = await supabase
+            .from('jobs')
+            .select('title, posted_by')
+            .eq('id', jobId)
+            .single()
+          
+          if (!jobData) continue
 
-        convos.push({
-          job_id: jobId,
-          job_title: jobData.title,
-          other_user_id: otherUserId,
-          other_user_name: userData ? `${userData.first_name} ${userData.last_name}` : 'Unknown',
-          last_message: lastMsgText?.message_text || '',
-          last_message_at: lastMsg.created_at
-        })
+          const otherUserId = lastMsg.sender_id === user.id ? lastMsg.receiver_id : lastMsg.sender_id
+          
+          const { data: userData } = await supabase
+            .from('users')
+            .select('first_name, last_name')
+            .eq('id', otherUserId)
+            .single()
+
+          const { data: lastMsgText } = await supabase
+            .from('messages')
+            .select('message_text')
+            .eq('job_id', jobId)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single()
+
+          convos.push({
+            job_id: jobId,
+            job_title: jobData.title,
+            other_user_id: otherUserId,
+            other_user_name: userData ? `${userData.first_name} ${userData.last_name}` : 'Unknown',
+            last_message: lastMsgText?.message_text || '',
+            last_message_at: lastMsg.created_at
+          })
+        }
+      }
+
+      // Add jobs where user was accepted but no messages yet
+      if (acceptedJobs) {
+        for (const accepted of acceptedJobs) {
+          if (processedJobIds.has(accepted.job_id)) continue
+          processedJobIds.add(accepted.job_id)
+
+          convos.push({
+            job_id: accepted.job_id,
+            job_title: accepted.jobs?.title || 'Job',
+            other_user_id: accepted.jobs?.posted_by || '',
+            other_user_name: 'Poster',
+            last_message: 'Click to start chatting',
+            last_message_at: new Date().toISOString()
+          })
+        }
       }
 
       convos.sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime())
@@ -375,10 +406,10 @@ function MessagesContent() {
         </div>
         
         {/* Tabs */}
-        <div className="flex border-b">
+        <div className="flex border-b overflow-x-auto">
           <button
             onClick={() => setActiveTab('interests')}
-            className={`flex-1 p-3 text-center font-medium ${
+            className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
               activeTab === 'interests' 
                 ? 'border-b-2 border-slate-900 text-slate-900' 
                 : 'text-slate-500'
@@ -388,7 +419,7 @@ function MessagesContent() {
           </button>
           <button
             onClick={() => setActiveTab('accepted')}
-            className={`flex-1 p-3 text-center font-medium ${
+            className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
               activeTab === 'accepted' 
                 ? 'border-b-2 border-slate-900 text-slate-900' 
                 : 'text-slate-500'
@@ -398,13 +429,23 @@ function MessagesContent() {
           </button>
           <button
             onClick={() => setActiveTab('declined')}
-            className={`flex-1 p-3 text-center font-medium ${
+            className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
               activeTab === 'declined' 
                 ? 'border-b-2 border-slate-900 text-slate-900' 
                 : 'text-slate-500'
             }`}
           >
             Declined ({declinedList.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('applications')}
+            className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
+              activeTab === 'applications' 
+                ? 'border-b-2 border-slate-900 text-slate-900' 
+                : 'text-slate-500'
+            }`}
+          >
+            My Apps
           </button>
         </div>
 
@@ -524,6 +565,15 @@ function MessagesContent() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* My Applications Tab - for subs to see their applications */}
+        {activeTab === 'applications' && (
+          <div>
+            <div className="p-4 text-slate-500 text-center">
+              My Applications - coming soon!
+            </div>
           </div>
         )}
       </div>
