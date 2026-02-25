@@ -122,11 +122,11 @@ export default function Feed() {
       {/* Header */}
       <header className="border-b sticky top-0 bg-white z-10">
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold">TradeSource</Link>
+          <Link href="/" className="text-xl font-bold text-black">TradeSource</Link>
           <nav className="flex gap-4 items-center text-sm">
-            <Link href="/feed" className="font-medium">Feed</Link>
-            <Link href="/jobs/post" className="text-black hover:text-slate-900">Post</Link>
-            <Link href="/messages" className="text-black hover:text-slate-900 relative">
+            <Link href="/feed" className="font-medium text-black">Feed</Link>
+            <Link href="/jobs/post" className="text-black">Post</Link>
+            <Link href="/messages" className="text-black relative">
               Messages
               {notificationCount > 0 && (
                 <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -135,18 +135,18 @@ export default function Feed() {
               )}
             </Link>
             {isAdmin && (
-              <Link href="/admin" className="text-green-600 hover:text-green-700 font-medium">Admin</Link>
+              <Link href="/admin" className="text-green-600 hover:text-green-700 font-medium text-black">Admin</Link>
             )}
-            <Link href="/profile" className="text-black hover:text-slate-900">Profile</Link>
-            <button onClick={handleSignOut} className="text-black hover:text-slate-900">Sign out</button>
+            <Link href="/profile" className="text-black">Profile</Link>
+            <button onClick={handleSignOut} className="text-black">Sign out</button>
           </nav>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Job Feed</h1>
-          <Link href="/jobs/post" className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium">
+          <h1 className="text-2xl font-bold text-black">Job Feed</h1>
+          <Link href="/jobs/post" className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium text-black">
             Post a Job
           </Link>
         </div>
@@ -206,7 +206,7 @@ export default function Feed() {
                       ${job.price_amount?.toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-black text-sm mb-2 line-clamp-2">{job.description}</p>
+                  <p className=" text-sm text-black mb-2 line-clamp-2">{job.description}</p>
                   <div className="flex gap-4 text-sm text-black">
                     <span>📍 {job.county}</span>
                     <span>🏠 {job.work_category}</span>
