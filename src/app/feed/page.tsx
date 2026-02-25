@@ -26,11 +26,15 @@ export default function Feed() {
   const [jobs, setJobs] = useState<Job[]>([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [userProfile, setUserProfile] = useState<any>(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [countyFilter, setCountyFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [notificationCount, setNotificationCount] = useState(0)
+
+  // Check if user is a contractor who needs verification
+  const isUnverifiedContractor = userProfile?.user_type === 'CONTRACTOR' && !userProfile?.is_verified
 
   useEffect(() => {
     checkUser()
@@ -43,15 +47,21 @@ export default function Feed() {
       return
     }
     setUser(user)
-    // Check if admin
+    
+    // Check if admin and get full profile
     const { data: userData } = await supabase
       .from('users')
-      .select('is_admin')
+      .select('*')
       .eq('id', user.id)
       .single()
-    if (userData?.is_admin || user.email?.includes('heritagehousepainting')) {
-      setIsAdmin(true)
+    
+    if (userData) {
+      setUserProfile(userData)
+      if (userData.is_admin || user.email?.includes('heritagehousepainting')) {
+        setIsAdmin(true)
+      }
     }
+    
     fetchJobs()
     fetchNotifications(user.id)
   }
@@ -144,11 +154,32 @@ export default function Feed() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-6">
+        {/* Verification Banner for Unverified Contractors */}
+        {isUnverifiedContractor && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-bold text-black">🔒 Verification Required</h3>
+                <p className="text-sm text-black">Complete verification to unlock full access - see prices and post jobs.</p>
+              </div>
+              <Link href="/profile" className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm">
+                Verify Now
+              </Link>
+            </div>
+          </div>
+        )}
+
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-black">Job Feed</h1>
-          <Link href="/jobs/post" className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium text-black">
-            Post a Job
-          </Link>
+          {isUnverifiedContractor ? (
+            <button disabled className="bg-gray-300 text-gray-500 px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed">
+              Post a Job (Verify First)
+            </button>
+          ) : (
+            <Link href="/jobs/post" className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium">
+              Post a Job
+            </Link>
+          )}
         </div>
 
         {/* Filters */}
@@ -202,8 +233,8 @@ export default function Feed() {
                       </span>
                       <h3 className="font-semibold mt-2">{job.title}</h3>
                     </div>
-                    <span className="text-lg font-bold text-green-700">
-                      ${job.price_amount?.toLocaleString()}
+                    <span className={`text-lg font-bold ${isUnverifiedContractor ? 'blur-sm select-none' : 'text-green-700'}`}>
+                      {isUnverifiedContractor ? '••••••' : `$${job.price_amount?.toLocaleString()}`}
                     </span>
                   </div>
                   <p className=" text-sm text-black mb-2 line-clamp-2">{job.description}</p>

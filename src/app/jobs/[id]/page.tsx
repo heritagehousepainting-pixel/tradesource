@@ -49,6 +49,7 @@ export default function JobDetail() {
   const [job, setJob] = useState<Job | null>(null)
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [userProfile, setUserProfile] = useState<any>(null)
   const [alreadyInterested, setAlreadyInterested] = useState(false)
   const [message, setMessage] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -68,6 +69,15 @@ export default function JobDetail() {
       return
     }
     setUser(user)
+    // Get user profile for verification check
+    const { data: profile } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+    if (profile) {
+      setUserProfile(profile)
+    }
     fetchJob()
   }
 
@@ -330,6 +340,19 @@ export default function JobDetail() {
           {!isPoster && !alreadyInterested && !submitted && (
             <div className="border-t pt-6">
               <h3 className="font-semibold mb-3">Express Interest</h3>
+              
+              {/* Verification Required for Contractors */}
+              {userProfile?.user_type === 'CONTRACTOR' && !userProfile?.is_verified && (
+                <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-4">
+                  <p className="text-black text-sm mb-2">
+                    🔒 <strong>Verification required</strong> to apply to jobs.
+                  </p>
+                  <Link href="/profile" className="text-blue-600 text-sm underline">
+                    Complete verification →
+                  </Link>
+                </div>
+              )}
+              
               {error && (
                 <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-3 text-sm">
                   {error}
@@ -341,11 +364,12 @@ export default function JobDetail() {
                 placeholder="Introduce yourself and explain why you're a good fit..."
                 value={message}
                 onChange={e => setMessage(e.target.value)}
+                disabled={userProfile?.user_type === 'CONTRACTOR' && !userProfile?.is_verified}
               />
               <button
                 onClick={handleInterested}
-                disabled={submitting}
-                className="w-full bg-slate-900 text-white py-3 rounded-lg font-medium hover:bg-slate-800 disabled:opacity-50"
+                disabled={submitting || (userProfile?.user_type === 'CONTRACTOR' && !userProfile?.is_verified)}
+                className="w-full bg-slate-900 text-white py-3 rounded-lg font-medium hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? 'Submitting...' : "I'm Interested"}
               </button>
