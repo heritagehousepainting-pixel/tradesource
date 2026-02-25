@@ -17,6 +17,12 @@ interface Contractor {
   phone: string
   trade_type: string
   is_verified: boolean
+  is_insured: boolean
+  is_background_checked: boolean
+  years_experience: number
+  jobs_completed: number
+  avg_rating: number
+  review_count: number
   bio: string
   created_at: string
 }
@@ -112,15 +118,36 @@ export default function ContractorProfile() {
             </div>
           </div>
 
+          {/* Verification Badges */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {contractor.is_verified && (
+              <span className="bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full font-medium">✓ Verified</span>
+            )}
+            {contractor.is_insured && (
+              <span className="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-medium">🛡️ Insured</span>
+            )}
+            {contractor.is_background_checked && (
+              <span className="bg-purple-100 text-purple-700 text-xs px-3 py-1 rounded-full font-medium">🔍 Background Checked</span>
+            )}
+          </div>
+
           {/* Stats */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-4 gap-2 mb-4">
             <div className="bg-slate-50 rounded-lg p-3 text-center">
-              <p className="text-2xl font-bold">{avgRating}</p>
-              <p className="text-sm text-black">⭐ Rating</p>
+              <p className="text-xl font-bold">{contractor.avg_rating || contractor.jobs_completed || 0}</p>
+              <p className="text-xs text-black">Rating</p>
             </div>
             <div className="bg-slate-50 rounded-lg p-3 text-center">
-              <p className="text-2xl font-bold">{reviews.length}</p>
-              <p className="text-sm text-black">Reviews</p>
+              <p className="text-xl font-bold">{contractor.review_count || reviews.length}</p>
+              <p className="text-xs text-black">Reviews</p>
+            </div>
+            <div className="bg-slate-50 rounded-lg p-3 text-center">
+              <p className="text-xl font-bold">{contractor.jobs_completed || 0}</p>
+              <p className="text-xs text-black">Jobs Done</p>
+            </div>
+            <div className="bg-slate-50 rounded-lg p-3 text-center">
+              <p className="text-xl font-bold">{contractor.years_experience || 0}</p>
+              <p className="text-xs text-black">Years</p>
             </div>
           </div>
 
