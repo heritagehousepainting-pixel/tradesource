@@ -6,13 +6,13 @@ export default function Home() {
       {/* Header */}
       <header className="border-b">
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-slate-900">TradeSource</h1>
+          <h1 className="text-2xl font-bold text-black900">TradeSource</h1>
           <nav className="flex gap-6 items-center">
-            <Link href="/signin" className="text-black hover:text-slate-900">Sign In</Link>
+            <Link href="/signin" className="text-black hover:text-black900">Sign In</Link>
             <Link href="/contractor/signup" className="bg-slate-900 text-white px-4 py-2 rounded-lg hover:bg-slate-800">
               Contractor Sign Up
             </Link>
-            <Link href="/homeowner/signup" className="text-black hover:text-slate-900">
+            <Link href="/homeowner/signup" className="text-black hover:text-black900">
               Homeowner? Post Free
             </Link>
           </nav>
@@ -22,7 +22,7 @@ export default function Home() {
       {/* Hero */}
       <section className="py-20 bg-slate-50">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold text-slate-900 mb-4">
+          <h2 className="text-4xl font-bold text-black900 mb-4">
             The Job Exchange for Construction Trades
           </h2>
           <p className="text-xl text-black mb-8">
@@ -33,7 +33,7 @@ export default function Home() {
             <Link href="/contractor/signup" className="bg-slate-900 text-white px-6 py-3 rounded-lg text-lg hover:bg-slate-800">
               Get Started
             </Link>
-            <Link href="/homeowner/signup" className="border-2 border-slate-900 text-slate-900 px-6 py-3 rounded-lg text-lg hover:bg-slate-50">
+            <Link href="/homeowner/signup" className="border-2 border-slate-900 text-black900 px-6 py-3 rounded-lg text-lg hover:bg-slate-50">
               Post a Project
             </Link>
           </div>
