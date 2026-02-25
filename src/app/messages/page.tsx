@@ -172,7 +172,7 @@ function MessagesContent() {
           message: '',
           created_at: interest.created_at,
           read: false,
-          status: interest.status
+          status: 'NOTIFIED'  // Don't use SELECTED/DECLINED to avoid duplicates in tabs
         }))
         notifications = [...notifications, ...myNotifications]
       }
