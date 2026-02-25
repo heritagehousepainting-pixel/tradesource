@@ -118,7 +118,7 @@ export default function Feed() {
   )
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white text-black">
       {/* Header */}
       <header className="border-b sticky top-0 bg-white z-10">
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
