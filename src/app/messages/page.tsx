@@ -329,15 +329,29 @@ function MessagesContent() {
 
   const getNotificationCount = () => interestsList.length
 
-  // Combine accepted + conversations for "Chats"
-  const allChats = [...acceptedList.map(a => ({
-    job_id: a.job_id,
-    job_title: a.job_title,
-    other_user_id: a.from_user_id,
-    other_user_name: a.from_name,
-    last_message: a.message,
-    last_message_at: a.created_at
-  })), ...conversations]
+  // Combine accepted + conversations for "Chats" (deduplicated by job_id)
+  const chatMap = new Map<string, any>()
+  
+  // Add accepted jobs first
+  acceptedList.forEach(a => {
+    chatMap.set(a.job_id, {
+      job_id: a.job_id,
+      job_title: a.job_title,
+      other_user_id: a.from_user_id,
+      other_user_name: a.from_name,
+      last_message: a.message,
+      last_message_at: a.created_at
+    })
+  })
+  
+  // Add conversations (only if not already in map)
+  conversations.forEach(c => {
+    if (!chatMap.has(c.job_id)) {
+      chatMap.set(c.job_id, c)
+    }
+  })
+  
+  const allChats = Array.from(chatMap.values())
 
   const handleAcceptFromMessages = async (jobId: string, userId: string, name: string) => {
     // Update interest status
