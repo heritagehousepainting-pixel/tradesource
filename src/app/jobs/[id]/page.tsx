@@ -227,18 +227,18 @@ export default function JobDetail() {
             </span>
           </div>
 
-          <div className="flex gap-4 text-sm text-slate-500 mb-4">
+          <div className="flex gap-4 text-sm text-black mb-4">
             <span>📍 {job.county}</span>
             <span>🏠 {job.work_category}</span>
             <span>💰 {job.price_type}</span>
             <span>📋 {job.job_type}</span>
           </div>
 
-          <p className="text-slate-600 mb-4">{job.description}</p>
+          <p className="text-black mb-4">{job.description}</p>
 
           {/* Posted by */}
           <div className="bg-slate-50 rounded-lg p-4 mb-6">
-            <p className="text-sm text-slate-500 mb-2">Posted by</p>
+            <p className="text-sm text-black mb-2">Posted by</p>
             <div className="flex items-center gap-2">
               <span className="font-medium">
                 {job.users?.company_name || 'Individual Contractor'}
@@ -255,7 +255,7 @@ export default function JobDetail() {
               <h3 className="font-semibold mb-4">Contractors Interested ({interests.length})</h3>
               
               {interests.length === 0 ? (
-                <p className="text-slate-500">No contractors have expressed interest yet.</p>
+                <p className="text-black">No contractors have expressed interest yet.</p>
               ) : (
                 <div className="space-y-3">
                   {interests.map(interest => (
@@ -268,7 +268,7 @@ export default function JobDetail() {
                           >
                             {interest.users?.first_name} {interest.users?.last_name}
                           </Link>
-                          <p className="text-sm text-slate-500">
+                          <p className="text-sm text-black">
                             {interest.users?.company_name || 'Individual'} • {interest.users?.trade_type}
                           </p>
                           {interest.status === 'SELECTED' && (
@@ -305,10 +305,10 @@ export default function JobDetail() {
                       </div>
                       {interest.message && (
                         <div className="mt-3 p-3 bg-slate-50 rounded">
-                          <p className="text-sm text-slate-600 italic">"{interest.message}"</p>
+                          <p className="text-sm text-black italic">"{interest.message}"</p>
                         </div>
                       )}
-                      <p className="text-xs text-slate-400 mt-2">
+                      <p className="text-xs text-black mt-2">
                         Click name to view profile & reviews
                       </p>
                     </div>

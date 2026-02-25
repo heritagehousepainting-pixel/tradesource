@@ -55,14 +55,14 @@ export default function HomeownerSignup() {
     <div className="min-h-screen bg-slate-50">
       <header className="bg-white border-b py-4">
         <div className="max-w-4xl mx-auto px-4">
-          <Link href="/" className="text-xl font-bold text-slate-900">TradeSource</Link>
+          <Link href="/" className="text-xl font-bold text-black">TradeSource</Link>
         </div>
       </header>
 
       <main className="max-w-md mx-auto px-4 py-12">
         <div className="bg-white rounded-xl p-8 shadow-sm">
           <h1 className="text-2xl font-bold mb-2">Post a Project Free</h1>
-          <p className="text-slate-600 mb-6">Connect with verified painters in your area.</p>
+          <p className="text-black mb-6">Connect with verified painters in your area.</p>
 
           {error && (
             <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">
@@ -126,8 +126,8 @@ export default function HomeownerSignup() {
             </button>
           </form>
 
-          <p className="mt-4 text-center text-sm text-slate-600">
-            Already have an account? <Link href="/signin" className="text-slate-900 underline">Sign in</Link>
+          <p className="mt-4 text-center text-sm text-black">
+            Already have an account? <Link href="/signin" className="text-black underline">Sign in</Link>
           </p>
         </div>
       </main>

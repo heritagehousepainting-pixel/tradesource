@@ -118,7 +118,7 @@ export default function AdminVerification() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-          <button onClick={handleSignOut} className="text-slate-600 underline">
+          <button onClick={handleSignOut} className="text-black underline">
             Sign out
           </button>
         </div>
@@ -149,7 +149,7 @@ export default function AdminVerification() {
           <nav className="flex gap-4 items-center text-sm">
             <Link href="/feed">Feed</Link>
             <Link href="/admin" className="font-medium">Verification</Link>
-            <button onClick={handleSignOut} className="text-slate-600 hover:text-slate-900">Sign out</button>
+            <button onClick={handleSignOut} className="text-black hover:text-black">Sign out</button>
           </nav>
         </div>
       </header>
@@ -163,8 +163,8 @@ export default function AdminVerification() {
             onClick={() => setActiveTab('pending')}
             className={`px-4 py-2 font-medium ${
               activeTab === 'pending' 
-                ? 'border-b-2 border-slate-900 text-slate-900' 
-                : 'text-slate-500'
+                ? 'border-b-2 border-slate-900 text-black' 
+                : 'text-black'
             }`}
           >
             Pending ({pending.length})
@@ -173,8 +173,8 @@ export default function AdminVerification() {
             onClick={() => setActiveTab('verified')}
             className={`px-4 py-2 font-medium ${
               activeTab === 'verified' 
-                ? 'border-b-2 border-slate-900 text-slate-900' 
-                : 'text-slate-500'
+                ? 'border-b-2 border-slate-900 text-black' 
+                : 'text-black'
             }`}
           >
             Verified ({verified.length})
@@ -183,8 +183,8 @@ export default function AdminVerification() {
             onClick={() => setActiveTab('rejected')}
             className={`px-4 py-2 font-medium ${
               activeTab === 'rejected' 
-                ? 'border-b-2 border-slate-900 text-slate-900' 
-                : 'text-slate-500'
+                ? 'border-b-2 border-slate-900 text-black' 
+                : 'text-black'
             }`}
           >
             Rejected ({rejected.length})
@@ -194,7 +194,7 @@ export default function AdminVerification() {
         {/* List */}
         {currentContractors.length === 0 ? (
           <div className="text-center py-8 bg-slate-50 rounded-xl">
-            <p className="text-slate-500">
+            <p className="text-black">
               {activeTab === 'pending' && 'No contractors pending verification.'}
               {activeTab === 'verified' && 'No verified contractors.'}
               {activeTab === 'rejected' && 'No rejected contractors.'}
@@ -208,9 +208,9 @@ export default function AdminVerification() {
                   <p className="font-semibold">
                     {contractor.first_name} {contractor.last_name}
                   </p>
-                  <p className="text-sm text-slate-500">{contractor.company_name || 'No company'}</p>
-                  <p className="text-sm text-slate-500">{contractor.email}</p>
-                  <p className="text-sm text-slate-500">{contractor.trade_type?.replace('_', ' ')}</p>
+                  <p className="text-sm text-black">{contractor.company_name || 'No company'}</p>
+                  <p className="text-sm text-black">{contractor.email}</p>
+                  <p className="text-sm text-black">{contractor.trade_type?.replace('_', ' ')}</p>
                 </div>
                 <div className="flex gap-2">
                   {activeTab === 'pending' && (

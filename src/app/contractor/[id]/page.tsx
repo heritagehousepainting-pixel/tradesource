@@ -107,8 +107,8 @@ export default function ContractorProfile() {
                   <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">✓ Verified</span>
                 )}
               </div>
-              <p className="text-slate-500">{contractor.company_name || 'Individual Contractor'}</p>
-              <p className="text-sm text-slate-500">{contractor.trade_type?.replace('_', ' ')}</p>
+              <p className="text-black">{contractor.company_name || 'Individual Contractor'}</p>
+              <p className="text-sm text-black">{contractor.trade_type?.replace('_', ' ')}</p>
             </div>
           </div>
 
@@ -116,18 +116,18 @@ export default function ContractorProfile() {
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="bg-slate-50 rounded-lg p-3 text-center">
               <p className="text-2xl font-bold">{avgRating}</p>
-              <p className="text-sm text-slate-500">⭐ Rating</p>
+              <p className="text-sm text-black">⭐ Rating</p>
             </div>
             <div className="bg-slate-50 rounded-lg p-3 text-center">
               <p className="text-2xl font-bold">{reviews.length}</p>
-              <p className="text-sm text-slate-500">Reviews</p>
+              <p className="text-sm text-black">Reviews</p>
             </div>
           </div>
 
           {contractor.bio && (
             <div className="mb-4">
               <h3 className="font-medium mb-2">About</h3>
-              <p className="text-slate-600">{contractor.bio}</p>
+              <p className="text-black">{contractor.bio}</p>
             </div>
           )}
         </div>
@@ -138,7 +138,7 @@ export default function ContractorProfile() {
           
           {reviews.length === 0 ? (
             <div className="text-center py-8 bg-slate-50 rounded-xl">
-              <p className="text-slate-500">No reviews yet.</p>
+              <p className="text-black">No reviews yet.</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -147,14 +147,14 @@ export default function ContractorProfile() {
                   <div className="flex items-center gap-2 mb-2">
                     <div className="flex">
                       {[...Array(5)].map((_, i) => (
-                        <span key={i} className={i < review.rating ? 'text-yellow-400' : 'text-slate-200'}>★</span>
+                        <span key={i} className={i < review.rating ? 'text-yellow-400' : 'text-black'}>★</span>
                       ))}
                     </div>
-                    <span className="text-sm text-slate-500">
+                    <span className="text-sm text-black">
                       {new Date(review.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  <p className="text-slate-600">{review.review_text}</p>
+                  <p className="text-black">{review.review_text}</p>
                 </div>
               ))}
             </div>

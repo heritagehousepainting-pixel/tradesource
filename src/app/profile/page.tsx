@@ -124,7 +124,7 @@ export default function Profile() {
             <Link href="/jobs/post">Post</Link>
             <Link href="/messages">Messages</Link>
             <Link href="/profile" className="font-medium">Profile</Link>
-            <button onClick={handleSignOut} className="text-slate-600 hover:text-slate-900">Sign out</button>
+            <button onClick={handleSignOut} className="text-black hover:text-black">Sign out</button>
           </nav>
         </div>
       </header>
@@ -135,7 +135,7 @@ export default function Profile() {
           {!editing && (
             <button
               onClick={() => setEditing(true)}
-              className="text-slate-600 hover:text-slate-900"
+              className="text-black hover:text-black"
             >
               Edit
             </button>
@@ -145,8 +145,8 @@ export default function Profile() {
         {/* Account Info */}
         <div className="bg-slate-50 rounded-xl p-4 mb-6">
           <h2 className="font-medium mb-2">Account</h2>
-          <p className="text-slate-600">{profile?.email}</p>
-          <p className="text-sm text-slate-500 capitalize">{profile?.user_type?.toLowerCase()}</p>
+          <p className="text-black">{profile?.email}</p>
+          <p className="text-sm text-black capitalize">{profile?.user_type?.toLowerCase()}</p>
         </div>
 
         {/* Profile Form */}
@@ -162,7 +162,7 @@ export default function Profile() {
                   onChange={e => setFormData({...formData, first_name: e.target.value})}
                 />
               ) : (
-                <p className="text-slate-600">{profile?.first_name || '-'}</p>
+                <p className="text-black">{profile?.first_name || '-'}</p>
               )}
             </div>
             <div>
@@ -175,7 +175,7 @@ export default function Profile() {
                   onChange={e => setFormData({...formData, last_name: e.target.value})}
                 />
               ) : (
-                <p className="text-slate-600">{profile?.last_name || '-'}</p>
+                <p className="text-black">{profile?.last_name || '-'}</p>
               )}
             </div>
           </div>
@@ -190,7 +190,7 @@ export default function Profile() {
                 onChange={e => setFormData({...formData, company_name: e.target.value})}
               />
             ) : (
-              <p className="text-slate-600">{profile?.company_name || '-'}</p>
+              <p className="text-black">{profile?.company_name || '-'}</p>
             )}
           </div>
 
@@ -204,7 +204,7 @@ export default function Profile() {
                 onChange={e => setFormData({...formData, phone: e.target.value})}
               />
             ) : (
-              <p className="text-slate-600">{profile?.phone || '-'}</p>
+              <p className="text-black">{profile?.phone || '-'}</p>
             )}
           </div>
 
@@ -220,7 +220,7 @@ export default function Profile() {
                 <option value="GENERAL_CONTRACTOR">General Contractor</option>
               </select>
             ) : (
-              <p className="text-slate-600">{profile?.trade_type?.replace('_', ' ') || '-'}</p>
+              <p className="text-black">{profile?.trade_type?.replace('_', ' ') || '-'}</p>
             )}
           </div>
 
@@ -234,7 +234,7 @@ export default function Profile() {
                 onChange={e => setFormData({...formData, bio: e.target.value})}
               />
             ) : (
-              <p className="text-slate-600">{profile?.bio || '-'}</p>
+              <p className="text-black">{profile?.bio || '-'}</p>
             )}
           </div>
 
@@ -276,7 +276,7 @@ export default function Profile() {
             <div className="flex justify-between items-center">
               <div>
                 <p className="font-medium">{profile?.subscription_tier || 'BASIC'}</p>
-                <p className="text-sm text-slate-500">{profile?.subscription_status || 'ACTIVE'}</p>
+                <p className="text-sm text-black">{profile?.subscription_status || 'ACTIVE'}</p>
               </div>
             </div>
           </div>

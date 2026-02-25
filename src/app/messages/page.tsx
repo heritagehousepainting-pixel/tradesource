@@ -411,9 +411,9 @@ function MessagesContent() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-white text-slate-900">
+    <div className="flex h-[calc(100vh-64px)] bg-white text-black">
       {/* Sidebar */}
-      <div className="w-1/3 border-r overflow-y-auto bg-white text-slate-900">
+      <div className="w-1/3 border-r overflow-y-auto bg-white text-black">
         <div className="p-4 border-b">
           <h1 className="text-xl font-bold">Messages</h1>
         </div>
@@ -424,7 +424,7 @@ function MessagesContent() {
             onClick={() => setActiveTab('interests')}
             className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
               activeTab === 'interests' 
-                ? 'border-b-2 border-slate-900 text-slate-900' 
+                ? 'border-b-2 border-slate-900 text-black' 
                 : 'text-black'
             }`}
           >
@@ -434,7 +434,7 @@ function MessagesContent() {
             onClick={() => setActiveTab('accepted')}
             className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
               activeTab === 'accepted' 
-                ? 'border-b-2 border-slate-900 text-slate-900' 
+                ? 'border-b-2 border-slate-900 text-black' 
                 : 'text-black'
             }`}
           >
@@ -444,7 +444,7 @@ function MessagesContent() {
             onClick={() => setActiveTab('declined')}
             className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
               activeTab === 'declined' 
-                ? 'border-b-2 border-slate-900 text-slate-900' 
+                ? 'border-b-2 border-slate-900 text-black' 
                 : 'text-black'
             }`}
           >
@@ -491,7 +491,7 @@ function MessagesContent() {
                       <div className="text-sm text-black">{notif.from_company}</div>
                       <div className="text-xs text-black mt-1">re: {notif.job_title}</div>
                       {notif.message && (
-                        <div className="mt-2 text-sm text-slate-600 italic line-clamp-2">
+                        <div className="mt-2 text-sm text-black italic line-clamp-2">
                           "{notif.message}"
                         </div>
                       )}
@@ -647,7 +647,7 @@ function MessagesContent() {
                     className={`max-w-[70%] rounded-lg px-4 py-2 ${
                       msg.sender_id === user.id
                         ? 'bg-slate-900 text-white'
-                        : 'bg-slate-100 text-slate-900'
+                        : 'bg-slate-100 text-black'
                     }`}
                   >
                     <p>{msg.message_text}</p>
@@ -696,10 +696,10 @@ export default function Messages() {
     <div className="min-h-screen bg-white">
       <header className="border-b bg-white">
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold text-slate-900">TradeSource</Link>
+          <Link href="/" className="text-xl font-bold text-black">TradeSource</Link>
         </div>
       </header>
-      <Suspense fallback={<div className="p-8 text-center text-slate-900">Loading...</div>}>
+      <Suspense fallback={<div className="p-8 text-center text-black">Loading...</div>}>
         <MessagesContent />
       </Suspense>
     </div>

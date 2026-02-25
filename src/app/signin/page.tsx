@@ -45,14 +45,14 @@ export default function SignIn() {
     <div className="min-h-screen bg-slate-50">
       <header className="bg-white border-b py-4">
         <div className="max-w-4xl mx-auto px-4">
-          <Link href="/" className="text-xl font-bold text-slate-900">TradeSource</Link>
+          <Link href="/" className="text-xl font-bold text-black">TradeSource</Link>
         </div>
       </header>
 
       <main className="max-w-md mx-auto px-4 py-12">
         <div className="bg-white rounded-xl p-8 shadow-sm">
           <h1 className="text-2xl font-bold mb-2">Sign In</h1>
-          <p className="text-slate-600 mb-6">Welcome back.</p>
+          <p className="text-black mb-6">Welcome back.</p>
 
           {error && (
             <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">
@@ -92,8 +92,8 @@ export default function SignIn() {
             </button>
           </form>
 
-          <p className="mt-4 text-center text-sm text-slate-600">
-            No account? <Link href="/contractor/signup" className="text-slate-900 underline">Sign up</Link>
+          <p className="mt-4 text-center text-sm text-black">
+            No account? <Link href="/contractor/signup" className="text-black underline">Sign up</Link>
           </p>
         </div>
       </main>

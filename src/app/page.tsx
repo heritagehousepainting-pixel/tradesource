@@ -8,11 +8,11 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-black">TradeSource</h1>
           <nav className="flex gap-6 items-center">
-            <Link href="/signin" className="text-black hover:text-gray-600">Sign In</Link>
+            <Link href="/signin" className="text-black hover:text-black">Sign In</Link>
             <Link href="/contractor/signup" className="bg-slate-900 text-white px-4 py-2 rounded-lg hover:bg-slate-800">
               Contractor Sign Up
             </Link>
-            <Link href="/homeowner/signup" className="text-black hover:text-gray-600">
+            <Link href="/homeowner/signup" className="text-black hover:text-black">
               Homeowner? Post Free
             </Link>
           </nav>
