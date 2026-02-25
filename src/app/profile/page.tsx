@@ -18,10 +18,153 @@ interface UserProfile {
   trade_type: string
   service_counties: string[]
   is_verified: boolean
+  is_insured: boolean
+  is_background_checked: boolean
+  license_number: string
+  license_verified: boolean
+  insurance_provider: string
+  insurance_expiry: string
+  insurance_verified: boolean
+  background_check_status: string
+  years_experience: number
+  profile_photo_url: string
+  review_count: number
+  avg_rating: number
+  jobs_completed: number
+  verification_status: string
+  verification_notes: string
   subscription_tier: string
   subscription_status: string
   availability: boolean
   bio: string
+}
+
+// Badge component
+function Badge({ type, label, verified }: { type: 'verified' | 'insured' | 'background'; label: string; verified: boolean }) {
+  const colors = {
+    verified: 'bg-blue-100 text-blue-700 border-blue-300',
+    insured: 'bg-green-100 text-green-700 border-green-300',
+    background: 'bg-purple-100 text-purple-700 border-purple-300',
+  }
+  const icons = {
+    verified: '✓',
+    insured: '🛡️',
+    background: '🔍',
+  }
+
+  return (
+    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${colors[type]} ${verified ? '' : 'opacity-50'}`}>
+      <span className="text-lg">{icons[type]}</span>
+      <span className="font-medium">{label}</span>
+      {verified && <span className="text-xs">✓</span>}
+    </div>
+  )
+}
+
+// Verification Section for Contractors
+function VerificationSection({ profile, onUpdate }: { profile: UserProfile; onUpdate: () => void }) {
+  const [uploading, setUploading] = useState<string | null>(null)
+  const supabase = createClient()
+
+  const handleUpload = async (docType: string, file: File) => {
+    setUploading(docType)
+    
+    // In MVP, just update status to pending - Jack will review manually
+    const updates: any = {
+      verification_status: 'PENDING',
+    }
+    
+    if (docType === 'license') {
+      updates.license_number = 'Submitted'
+    }
+    
+    const { error } = await supabase
+      .from('users')
+      .update(updates)
+      .eq('id', profile.id)
+
+    if (!error) {
+      onUpdate()
+    }
+    
+    setUploading(null)
+  }
+
+  const verificationItems = [
+    {
+      key: 'verified',
+      title: 'Verified',
+      description: "Driver's license + PA HIC license or business registration",
+      icon: '✓',
+      color: 'blue',
+      verified: profile.is_verified,
+      action: 'Upload License',
+    },
+    {
+      key: 'insured',
+      title: 'Insured',
+      description: 'Certificate of Insurance ($1M+ liability)',
+      icon: '🛡️',
+      color: 'green',
+      verified: profile.is_insured,
+      action: 'Upload COI',
+    },
+    {
+      key: 'background',
+      title: 'Background Check',
+      description: 'Authorize background check',
+      icon: '🔍',
+      color: 'purple',
+      verified: profile.is_background_checked,
+      action: 'Authorize',
+    },
+  ]
+
+  return (
+    <div className="border rounded-xl p-6">
+      <h2 className="text-xl font-bold mb-4">Verification Badges</h2>
+      <p className="text-sm mb-6">Complete verification to build trust with homeowners.</p>
+      
+      <div className="space-y-4">
+        {verificationItems.map((item) => (
+          <div key={item.key} className="flex items-center justify-between p-4 border rounded-lg">
+            <div className="flex items-center gap-4">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold ${
+                item.color === 'blue' ? 'bg-blue-100 text-blue-700' :
+                item.color === 'green' ? 'bg-green-100 text-green-700' :
+                'bg-purple-100 text-purple-700'
+              }`}>
+                {item.icon}
+              </div>
+              <div>
+                <div className="font-medium flex items-center gap-2">
+                  {item.title}
+                  {item.verified && <span className="text-green-600 text-sm">✓ Verified</span>}
+                </div>
+                <div className="text-sm opacity-70">{item.description}</div>
+              </div>
+            </div>
+            <button
+              disabled={item.verified || uploading !== null}
+              className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                item.verified 
+                  ? 'bg-green-100 text-green-700 cursor-default'
+                  : 'bg-slate-900 text-white hover:bg-slate-800'
+              }`}
+            >
+              {item.verified ? 'Verified' : uploading === item.key ? 'Uploading...' : item.action}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {profile.verification_status === 'PENDING' && (
+        <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-yellow-800">⏳ Verification pending review. You'll be notified once approved.</p>
+        </div>
+      )}
+    </div>
+  )
 }
 
 export default function Profile() {
@@ -40,6 +183,7 @@ export default function Profile() {
     phone: '',
     trade_type: 'PAINTER',
     bio: '',
+    years_experience: 0,
     availability: false,
   })
 
@@ -73,6 +217,7 @@ export default function Profile() {
         phone: data.phone || '',
         trade_type: data.trade_type || 'PAINTER',
         bio: data.bio || '',
+        years_experience: data.years_experience || 0,
         availability: data.availability || false,
       })
     }
@@ -93,12 +238,13 @@ export default function Profile() {
         phone: formData.phone,
         trade_type: formData.trade_type,
         bio: formData.bio,
+        years_experience: formData.years_experience,
         availability: formData.availability,
       })
       .eq('id', user.id)
 
     if (!error) {
-      setProfile({ ...profile!, ...formData })
+      fetchProfile(user.id)
       setEditing(false)
     }
     
@@ -111,175 +257,240 @@ export default function Profile() {
   }
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    return <div className="min-h-screen flex items-center justify-center text-black">Loading...</div>
   }
 
+  const isContractor = profile?.user_type === 'CONTRACTOR'
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white text-black">
       <header className="border-b">
         <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold">TradeSource</Link>
+          <Link href="/feed" className="text-xl font-bold text-black">TradeSource</Link>
           <nav className="flex gap-4 items-center text-sm">
-            <Link href="/feed">Feed</Link>
-            <Link href="/jobs/post">Post</Link>
-            <Link href="/messages">Messages</Link>
-            <Link href="/profile" className="font-medium">Profile</Link>
-            <button onClick={handleSignOut} className="text-black hover:text-black">Sign out</button>
+            <Link href="/feed" className="text-black">Feed</Link>
+            <Link href="/jobs/post" className="text-black">Post</Link>
+            <Link href="/messages" className="text-black">Messages</Link>
+            <Link href="/profile" className="text-black font-medium">Profile</Link>
+            <button onClick={handleSignOut} className="text-black">Sign out</button>
           </nav>
         </div>
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-8">
+        {/* Header Section */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">My Profile</h1>
+          <h1 className="text-2xl font-bold text-black">My Profile</h1>
           {!editing && (
             <button
               onClick={() => setEditing(true)}
               className="text-black hover:text-black"
             >
-              Edit
+              Edit Profile
             </button>
           )}
         </div>
 
-        {/* Account Info */}
-        <div className="bg-slate-50 rounded-xl p-4 mb-6">
-          <h2 className="font-medium mb-2">Account</h2>
-          <p className="text-black">{profile?.email}</p>
-          <p className="text-sm text-black capitalize">{profile?.user_type?.toLowerCase()}</p>
-        </div>
-
-        {/* Profile Form */}
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium mb-1">First Name</label>
-              {editing ? (
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border rounded-lg"
-                  value={formData.first_name}
-                  onChange={e => setFormData({...formData, first_name: e.target.value})}
-                />
-              ) : (
-                <p className="text-black">{profile?.first_name || '-'}</p>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Last Name</label>
-              {editing ? (
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border rounded-lg"
-                  value={formData.last_name}
-                  onChange={e => setFormData({...formData, last_name: e.target.value})}
-                />
-              ) : (
-                <p className="text-black">{profile?.last_name || '-'}</p>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Company Name</label>
-            {editing ? (
-              <input
-                type="text"
-                className="w-full px-3 py-2 border rounded-lg"
-                value={formData.company_name}
-                onChange={e => setFormData({...formData, company_name: e.target.value})}
-              />
-            ) : (
-              <p className="text-black">{profile?.company_name || '-'}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Phone</label>
-            {editing ? (
-              <input
-                type="tel"
-                className="w-full px-3 py-2 border rounded-lg"
-                value={formData.phone}
-                onChange={e => setFormData({...formData, phone: e.target.value})}
-              />
-            ) : (
-              <p className="text-black">{profile?.phone || '-'}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Trade Type</label>
-            {editing ? (
-              <select
-                className="w-full px-3 py-2 border rounded-lg"
-                value={formData.trade_type}
-                onChange={e => setFormData({...formData, trade_type: e.target.value})}
-              >
-                <option value="PAINTER">Painter</option>
-                <option value="GENERAL_CONTRACTOR">General Contractor</option>
-              </select>
-            ) : (
-              <p className="text-black">{profile?.trade_type?.replace('_', ' ') || '-'}</p>
-            )}
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1">Bio</label>
-            {editing ? (
-              <textarea
-                className="w-full px-3 py-2 border rounded-lg"
-                rows={3}
-                value={formData.bio}
-                onChange={e => setFormData({...formData, bio: e.target.value})}
-              />
-            ) : (
-              <p className="text-black">{profile?.bio || '-'}</p>
-            )}
-          </div>
-
-          {editing && (
-            <div className="flex gap-3 pt-4">
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="flex-1 bg-slate-900 text-white py-2 rounded-lg hover:bg-slate-800 disabled:opacity-50"
-              >
-                {saving ? 'Saving...' : 'Save Changes'}
-              </button>
-              <button
-                onClick={() => setEditing(false)}
-                className="px-4 py-2 border rounded-lg"
-              >
-                Cancel
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Verification Status */}
-        <div className="mt-8 pt-6 border-t">
-          <h2 className="font-medium mb-4">Verification Status</h2>
-          <div className="flex items-center gap-3">
-            <span className={`px-2 py-1 rounded text-sm ${
-              profile?.is_verified ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
-            }`}>
-              {profile?.is_verified ? '✓ Verified' : 'Pending Verification'}
-            </span>
-          </div>
-        </div>
-
-        {/* Subscription */}
-        <div className="mt-6 pt-6 border-t">
-          <h2 className="font-medium mb-4">Subscription</h2>
-          <div className="bg-slate-50 rounded-lg p-4">
-            <div className="flex justify-between items-center">
-              <div>
-                <p className="font-medium">{profile?.subscription_tier || 'BASIC'}</p>
-                <p className="text-sm text-black">{profile?.subscription_status || 'ACTIVE'}</p>
+        {/* Contractor Stats & Badges */}
+        {isContractor && profile && (
+          <div className="mb-8">
+            {/* Stats */}
+            <div className="grid grid-cols-4 gap-4 mb-6">
+              <div className="text-center p-4 border rounded-xl">
+                <div className="text-2xl font-bold text-black">{profile.jobs_completed || 0}</div>
+                <div className="text-sm">Jobs Done</div>
+              </div>
+              <div className="text-center p-4 border rounded-xl">
+                <div className="text-2xl font-bold text-black">{profile.avg_rating || 0}</div>
+                <div className="text-sm">⭐ Rating</div>
+              </div>
+              <div className="text-center p-4 border rounded-xl">
+                <div className="text-2xl font-bold text-black">{profile.review_count || 0}</div>
+                <div className="text-sm">Reviews</div>
+              </div>
+              <div className="text-center p-4 border rounded-xl">
+                <div className="text-2xl font-bold text-black">{profile.years_experience || 0}</div>
+                <div className="text-sm">Years Exp.</div>
               </div>
             </div>
+
+            {/* Verification Badges */}
+            <div className="grid grid-cols-3 gap-3 mb-6">
+              <Badge type="verified" label="Verified" verified={profile.is_verified || false} />
+              <Badge type="insured" label="Insured" verified={profile.is_insured || false} />
+              <Badge type="background" label="Background" verified={profile.is_background_checked || false} />
+            </div>
+
+            {/* Verification Section */}
+            <VerificationSection 
+              profile={profile} 
+              onUpdate={() => fetchProfile(profile.id)} 
+            />
           </div>
+        )}
+
+        {/* Profile Details */}
+        <div className="border rounded-xl p-6">
+          <h2 className="text-xl font-bold mb-4 text-black">Profile Details</h2>
+          
+          {editing ? (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-1">First Name</label>
+                  <input
+                    type="text"
+                    value={formData.first_name}
+                    onChange={e => setFormData({ ...formData, first_name: e.target.value })}
+                    className="w-full border rounded-lg px-3 py-2"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Last Name</label>
+                  <input
+                    type="text"
+                    value={formData.last_name}
+                    onChange={e => setFormData({ ...formData, last_name: e.target.value })}
+                    className="w-full border rounded-lg px-3 py-2"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Company Name</label>
+                <input
+                  type="text"
+                  value={formData.company_name}
+                  onChange={e => setFormData({ ...formData, company_name: e.target.value })}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Phone</label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </div>
+
+              {isContractor && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Trade Type</label>
+                    <select
+                      value={formData.trade_type}
+                      onChange={e => setFormData({ ...formData, trade_type: e.target.value })}
+                      className="w-full border rounded-lg px-3 py-2"
+                    >
+                      <option value="PAINTER">Painter</option>
+                      <option value="GENERAL_CONTRACTOR">General Contractor</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Years of Experience</label>
+                    <input
+                      type="number"
+                      value={formData.years_experience}
+                      onChange={e => setFormData({ ...formData, years_experience: parseInt(e.target.value) || 0 })}
+                      className="w-full border rounded-lg px-3 py-2"
+                    />
+                  </div>
+                </>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium mb-1">Bio</label>
+                <textarea
+                  value={formData.bio}
+                  onChange={e => setFormData({ ...formData, bio: e.target.value })}
+                  rows={4}
+                  className="w-full border rounded-lg px-3 py-2"
+                  placeholder="Tell homeowners about your business..."
+                />
+              </div>
+
+              {isContractor && (
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={formData.availability}
+                    onChange={e => setFormData({ ...formData, availability: e.target.checked })}
+                    className="w-4 h-4"
+                  />
+                  <span>Available for new jobs</span>
+                </label>
+              )}
+
+              <div className="flex gap-2 pt-4">
+                <button
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="bg-slate-900 text-white px-4 py-2 rounded-lg"
+                >
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </button>
+                <button
+                  onClick={() => setEditing(false)}
+                  className="border px-4 py-2 rounded-lg"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-sm opacity-70">Name</div>
+                  <div className="font-medium">{profile?.first_name} {profile?.last_name}</div>
+                </div>
+                <div>
+                  <div className="text-sm opacity-70">Company</div>
+                  <div className="font-medium">{profile?.company_name || 'Not set'}</div>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-sm opacity-70">Email</div>
+                <div className="font-medium">{profile?.email}</div>
+              </div>
+
+              <div>
+                <div className="text-sm opacity-70">Phone</div>
+                <div className="font-medium">{profile?.phone || 'Not set'}</div>
+              </div>
+
+              {isContractor && (
+                <>
+                  <div>
+                    <div className="text-sm opacity-70">Trade</div>
+                    <div className="font-medium">{profile?.trade_type}</div>
+                  </div>
+
+                  <div>
+                    <div className="text-sm opacity-70">Experience</div>
+                    <div className="font-medium">{profile?.years_experience || 0} years</div>
+                  </div>
+                </>
+              )}
+
+              <div>
+                <div className="text-sm opacity-70">Bio</div>
+                <div className="font-medium">{profile?.bio || 'No bio yet'}</div>
+              </div>
+
+              {isContractor && (
+                <div>
+                  <div className="text-sm opacity-70">Availability</div>
+                  <div className="font-medium">{profile?.availability ? '✓ Available' : '✗ Not available'}</div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
     </div>
