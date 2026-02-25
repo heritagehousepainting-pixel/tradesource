@@ -329,9 +329,13 @@ function MessagesContent() {
 
   const getNotificationCount = () => interestsList.length
 
-  // Deduplicate acceptedList by job_id (only real acceptances, not notification entries)
+  // Deduplicate acceptedList by job_id - filter out notification entries
   const acceptedMap = new Map<string, any>()
-  acceptedList.filter(a => a.type !== 'my_response').forEach(a => {
+  acceptedList.filter(a => 
+    a.type !== 'my_response' && 
+    !a.from_name.includes('✓') &&
+    !a.from_name.includes('✗')
+  ).forEach(a => {
     if (!acceptedMap.has(a.job_id)) {
       acceptedMap.set(a.job_id, a)
     }
