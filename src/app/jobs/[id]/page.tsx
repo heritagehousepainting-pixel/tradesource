@@ -342,7 +342,7 @@ export default function JobDetail() {
               <h3 className="font-semibold mb-3">Express Interest</h3>
               
               {/* Verification Required for Contractors */}
-              {userProfile?.user_type === 'CONTRACTOR' && !userProfile?.is_verified && (
+              {userProfile?.user_type === 'CONTRACTOR' && userProfile?.verification_status !== 'APPROVED' && (
                 <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-4">
                   <p className="text-black text-sm mb-2">
                     🔒 <strong>Verification required</strong> to apply to jobs.
@@ -364,11 +364,11 @@ export default function JobDetail() {
                 placeholder="Introduce yourself and explain why you're a good fit..."
                 value={message}
                 onChange={e => setMessage(e.target.value)}
-                disabled={userProfile?.user_type === 'CONTRACTOR' && !userProfile?.is_verified}
+                disabled={userProfile?.user_type === 'CONTRACTOR' && userProfile?.verification_status !== 'APPROVED'}
               />
               <button
                 onClick={handleInterested}
-                disabled={submitting || (userProfile?.user_type === 'CONTRACTOR' && !userProfile?.is_verified)}
+                disabled={submitting || (userProfile?.user_type === 'CONTRACTOR' && userProfile?.verification_status !== 'APPROVED')}
                 className="w-full bg-slate-900 text-white py-3 rounded-lg font-medium hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? 'Submitting...' : "I'm Interested"}

@@ -19,6 +19,12 @@ interface Contractor {
   is_verified: boolean
   is_admin: boolean
   bio: string
+  verification_status: string
+  verification_notes: string
+  license_number: string
+  insurance_provider: string
+  insurance_expiry: string
+  external_reviews: string
   created_at: string
 }
 
@@ -71,22 +77,29 @@ export default function AdminVerification() {
     setLoading(false)
   }
 
-  const handleVerify = async (userId: string) => {
+  const handleApprove = async (userId: string) => {
     setActionLoading(userId)
     await supabase
       .from('users')
-      .update({ is_verified: true })
+      .update({ 
+        verification_status: 'APPROVED',
+        is_verified: true,
+        is_insured: true,
+      })
       .eq('id', userId)
     
     fetchContractors()
     setActionLoading(null)
   }
 
-  const handleReject = async (userId: string) => {
+  const handleReject = async (userId: string, notes: string = '') => {
     setActionLoading(userId)
     await supabase
       .from('users')
-      .update({ is_verified: false })
+      .update({ 
+        verification_status: 'REJECTED',
+        verification_notes: notes,
+      })
       .eq('id', userId)
     
     fetchContractors()
@@ -97,7 +110,10 @@ export default function AdminVerification() {
     setActionLoading(userId)
     await supabase
       .from('users')
-      .update({ is_verified: null })
+      .update({ 
+        verification_status: 'PENDING',
+        verification_notes: null,
+      })
       .eq('id', userId)
     
     fetchContractors()
@@ -127,9 +143,9 @@ export default function AdminVerification() {
   }
 
   // Filter by status
-  const pending = contractors.filter(c => c.is_verified === null || c.is_verified === undefined)
-  const verified = contractors.filter(c => c.is_verified === true)
-  const rejected = contractors.filter(c => c.is_verified === false)
+  const pending = contractors.filter(c => !c.verification_status || c.verification_status === 'PENDING')
+  const verified = contractors.filter(c => c.verification_status === 'APPROVED')
+  const rejected = contractors.filter(c => c.verification_status === 'REJECTED')
 
   const getContractors = () => {
     switch (activeTab) {
@@ -203,44 +219,88 @@ export default function AdminVerification() {
         ) : (
           <div className="space-y-3">
             {currentContractors.map(contractor => (
-              <div key={contractor.id} className="border rounded-xl p-4 flex justify-between items-center">
-                <div>
-                  <p className="font-semibold">
-                    {contractor.first_name} {contractor.last_name}
-                  </p>
-                  <p className="text-sm text-black">{contractor.company_name || 'No company'}</p>
-                  <p className="text-sm text-black">{contractor.email}</p>
-                  <p className="text-sm text-black">{contractor.trade_type?.replace('_', ' ')}</p>
-                </div>
-                <div className="flex gap-2">
-                  {activeTab === 'pending' && (
-                    <>
+              <div key={contractor.id} className="border rounded-xl p-4">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <p className="font-semibold">
+                      {contractor.first_name} {contractor.last_name}
+                    </p>
+                    <p className="text-sm text-black">{contractor.company_name || 'No company'}</p>
+                    <p className="text-sm text-black">{contractor.email}</p>
+                    <p className="text-sm text-black">{contractor.trade_type?.replace('_', ' ')}</p>
+                    <p className="text-xs text-black">Signed up: {new Date(contractor.created_at).toLocaleDateString()}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    {activeTab === 'pending' && (
+                      <>
+                        <button
+                          onClick={() => handleApprove(contractor.id)}
+                          disabled={actionLoading === contractor.id}
+                          className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
+                        >
+                          ✅ Approve All
+                        </button>
+                        <button
+                          onClick={() => {
+                            const notes = prompt('Reason for rejection:')
+                            if (notes) handleReject(contractor.id, notes)
+                          }}
+                          disabled={actionLoading === contractor.id}
+                          className="bg-red-100 text-red-700 px-4 py-2 rounded-lg text-sm hover:bg-red-200 disabled:opacity-50"
+                        >
+                          ❌ Reject
+                        </button>
+                      </>
+                    )}
+                    {activeTab === 'verified' && (
                       <button
-                        onClick={() => handleVerify(contractor.id)}
-                        disabled={actionLoading === contractor.id}
-                        className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
-                      >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleReject(contractor.id)}
+                        onClick={() => {
+                          const notes = prompt('Reason for revocation:')
+                          if (notes) handleReject(contractor.id, notes)
+                        }}
                         disabled={actionLoading === contractor.id}
                         className="bg-red-100 text-red-700 px-4 py-2 rounded-lg text-sm hover:bg-red-200 disabled:opacity-50"
                       >
-                        Reject
+                        Revoke
                       </button>
-                    </>
-                  )}
-                  {activeTab === 'verified' && (
-                    <button
-                      onClick={() => handleReject(contractor.id)}
-                      disabled={actionLoading === contractor.id}
-                      className="bg-red-100 text-red-700 px-4 py-2 rounded-lg text-sm hover:bg-red-200 disabled:opacity-50"
-                    >
-                      Revoke
-                    </button>
-                  )}
-                  {activeTab === 'rejected' && (
+                    )}
+                    {activeTab === 'rejected' && (
+                      <button
+                        onClick={() => handleResetToPending(contractor.id)}
+                        disabled={actionLoading === contractor.id}
+                        className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-lg text-sm hover:bg-yellow-200 disabled:opacity-50"
+                      >
+                        Reset to Pending
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Submitted Documents */}
+                <div className="bg-slate-50 rounded-lg p-3 text-sm">
+                  <p className="font-medium mb-2">📋 Submitted Documents:</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>🪪 Driver's License:</div>
+                    <div className="font-mono">{contractor.license_number || '—'}</div>
+                    <div>🏢 PA HIC License:</div>
+                    <div className="font-mono">{contractor.license_number || '—'}</div>
+                    <div>🛡️ Insurance:</div>
+                    <div className="font-mono">{contractor.insurance_provider || '—'} (exp: {contractor.insurance_expiry || '—'})</div>
+                    <div>⭐ External Reviews:</div>
+                    <div className="font-mono truncate">{contractor.external_reviews || '—'}</div>
+                  </div>
+                </div>
+
+                {/* Rejection feedback */}
+                {contractor.verification_status === 'REJECTED' && contractor.verification_notes && (
+                  <div className="mt-2 bg-red-50 border border-red-200 rounded-lg p-2 text-sm">
+                    <strong>Rejection Feedback:</strong> {contractor.verification_notes}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
                     <>
                       <button
                         onClick={() => handleVerify(contractor.id)}

@@ -34,7 +34,7 @@ export default function Feed() {
   const [notificationCount, setNotificationCount] = useState(0)
 
   // Check if user is a contractor who needs verification
-  const isUnverifiedContractor = userProfile?.user_type === 'CONTRACTOR' && !userProfile?.is_verified
+  const isUnverifiedContractor = userProfile?.user_type === 'CONTRACTOR' && userProfile?.verification_status !== 'APPROVED'
 
   useEffect(() => {
     checkUser()

@@ -65,103 +65,145 @@ function Badge({ type, label, verified }: { type: 'verified' | 'insured' | 'tax'
   )
 }
 
-// Verification Section for Contractors
+// Verification Section for Contractors - Single submission for all 4 docs
 function VerificationSection({ profile, onUpdate }: { profile: UserProfile; onUpdate: () => void }) {
-  const [uploading, setUploading] = useState<string | null>(null)
+  const [submitting, setSubmitting] = useState(false)
+  const [formData, setFormData] = useState({
+    licenseNumber: '',
+    insuranceProvider: '',
+    insuranceExpiry: '',
+    w9Submitted: false,
+    reviewLinks: '',
+  })
   const supabase = createClient()
 
-  const handleUpload = async (docType: string, file: File) => {
-    setUploading(docType)
+  const handleSubmitAll = async () => {
+    setSubmitting(true)
     
-    // In MVP, just update status to pending - Jack will review manually
-    const updates: any = {
-      verification_status: 'PENDING',
-    }
-    
-    if (docType === 'license') {
-      updates.license_number = 'Submitted'
-    }
-    
+    // Submit all 4 docs at once for admin review
     const { error } = await supabase
       .from('users')
-      .update(updates)
+      .update({
+        verification_status: 'PENDING',
+        license_number: formData.licenseNumber,
+        insurance_provider: formData.insuranceProvider,
+        insurance_expiry: formData.insuranceExpiry,
+        external_reviews: formData.reviewLinks,
+      })
       .eq('id', profile.id)
 
     if (!error) {
       onUpdate()
     }
     
-    setUploading(null)
+    setSubmitting(false)
   }
 
-  const verificationItems = [
-    {
-      key: 'verified',
-      title: 'Verified',
-      description: "Driver's license + PA HIC license",
-      icon: '✓',
-      color: 'blue',
-      verified: profile.is_verified,
-      action: 'Upload License',
-    },
-    {
-      key: 'insured',
-      title: 'Insured',
-      description: 'Certificate of Insurance + Workers Comp',
-      icon: '🛡️',
-      color: 'green',
-      verified: profile.is_insured,
-      action: 'Upload COI',
-    },
-    {
-      key: 'tax',
-      title: 'W-9 Form',
-      description: 'IRS W-9 tax form',
-      icon: '📋',
-      color: 'orange',
-      verified: false, // TODO: add field
-      action: 'Upload W-9',
-    },
-    {
-      key: 'reviews',
-      title: 'External Reviews',
-      description: 'Google, Yelp, or Facebook reviews',
-      icon: '⭐',
-      color: 'yellow',
-      verified: !!profile.external_reviews,
-      action: 'Add Reviews',
-    },
-  ]
+  // Check if fully verified (all 4 approved)
+  const isFullyVerified = profile.verification_status === 'APPROVED'
+  
+  // Show current status
+  const showPending = profile.verification_status === 'PENDING'
+  const showRejected = profile.verification_status === 'REJECTED'
+
+  // If fully verified, show success
+  if (isFullyVerified) {
+    return (
+      <div className="border rounded-xl p-6">
+        <h2 className="text-xl font-bold mb-4">✅ Verification Complete</h2>
+        <p className="text-black">Congratulations! You're fully verified and have full access.</p>
+      </div>
+    )
+  }
 
   return (
     <div className="border rounded-xl p-6">
       <h2 className="text-xl font-bold mb-4">Verification Badges</h2>
-      <p className="text-sm mb-6">Complete verification to build trust with homeowners.</p>
-      
+      <p className="text-sm mb-6">Submit all 4 documents at once for review.</p>
+
+      {/* Pending Status */}
+      {showPending && (
+        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6">
+          <p className="text-yellow-800 font-medium">⏳ Pending Review</p>
+          <p className="text-sm text-yellow-700">Your documents are being reviewed. You'll be notified once approved.</p>
+        </div>
+      )}
+
+      {/* Rejected Status */}
+      {showRejected && (
+        <div className="bg-red-50 border border-red-200 p-4 rounded-lg mb-6">
+          <p className="text-red-800 font-medium">❌ Verification Rejected</p>
+          <p className="text-sm text-red-700">Feedback: {profile.verification_notes || 'Please fix the issues and resubmit.'}</p>
+        </div>
+      )}
+
+      {/* Document Form */}
       <div className="space-y-4">
-        {verificationItems.map((item) => (
-          <div key={item.key} className="flex items-center justify-between p-4 border rounded-lg">
-            <div className="flex items-center gap-4">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-bold ${
-                item.color === 'blue' ? 'bg-blue-100 text-blue-700' :
-                item.color === 'green' ? 'bg-green-100 text-green-700' :
-                'bg-purple-100 text-purple-700'
-              }`}>
-                {item.icon}
-              </div>
-              <div>
-                <div className="font-medium flex items-center gap-2">
-                  {item.title}
-                  {item.verified && <span className="text-green-600 text-sm">✓ Verified</span>}
-                </div>
-                <div className="text-sm opacity-70">{item.description}</div>
-              </div>
-            </div>
-            <button
-              disabled={item.verified || uploading !== null}
-              className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                item.verified 
-                  ? 'bg-green-100 text-green-700 cursor-default'
+        <div>
+          <label className="block text-sm font-medium mb-1">Driver's License Number</label>
+          <input
+            type="text"
+            value={formData.licenseNumber}
+            onChange={e => setFormData({ ...formData, licenseNumber: e.target.value })}
+            className="w-full border rounded-lg px-3 py-2"
+            placeholder="Enter license number"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">PA HIC License Number</label>
+          <input
+            type="text"
+            value={formData.licenseNumber}
+            onChange={e => setFormData({ ...formData, licenseNumber: e.target.value })}
+            className="w-full border rounded-lg px-3 py-2"
+            placeholder="Enter PA HIC license"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Insurance Provider</label>
+          <input
+            type="text"
+            value={formData.insuranceProvider}
+            onChange={e => setFormData({ ...formData, insuranceProvider: e.target.value })}
+            className="w-full border rounded-lg px-3 py-2"
+            placeholder="Insurance company name"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">Insurance Expiry Date</label>
+          <input
+            type="date"
+            value={formData.insuranceExpiry}
+            onChange={e => setFormData({ ...formData, insuranceExpiry: e.target.value })}
+            className="w-full border rounded-lg px-3 py-2"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1">External Review Links (Google, Yelp, Facebook)</label>
+          <textarea
+            value={formData.reviewLinks}
+            onChange={e => setFormData({ ...formData, reviewLinks: e.target.value })}
+            className="w-full border rounded-lg px-3 py-2"
+            rows={2}
+            placeholder="Enter review links (one per line)"
+          />
+        </div>
+
+        <button
+          onClick={handleSubmitAll}
+          disabled={submitting || showPending}
+          className="w-full bg-slate-900 text-white py-3 rounded-lg font-medium hover:bg-slate-800 disabled:opacity-50"
+        >
+          {submitting ? 'Submitting...' : showPending ? 'Submitted - Pending Review' : 'Submit All for Review'}
+        </button>
+      </div>
+    </div>
+  )
+}
                   : 'bg-slate-900 text-white hover:bg-slate-800'
               }`}
             >
@@ -329,9 +371,9 @@ export default function Profile() {
 
             {/* Verification Badges */}
             <div className="grid grid-cols-4 gap-3 mb-6">
-              <Badge type="verified" label="Verified" verified={profile.is_verified || false} />
-              <Badge type="insured" label="Insured" verified={profile.is_insured || false} />
-              <Badge type="tax" label="W-9" verified={false} />
+              <Badge type="verified" label="Verified" verified={profile.verification_status === 'APPROVED'} />
+              <Badge type="insured" label="Insured" verified={profile.verification_status === 'APPROVED'} />
+              <Badge type="tax" label="W-9" verified={profile.verification_status === 'APPROVED'} />
               <Badge type="reviews" label="Reviews" verified={!!profile.external_reviews} />
             </div>
 
