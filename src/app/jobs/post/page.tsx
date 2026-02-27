@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
@@ -11,8 +11,12 @@ export default function PostJob() {
   const router = useRouter()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [user, setUser] = useState<any>(null)
+  const [mediaUrls, setMediaUrls] = useState<string[]>([])
+  const [previews, setPreviews] = useState<string[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
   
   const [formData, setFormData] = useState({
     title: '',
@@ -38,6 +42,57 @@ export default function PostJob() {
     setUser(user)
   }
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    setUploading(true)
+    const newUrls: string[] = []
+    const newPreviews: string[] = []
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      
+      // Create preview
+      const reader = new FileReader()
+      const previewPromise = new Promise<string>((resolve) => {
+        reader.onload = () => resolve(reader.result as string)
+        reader.readAsDataURL(file)
+      })
+      const preview = await previewPromise
+      newPreviews.push(preview)
+
+      // Upload to Supabase Storage
+      const fileName = `${Date.now()}-${file.name}`
+      const { data, error } = await supabase.storage
+        .from('job-media')
+        .upload(fileName, file)
+
+      if (error) {
+        console.error('Upload error:', error)
+        continue
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('job-media')
+        .getPublicUrl(fileName)
+      
+      if (urlData?.publicUrl) {
+        newUrls.push(urlData.publicUrl)
+      }
+    }
+
+    setMediaUrls([...mediaUrls, ...newUrls])
+    setPreviews([...previews, ...newPreviews])
+    setUploading(false)
+  }
+
+  const removeMedia = (index: number) => {
+    setMediaUrls(mediaUrls.filter((_, i) => i !== index))
+    setPreviews(previews.filter((_, i) => i !== index))
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -55,6 +110,7 @@ export default function PostJob() {
         price_amount: parseFloat(formData.priceAmount) || 0,
         is_b2c: formData.isB2C,
         status: 'OPEN',
+        media_urls: mediaUrls,
       }).select().single()
 
       if (insertError) throw insertError
@@ -213,6 +269,60 @@ export default function PostJob() {
               </div>
             </div>
           )}
+
+          {/* Photos/Videos Section */}
+          <div>
+            <label className="block text-sm font-medium mb-2">Photos & Videos</label>
+            <p className="text-sm text-gray-500 mb-2">Add photos or videos of the job (optional)</p>
+            
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,video/*"
+              multiple
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+            
+            {/* Upload button */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition"
+            >
+              {uploading ? (
+                <span>Uploading...</span>
+              ) : (
+                <span className="text-gray-500">
+                  📷 Click to upload photos or videos
+                </span>
+              )}
+            </button>
+
+            {/* Previews */}
+            {previews.length > 0 && (
+              <div className="mt-4 grid grid-cols-4 gap-2">
+                {previews.map((preview, index) => (
+                  <div key={index} className="relative aspect-square">
+                    {preview.startsWith('data:video') ? (
+                      <video src={preview} className="w-full h-full object-cover rounded" />
+                    ) : (
+                      <img src={preview} alt="Preview" className="w-full h-full object-cover rounded" />
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => removeMedia(index)}
+                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
 
           <button
             type="submit"

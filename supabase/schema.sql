@@ -51,6 +51,7 @@ create table jobs (
   price_amount decimal,
   status text check (status in ('OPEN', 'AWARDED', 'IN_PROGRESS', 'COMPLETED', 'ARCHIVED')) default 'OPEN',
   is_b2c boolean default false,
+  media_urls text[],  -- Array of image/video URLs
   expires_at timestamptz default (now() + interval '7 days'),
   created_at timestamptz default now(),
   updated_at timestamptz default now()
@@ -154,3 +155,10 @@ create policy "Participants can view chats" on chats for select
   using (auth.uid() = any(participants));
 create policy "Users can create chats" on chats for insert 
   with check (auth.uid() = any(participants));
+
+-- Storage bucket for job media
+insert into storage.buckets (id, name, public) values ('job-media', 'job-media', true);
+
+-- Storage policy for job-media
+create policy "Public can view job media" on storage.objects for select using (bucket_id = 'job-media');
+create policy "Authenticated users can upload job media" on storage.objects for insert with check (bucket_id = 'job-media' AND auth.role() = 'authenticated');

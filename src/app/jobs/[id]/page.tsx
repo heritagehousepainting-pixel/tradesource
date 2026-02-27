@@ -22,6 +22,7 @@ interface Job {
   created_at: string
   posted_by: string
   awarded_to: string
+  media_urls: string[]
   users: {
     first_name: string
     last_name: string
@@ -258,6 +259,32 @@ export default function JobDetail() {
           </div>
 
           <p className="text-black mb-4">{job.description}</p>
+
+          {/* Media Gallery */}
+          {job.media_urls && job.media_urls.length > 0 && (
+            <div className="mb-6">
+              <h3 className="font-medium mb-2">Photos & Videos</h3>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {job.media_urls.map((url, index) => (
+                  <div key={index} className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                    {url.match(/\.(mp4|webm|mov)$/i) ? (
+                      <video 
+                        src={url} 
+                        controls 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <img 
+                        src={url} 
+                        alt={`Job photo ${index + 1}`}
+                        className="w-full h-full object-cover" 
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Posted by */}
           <div className="bg-slate-50 rounded-lg p-4 mb-6">
