@@ -138,3 +138,19 @@ alter table message_notifications enable row level security;
 
 create policy "Users can view own notifications" on message_notifications for select 
   using (auth.uid() = user_id);
+
+-- Chats table for messaging
+create table if not exists chats (
+  id uuid default gen_random_uuid() primary key,
+  job_id uuid references jobs(id),
+  participants uuid[] default '{}',
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+alter table chats enable row level security;
+
+create policy "Participants can view chats" on chats for select 
+  using (auth.uid() = any(participants));
+create policy "Users can create chats" on chats for insert 
+  with check (auth.uid() = any(participants));
