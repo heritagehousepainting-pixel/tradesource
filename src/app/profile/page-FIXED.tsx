@@ -66,7 +66,7 @@ function Badge({ type, label, verified }: { type: 'verified' | 'insured' | 'tax'
 }
 
 // FIXED Verification Section - Single submission for all 4 docs
-function VerificationSection({ profile, externalReviews, onUpdate }: { profile: UserProfile; externalReviews?: string; onUpdate: () => void }) {
+function VerificationSection({ profile, onUpdate }: { profile: UserProfile; onUpdate: () => void }) {
   const [submitting, setSubmitting] = useState(false)
   const [formData, setFormData] = useState({
     // Text inputs
@@ -74,57 +74,25 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
     insuranceProvider: '',
     insuranceExpiry: '',
     reviewLinks: '',
-    workmenCompProvider: '',
-    workmenCompExpiry: '',
     
     // File uploads
     driverLicense: null as File | null,
     paLicenseCert: null as File | null,
     insuranceCert: null as File | null,
     w9Form: null as File | null,
-    workmenCompCert: null as File | null,
   })
-  
-  // Additional review links (bonus)
-  const [extraReviewLinks, setExtraReviewLinks] = useState<string[]>([])
   const supabase = createClient()
 
-  // Initialize extra review links from props
-  useEffect(() => {
-    if (externalReviews) {
-      const reviewArray = externalReviews.split('\n').filter(r => r.trim())
-      const extraLinks = reviewArray.slice(1) || []
-      setExtraReviewLinks(extraLinks)
-      // Set the first review link as the required one
-      if (reviewArray[0]) {
-        setFormData(prev => ({ ...prev, reviewLinks: reviewArray[0] }))
-      }
-    }
-  }, [externalReviews])
-
-  // Check completion status (now includes Workmen's Comp)
+  // Check completion status
   const allFieldsComplete = 
     formData.paLicenseNumber.trim() !== '' &&
     formData.insuranceProvider.trim() !== '' &&
     formData.insuranceExpiry.trim() !== '' &&
-    formData.workmenCompProvider.trim() !== '' &&
-    formData.workmenCompExpiry.trim() !== '' &&
     formData.reviewLinks.trim() !== '' &&
     formData.driverLicense !== null &&
     formData.paLicenseCert !== null &&
     formData.insuranceCert !== null &&
-    formData.workmenCompCert !== null &&
     formData.w9Form !== null
-
-  // Count completed items for progress bar
-  const completedCount = [
-    formData.driverLicense !== null,
-    formData.paLicenseNumber.trim() !== '' && formData.paLicenseCert !== null,
-    formData.insuranceProvider.trim() !== '' && formData.insuranceExpiry.trim() !== '' && formData.insuranceCert !== null,
-    formData.workmenCompProvider.trim() !== '' && formData.workmenCompExpiry.trim() !== '' && formData.workmenCompCert !== null,
-    formData.w9Form !== null,
-    formData.reviewLinks.trim() !== ''
-  ].filter(Boolean).length
 
   const handleFileChange = (field: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -150,43 +118,16 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
     setSubmitting(true)
     
     try {
-      setSubmitting(true)
-      
-      // Upload all files one by one to catch specific errors
+      // Upload all files
       const timestamp = Date.now()
       const userId = profile.id
       
-      let driverLicensePath = ''
-      let paLicensePath = ''
-      let insurancePath = ''
-      let w9Path = ''
-      let workmenCompPath = ''
-      
-      try {
-        driverLicensePath = await uploadFile(formData.driverLicense!, `${userId}/driver-license-${timestamp}.pdf`)
-      } catch (e: any) { throw new Error(`Driver License upload failed: ${e.message}`) }
-      
-      try {
-        paLicensePath = await uploadFile(formData.paLicenseCert!, `${userId}/pa-license-${timestamp}.pdf`)
-      } catch (e: any) { throw new Error(`PA License upload failed: ${e.message}`) }
-      
-      try {
-        insurancePath = await uploadFile(formData.insuranceCert!, `${userId}/insurance-${timestamp}.pdf`)
-      } catch (e: any) { throw new Error(`Insurance upload failed: ${e.message}`) }
-      
-      try {
-        w9Path = await uploadFile(formData.w9Form!, `${userId}/w9-${timestamp}.pdf`)
-      } catch (e: any) { throw new Error(`W-9 upload failed: ${e.message}`) }
-      
-      try {
-        workmenCompPath = await uploadFile(formData.workmenCompCert!, `${userId}/workmen-comp-${timestamp}.pdf`)
-      } catch (e: any) { throw new Error(`Workmen's Comp upload failed: ${e.message}`) }
-
-      // Combine all review links (required + extra)
-      const allReviewLinks = [
-        formData.reviewLinks,
-        ...extraReviewLinks.filter(link => link.trim() !== '')
-      ].filter(link => link.trim() !== '').join('\n')
+      const [driverLicensePath, paLicensePath, insurancePath, w9Path] = await Promise.all([
+        uploadFile(formData.driverLicense!, `${userId}/driver-license-${timestamp}.pdf`),
+        uploadFile(formData.paLicenseCert!, `${userId}/pa-license-${timestamp}.pdf`),
+        uploadFile(formData.insuranceCert!, `${userId}/insurance-${timestamp}.pdf`),
+        uploadFile(formData.w9Form!, `${userId}/w9-${timestamp}.pdf`),
+      ])
 
       // Submit all verification data at once
       const { error } = await supabase
@@ -196,17 +137,13 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
           license_number: formData.paLicenseNumber,
           insurance_provider: formData.insuranceProvider,
           insurance_expiry: formData.insuranceExpiry,
-          external_reviews: allReviewLinks,
-          // Store Workmen's Comp info
-          workmen_comp_provider: formData.workmenCompProvider,
-          workmen_comp_expiry: formData.workmenCompExpiry,
+          external_reviews: formData.reviewLinks,
           // Store file paths in verification_documents JSON field
           verification_documents: JSON.stringify({
             driver_license: driverLicensePath,
             pa_license: paLicensePath,
             insurance_cert: insurancePath,
             w9_form: w9Path,
-            workmen_comp_cert: workmenCompPath,
             submitted_at: new Date().toISOString()
           })
         })
@@ -221,12 +158,7 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
       
     } catch (error: any) {
       console.error('Submission error:', error)
-      // Show more detailed error
-      if (error.message?.includes('400')) {
-        alert(`Upload failed. Please try again. If this keeps happening, try logging out and back in.`)
-      } else {
-        alert(`Error: ${error.message}`)
-      }
+      alert(`Error submitting documents: ${error.message}`)
     } finally {
       setSubmitting(false)
     }
@@ -257,7 +189,7 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
     <div className="border rounded-xl p-6">
       <h2 className="text-xl font-bold mb-4">📋 Verification Requirements</h2>
       <p className="text-sm mb-6 text-gray-600">
-        Complete all 6 requirements and submit together for admin review. No partial submissions allowed.
+        Complete all 4 requirements and submit together for admin review. No partial submissions allowed.
       </p>
 
       {/* Status Messages */}
@@ -320,10 +252,10 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
             </div>
           </div>
 
-          {/* Requirement 3: General Liability Insurance */}
+          {/* Requirement 3: Insurance */}
           <div className="border rounded-lg p-4">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
-              🛡️ 3. General Liability Insurance ($1M+ Required)
+              🛡️ 3. Liability Insurance ($1M+ Required)
               {formData.insuranceProvider && formData.insuranceExpiry && formData.insuranceCert && <span className="text-green-600 text-sm">✓ Complete</span>}
             </h3>
             <div className="space-y-2">
@@ -334,15 +266,13 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
                 onChange={e => setFormData({ ...formData, insuranceProvider: e.target.value })}
                 className="w-full border rounded-lg px-3 py-2"
               />
-              <div>
-                <label className="block text-xs font-medium mb-1 text-gray-600">Policy Expiration Date</label>
-                <input
-                  type="date"
-                  value={formData.insuranceExpiry}
-                  onChange={e => setFormData({ ...formData, insuranceExpiry: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
-                />
-              </div>
+              <input
+                type="date"
+                placeholder="Policy Expiry Date"
+                value={formData.insuranceExpiry}
+                onChange={e => setFormData({ ...formData, insuranceExpiry: e.target.value })}
+                className="w-full border rounded-lg px-3 py-2"
+              />
               <input
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
@@ -353,43 +283,10 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
             </div>
           </div>
 
-          {/* Requirement 4: Workmen's Comp Insurance */}
+          {/* Requirement 4: W-9 Tax Form */}
           <div className="border rounded-lg p-4">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
-              👷 4. Workmen's Compensation Insurance (Required)
-              {formData.workmenCompProvider && formData.workmenCompExpiry && formData.workmenCompCert && <span className="text-green-600 text-sm">✓ Complete</span>}
-            </h3>
-            <div className="space-y-2">
-              <input
-                type="text"
-                placeholder="Workmen's Comp Insurance Company Name"
-                value={formData.workmenCompProvider || ''}
-                onChange={e => setFormData({ ...formData, workmenCompProvider: e.target.value })}
-                className="w-full border rounded-lg px-3 py-2"
-              />
-              <div>
-                <label className="block text-xs font-medium mb-1 text-gray-600">Policy Expiration Date</label>
-                <input
-                  type="date"
-                  value={formData.workmenCompExpiry || ''}
-                  onChange={e => setFormData({ ...formData, workmenCompExpiry: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
-                />
-              </div>
-              <input
-                type="file"
-                accept=".pdf,.jpg,.jpeg,.png"
-                onChange={handleFileChange('workmenCompCert')}
-                className="w-full border rounded-lg px-3 py-2 text-sm"
-              />
-              <p className="text-xs text-gray-500">Upload Workmen's Compensation Certificate (Required for all contractors with employees)</p>
-            </div>
-          </div>
-
-          {/* Requirement 5: W-9 Tax Form */}
-          <div className="border rounded-lg p-4">
-            <h3 className="font-semibold mb-2 flex items-center gap-2">
-              📋 5. W-9 Tax Form
+              📋 4. W-9 Tax Form
               {formData.w9Form && <span className="text-green-600 text-sm">✓ Uploaded</span>}
             </h3>
             <input
@@ -403,53 +300,20 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
             </p>
           </div>
 
-          {/* External Reviews - REQUIRED */}
-          <div className="border rounded-lg p-4 bg-yellow-50 border-yellow-300">
+          {/* BONUS: External Reviews */}
+          <div className="border rounded-lg p-4 bg-blue-50">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
-              ⭐ 6. External Reviews (Required)
-              {formData.reviewLinks.trim() !== '' && <span className="text-green-600 text-sm">✓ Added</span>}
+              ⭐ Bonus: External Reviews (Optional but Recommended)
+              {formData.reviewLinks && <span className="text-green-600 text-sm">✓ Added</span>}
             </h3>
-            <input
-              type="url"
-              placeholder="Paste your Google, Yelp, or Facebook review link (required)"
+            <textarea
+              placeholder="Add links to your Google, Yelp, or Facebook reviews (one per line)"
               value={formData.reviewLinks}
               onChange={e => setFormData({ ...formData, reviewLinks: e.target.value })}
-              className="w-full border rounded-lg px-3 py-2 mb-2"
+              rows={3}
+              className="w-full border rounded-lg px-3 py-2"
             />
-            
-            {/* Extra Review Links (Bonus - Add More) */}
-            {extraReviewLinks.map((link, index) => (
-              <div key={index} className="flex gap-2 mb-2">
-                <input
-                  type="url"
-                  placeholder="Additional review link (optional)"
-                  value={link}
-                  onChange={e => {
-                    const newLinks = [...extraReviewLinks]
-                    newLinks[index] = e.target.value
-                    setExtraReviewLinks(newLinks)
-                  }}
-                  className="flex-1 border rounded-lg px-3 py-2"
-                />
-                <button
-                  type="button"
-                  onClick={() => setExtraReviewLinks(extraReviewLinks.filter((_, i) => i !== index))}
-                  className="text-red-500 px-2"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-            
-            <button
-              type="button"
-              onClick={() => setExtraReviewLinks([...extraReviewLinks, ''])}
-              className="text-blue-600 text-sm underline"
-            >
-              + Add another review link
-            </button>
-            
-            <p className="text-xs text-gray-500 mt-2">Required: At least one review link. More links = bonus!</p>
+            <p className="text-xs text-gray-500 mt-1">Help homeowners trust you by showing your existing reviews</p>
           </div>
 
           {/* Progress Indicator */}
@@ -457,14 +321,24 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">Completion Progress</span>
               <span className="text-sm">
-                {completedCount} / 6 Complete
+                {[
+                  formData.driverLicense !== null,
+                  formData.paLicenseNumber.trim() !== '' && formData.paLicenseCert !== null,
+                  formData.insuranceProvider.trim() !== '' && formData.insuranceExpiry.trim() !== '' && formData.insuranceCert !== null,
+                  formData.w9Form !== null
+                ].filter(Boolean).length} / 4 Complete
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
               <div 
                 className="bg-blue-600 h-2 rounded-full transition-all"
                 style={{ 
-                  width: `${(completedCount / 6) * 100}%` 
+                  width: `${([
+                    formData.driverLicense !== null,
+                    formData.paLicenseNumber.trim() !== '' && formData.paLicenseCert !== null,
+                    formData.insuranceProvider.trim() !== '' && formData.insuranceExpiry.trim() !== '' && formData.insuranceCert !== null,
+                    formData.w9Form !== null
+                  ].filter(Boolean).length) * 25}%` 
                 }}
               />
             </div>
@@ -488,7 +362,12 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
             ) : allFieldsComplete ? (
               '🚀 Submit All for Verification'
             ) : (
-              `Complete All 6 Requirements First (${completedCount}/6)`
+              `Complete All 4 Requirements First (${[
+                formData.driverLicense !== null,
+                formData.paLicenseNumber.trim() !== '' && formData.paLicenseCert !== null,
+                formData.insuranceProvider.trim() !== '' && formData.insuranceExpiry.trim() !== '' && formData.insuranceCert !== null,
+                formData.w9Form !== null
+              ].filter(Boolean).length}/4)`
             )}
           </button>
 
@@ -501,99 +380,6 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
   )
 }
 
-// Job History component
-function JobHistorySection({ userId }: { userId: string }) {
-  const [history, setHistory] = useState<any[]>([])
-  const supabase = createClient()
-
-  useEffect(() => {
-    const fetchHistory = async () => {
-      console.log('Fetching job history for user:', userId)
-      // Get all history for this user
-      const { data, error } = await supabase
-        .from('job_history')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false })
-      
-      if (data && data.length > 0) {
-        // Group by job_id and keep only the latest action per job
-        const latestByJob: Record<string, any> = {}
-        for (const item of data) {
-          if (!latestByJob[item.job_id]) {
-            latestByJob[item.job_id] = item
-          }
-        }
-        // Convert back to array and limit to 10
-        const uniqueHistory = Object.values(latestByJob).slice(0, 10)
-        setHistory(uniqueHistory)
-        console.log('Job history (deduplicated):', uniqueHistory)
-      } else {
-        setHistory([])
-      }
-    }
-    fetchHistory()
-  }, [userId])
-
-  if (history.length === 0) {
-    return (
-      <div className="border rounded-xl p-6 mt-6">
-        <h2 className="text-xl font-bold mb-4">📋 My Job History</h2>
-        <p className="text-gray-500 text-sm">No job activity yet. Your job posts, completions, and deletions will appear here.</p>
-      </div>
-    )
-  }
-
-  const getActionLabel = (action: string) => {
-    switch (action) {
-      case 'POSTED': return '📝 Posted'
-      case 'COMPLETED': return '✅ Completed'
-      case 'DELETED': return '❌ Removed'
-      case 'AWARDED': return '🎯 Awarded'
-      default: return action
-    }
-  }
-
-  const getActionColor = (action: string) => {
-    switch (action) {
-      case 'POSTED': return 'bg-blue-100 text-blue-700'
-      case 'COMPLETED': return 'bg-green-100 text-green-700'
-      case 'DELETED': return 'bg-red-100 text-red-700'
-      case 'AWARDED': return 'bg-purple-100 text-purple-700'
-      default: return 'bg-gray-100 text-gray-700'
-    }
-  }
-
-  console.log('Rendering job history:', history)
-  
-  return (
-    <div className="border rounded-xl p-6 mt-6">
-      <h2 className="text-xl font-bold mb-4">📋 My Job History ({history.length} items)</h2>
-      <div className="space-y-3">
-        {history.map((item) => (
-          <div key={item.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
-            <div className="flex items-center gap-3">
-              <span className={`text-xs px-2 py-1 rounded ${getActionColor(item.action)}`}>
-                {getActionLabel(item.action)}
-              </span>
-              <span className="font-medium">
-                {/* Show job_title directly since we no longer join */}
-                {item.job_title || 'Job #' + item.job_id?.slice(0,8)}
-              </span>
-            </div>
-            <span className="text-sm text-gray-500">
-              {item.created_at ? new Date(item.created_at).toLocaleDateString() : 'Unknown'}
-            </span>
-          </div>
-        ))}
-        {history.length === 0 && (
-          <p className="text-gray-500 text-sm">No activity yet. Your job posts, completions, and deletions will appear here.</p>
-        )}
-      </div>
-    </div>
-  )
-}
-
 export default function Profile() {
   const router = useRouter()
   const supabase = createClient()
@@ -602,9 +388,6 @@ export default function Profile() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
-  const [isAdmin, setIsAdmin] = useState(false)
-  const [editingReviews, setEditingReviews] = useState(false)
-  const [editReviewLinks, setEditReviewLinks] = useState<string[]>([])
   
   const [formData, setFormData] = useState({
     first_name: '',
@@ -628,19 +411,6 @@ export default function Profile() {
       return
     }
     setUser(user)
-    
-    // Check if admin
-    const { data: userData } = await supabase
-      .from('users')
-      .select('is_admin, email')
-      .eq('id', user.id)
-      .single()
-    
-    if (userData?.is_admin || user.email?.toLowerCase().includes('heritagehousepainting')) {
-      setIsAdmin(true)
-    } else {
-    }
-    
     fetchProfile(user.id)
   }
 
@@ -719,9 +489,6 @@ export default function Profile() {
             <Link href="/jobs/post" className="text-black">Post</Link>
             <Link href="/messages" className="text-black">Messages</Link>
             <Link href="/profile" className="text-black font-medium">Profile</Link>
-            {isAdmin && (
-              <Link href="/admin" className="text-green-600 font-medium">🔧 Admin</Link>
-            )}
             <button onClick={handleSignOut} className="text-black">Sign out</button>
           </nav>
         </div>
@@ -775,7 +542,6 @@ export default function Profile() {
             {/* FIXED Verification Section */}
             <VerificationSection 
               profile={profile} 
-              externalReviews={profile.external_reviews || ''}
               onUpdate={() => fetchProfile(profile.id)} 
             />
           </div>
@@ -971,125 +737,34 @@ export default function Profile() {
           </div>
         )}
 
-        {/* External Reviews Section - EDITABLE */}
+        {/* External Reviews Section for Contractors */}
         {isContractor && (
           <div className="border rounded-xl p-6 mt-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">External Reviews</h2>
-              <button
-                onClick={() => {
-                  if (!editingReviews) {
-                    // Initialize with existing reviews
-                    const existing = profile?.external_reviews?.split('\n').filter(l => l.trim()) || []
-                    setEditReviewLinks(existing.length > 0 ? existing : [''])
-                  }
-                  setEditingReviews(!editingReviews)
-                }}
-                className="text-blue-600 text-sm underline"
-              >
-                {editingReviews ? 'Cancel' : 'Edit'}
-              </button>
-            </div>
+            <h2 className="text-xl font-bold mb-4">External Reviews</h2>
+            <p className="text-sm mb-4 opacity-70">Links to your reviews on other platforms.</p>
             
-            {editingReviews ? (
-              <div className="space-y-3">
-                {/* Required review link */}
-                <div>
-                  <label className="block text-sm font-medium mb-1">Required Review Link *</label>
-                  <input
-                    type="url"
-                    placeholder="https://www.google.com/reviews/..."
-                    value={editReviewLinks[0] || ''}
-                    onChange={(e) => {
-                      const newLinks = [...editReviewLinks]
-                      newLinks[0] = e.target.value
-                      setEditReviewLinks(newLinks)
-                    }}
-                    className="w-full border rounded-lg px-3 py-2"
-                  />
-                </div>
-                
-                {/* Additional review links */}
-                {editReviewLinks.slice(1).map((link, i) => (
-                  <div key={i} className="flex gap-2">
-                    <input
-                      type="url"
-                      placeholder="Additional review link"
-                      value={link || ''}
-                      onChange={(e) => {
-                        const newLinks = [...editReviewLinks]
-                        newLinks[i + 1] = e.target.value
-                        setEditReviewLinks(newLinks)
-                      }}
-                      className="flex-1 border rounded-lg px-3 py-2"
-                    />
-                    <button
-                      onClick={() => {
-                        const newLinks = editReviewLinks.filter((_, idx) => idx !== i + 1)
-                        setEditReviewLinks(newLinks)
-                      }}
-                      className="text-red-500 px-2"
-                    >
-                      ✕
-                    </button>
-                  </div>
+            {profile?.external_reviews ? (
+              <div className="space-y-2">
+                {profile.external_reviews.split('\n').filter(link => link.trim()).map((link, i) => (
+                  <a 
+                    key={i} 
+                    href={link.trim()} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 p-3 border rounded-lg hover:bg-gray-50"
+                  >
+                    <span className="text-lg">
+                      {link.includes('google') ? '🔍' : link.includes('yelp') ? '⭐' : '📘'}
+                    </span>
+                    <span className="font-medium">{link.includes('google') ? 'Google' : link.includes('yelp') ? 'Yelp' : 'Review'}</span>
+                    <span className="text-sm opacity-70">→</span>
+                  </a>
                 ))}
-                
-                <button
-                  onClick={() => setEditReviewLinks([...editReviewLinks, ''])}
-                  className="text-blue-600 text-sm underline"
-                >
-                  + Add Another Review
-                </button>
-                
-                <button
-                  onClick={async () => {
-                    // Save to database
-                    const links = editReviewLinks.filter(l => l.trim()).join('\n')
-                    await supabase.from('users').update({ external_reviews: links }).eq('id', user.id)
-                    // Refresh profile
-                    fetchProfile(user.id)
-                    setEditingReviews(false)
-                  }}
-                  className="w-full bg-slate-900 text-white py-2 rounded-lg mt-2"
-                >
-                  Save Reviews
-                </button>
               </div>
             ) : (
-              <div>
-                <p className="text-sm mb-4 opacity-70">
-                  {profile?.external_reviews ? 'Your review links (click to open):' : 'No external reviews added yet.'}
-                </p>
-                {profile?.external_reviews ? (
-                  <div className="space-y-2">
-                    {profile.external_reviews.split('\n').filter(link => link.trim()).map((link, i) => (
-                      <a 
-                        key={i} 
-                        href={link.trim()} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 p-3 border rounded-lg hover:bg-gray-50"
-                      >
-                        <span className="text-lg">
-                          {link.includes('google') ? '🔍' : link.includes('yelp') ? '⭐' : '📘'}
-                        </span>
-                        <span className="font-medium">{link.includes('google') ? 'Google' : link.includes('yelp') ? 'Yelp' : 'Review'}</span>
-                        <span className="text-sm opacity-70">→</span>
-                      </a>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="opacity-70">Click "Edit" to add your review links.</p>
-                )}
-              </div>
+              <p className="opacity-70">No external reviews added yet.</p>
             )}
           </div>
-        )}
-
-        {/* Job History Section for All Users */}
-        {user && (
-          <JobHistorySection userId={user.id} />
         )}
       </main>
     </div>

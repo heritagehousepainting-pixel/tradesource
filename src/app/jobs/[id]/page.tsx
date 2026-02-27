@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import RatingPopup from '@/components/RatingPopup'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,6 +21,7 @@ interface Job {
   status: string
   created_at: string
   posted_by: string
+  awarded_to: string
   users: {
     first_name: string
     last_name: string
@@ -48,6 +50,7 @@ export default function JobDetail() {
   const supabase = createClient()
   const [job, setJob] = useState<Job | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showRating, setShowRating] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [userProfile, setUserProfile] = useState<any>(null)
   const [alreadyInterested, setAlreadyInterested] = useState(false)
@@ -172,11 +175,21 @@ export default function JobDetail() {
       .update({ status: 'SELECTED' })
       .eq('id', interest.id)
 
-    // Update job status to awarded
+    // Update job status to awarded and store awarded contractor
     await supabase
       .from('jobs')
-      .update({ status: 'AWARDED' })
+      .update({ 
+        status: 'AWARDED',
+        awarded_to: interest.user_id 
+      })
       .eq('id', job.id)
+    
+    // Log the award in job history
+    await supabase.from('job_history').insert({
+      user_id: job.posted_by,
+      job_id: job.id,
+      action: 'AWARDED'
+    })
     
     // Start chat
     router.push(`/messages?job=${job.id}&user=${interest.user_id}`)
@@ -248,16 +261,79 @@ export default function JobDetail() {
 
           {/* Posted by */}
           <div className="bg-slate-50 rounded-lg p-4 mb-6">
-            <p className="text-sm text-black mb-2">Posted by</p>
-            <div className="flex items-center gap-2">
-              <span className="font-medium">
-                {job.users?.company_name || 'Individual Contractor'}
-              </span>
-              {job.users?.is_verified && (
-                <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">✓ Verified</span>
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm text-black mb-2">Posted by</p>
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">
+                    {job.users?.company_name || 'Individual Contractor'}
+                  </span>
+                  {job.users?.is_verified && (
+                    <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">✓ Verified</span>
+                  )}
+                </div>
+              </div>
+              {/* Delete button for poster */}
+              {job && user && job.posted_by === user.id && (
+                <button
+                  onClick={async () => {
+                    if (confirm('Are you sure you want to delete this job? This cannot be undone.')) {
+                      // Log deletion BEFORE deleting - save title too
+                      await supabase.from('job_history').insert({
+                        user_id: user.id,
+                        job_id: job.id,
+                        job_title: job.title,  // Save title in case job gets deleted
+                        action: 'DELETED'
+                      })
+                      await supabase.from('jobs').delete().eq('id', job.id)
+                      // Go to feed
+                      router.push('/feed')
+                    }
+                  }}
+                  className="text-red-600 text-sm hover:underline"
+                >
+                  🗑️ Delete Job
+                </button>
               )}
             </div>
           </div>
+
+          {/* Completed Banner with Review Button */}
+          {job.status === 'COMPLETED' && (
+            <div className="bg-green-100 border border-green-300 rounded-lg p-4 mb-6">
+              <p className="font-bold text-green-800 text-center mb-3">✅ This job has been completed!</p>
+              <div className="flex justify-center gap-3">
+                <button
+                  onClick={() => setShowRating(true)}
+                  className="bg-slate-900 text-white px-4 py-2 rounded-lg font-medium"
+                >
+                  ⭐ Leave a Review
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Mark Complete Button (when job is AWARDED, IN_PROGRESS, or COMPLETED) */}
+          {(job.status === 'AWARDED' || job.status === 'IN_PROGRESS' || job.status === 'COMPLETED') && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="font-medium text-green-800">Job Status: {job.status}</p>
+                  <p className="text-sm text-green-700">This job has been awarded to a contractor.</p>
+                </div>
+                <button
+                  onClick={() => {
+                    if (confirm('Mark this job as complete and leave a review?')) {
+                      setShowRating(true)
+                    }
+                  }}
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium"
+                >
+                  ✓ Mark Complete
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* If user is the poster, show interests */}
           {isPoster && (
@@ -313,7 +389,23 @@ export default function JobDetail() {
                               Message
                             </button>
                             <button
-                              onClick={() => {/* TODO: Mark complete and prompt review */}}
+                              onClick={async () => {
+                                if (confirm('Mark this job as complete?')) {
+                                  // Update job status
+                                  await supabase
+                                    .from('jobs')
+                                    .update({ status: 'COMPLETED' })
+                                    .eq('id', job.id)
+                                  // Log completion
+                                  await supabase.from('job_history').insert({
+                                    user_id: job.posted_by,
+                                    job_id: job.id,
+                                    action: 'COMPLETED'
+                                  })
+                                  // Refresh
+                                  fetchJob()
+                                }
+                              }}
                               className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
                             >
                               Mark Complete
@@ -337,7 +429,7 @@ export default function JobDetail() {
           )}
 
           {/* If user is NOT the poster, show interested button */}
-          {!isPoster && !alreadyInterested && !submitted && (
+          {job && user && job.posted_by !== user.id && !alreadyInterested && !submitted && (
             <div className="border-t pt-6">
               <h3 className="font-semibold mb-3">Express Interest</h3>
               
@@ -393,6 +485,21 @@ export default function JobDetail() {
           )}
         </div>
       </main>
+
+      {/* Rating Popup - show after job is awarded */}
+      {showRating && job && user && (
+        <RatingPopup
+          job={job}
+          currentUserId={user.id}
+          otherUserId={interests.find(i => i.status === 'SELECTED')?.user_id || job.awarded_to || ''}
+          otherUserName={interests.find(i => i.status === 'SELECTED')?.users?.first_name || 'Contractor'}
+          onComplete={() => {
+            setShowRating(false)
+            fetchJob()
+          }}
+          onCancel={() => setShowRating(false)}
+        />
+      )}
     </div>
   )
 }

@@ -25,9 +25,6 @@ interface Contractor {
   insurance_provider: string
   insurance_expiry: string
   external_reviews: string
-  verification_documents: any
-  workmen_comp_provider: string
-  workmen_comp_expiry: string
   created_at: string
 }
 
@@ -59,7 +56,7 @@ export default function AdminVerification() {
       .eq('id', user.id)
       .single()
     
-    if (userData?.is_admin || user.email?.toLowerCase().includes('heritagehousepainting')) {
+    if (userData?.is_admin || user.email?.includes('heritagehousepainting')) {
       setIsAdmin(true)
       fetchContractors()
     } else {
@@ -75,14 +72,7 @@ export default function AdminVerification() {
       .order('created_at', { ascending: false })
     
     if (data) {
-      // Parse verification_documents JSON if it's a string
-      const parsedData = data.map((contractor: any) => ({
-        ...contractor,
-        verification_documents: typeof contractor.verification_documents === 'string' 
-          ? JSON.parse(contractor.verification_documents || '{}') 
-          : contractor.verification_documents
-      }))
-      setContractors(parsedData)
+      setContractors(data)
     }
     setLoading(false)
   }
@@ -289,63 +279,15 @@ export default function AdminVerification() {
                 {/* Submitted Documents */}
                 <div className="bg-slate-50 rounded-lg p-3 text-sm">
                   <p className="font-medium mb-2">📋 Submitted Documents:</p>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span>🪪 Driver's License:</span>
-                      <a 
-                        href={`https://ueaojdmbqbgkvkmhuhnm.supabase.co/storage/v1/object/public/verification-docs/${contractor.verification_documents?.driver_license}`}
-                        target="_blank"
-                        className="text-blue-600 underline"
-                      >
-                        {contractor.verification_documents?.driver_license ? '📄 View File' : '❌ Missing'}
-                      </a>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>🏢 PA HIC License:</span>
-                      <span className="font-mono">{contractor.license_number || '—'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>🛡️ General Liability:</span>
-                      <span className="font-mono">{contractor.insurance_provider || '—'} (exp: {contractor.insurance_expiry || '—'})</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>🛡️ GL Certificate:</span>
-                      <a 
-                        href={`https://ueaojdmbqbgkvkmhuhnm.supabase.co/storage/v1/object/public/verification-docs/${contractor.verification_documents?.insurance_cert}`}
-                        target="_blank"
-                        className="text-blue-600 underline"
-                      >
-                        {contractor.verification_documents?.insurance_cert ? '📄 View File' : '❌ Missing'}
-                      </a>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>👷 Workmen's Comp:</span>
-                      <span className="font-mono">{contractor.workmen_comp_provider || '—'} (exp: {contractor.workmen_comp_expiry || '—'})</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>👷 WC Certificate:</span>
-                      <a 
-                        href={`https://ueaojdmbqbgkvkmhuhnm.supabase.co/storage/v1/object/public/verification-docs/${contractor.verification_documents?.workmen_comp_cert}`}
-                        target="_blank"
-                        className="text-blue-600 underline"
-                      >
-                        {contractor.verification_documents?.workmen_comp_cert ? '📄 View File' : '❌ Missing'}
-                      </a>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>📋 W-9 Tax Form:</span>
-                      <a 
-                        href={`https://ueaojdmbqbgkvkmhuhnm.supabase.co/storage/v1/object/public/verification-docs/${contractor.verification_documents?.w9_form}`}
-                        target="_blank"
-                        className="text-blue-600 underline"
-                      >
-                        {contractor.verification_documents?.w9_form ? '📄 View File' : '❌ Missing'}
-                      </a>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>⭐ External Reviews:</span>
-                      <span className="font-mono truncate max-w-[200px]">{contractor.external_reviews || '—'}</span>
-                    </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>🪪 Driver's License:</div>
+                    <div className="font-mono">{contractor.license_number || '—'}</div>
+                    <div>🏢 PA HIC License:</div>
+                    <div className="font-mono">{contractor.license_number || '—'}</div>
+                    <div>🛡️ Insurance:</div>
+                    <div className="font-mono">{contractor.insurance_provider || '—'} (exp: {contractor.insurance_expiry || '—'})</div>
+                    <div>⭐ External Reviews:</div>
+                    <div className="font-mono truncate">{contractor.external_reviews || '—'}</div>
                   </div>
                 </div>
 

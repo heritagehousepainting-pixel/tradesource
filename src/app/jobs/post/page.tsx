@@ -44,7 +44,7 @@ export default function PostJob() {
     setError('')
 
     try {
-      const { data, error: insertError } = await supabase.from('jobs').insert({
+      const { data: jobData, error: insertError } = await supabase.from('jobs').insert({
         posted_by: user.id,
         title: formData.title,
         description: formData.description,
@@ -55,9 +55,16 @@ export default function PostJob() {
         price_amount: parseFloat(formData.priceAmount) || 0,
         is_b2c: formData.isB2C,
         status: 'OPEN',
-      })
+      }).select().single()
 
       if (insertError) throw insertError
+
+      // Log job posting
+      await supabase.from('job_history').insert({
+        user_id: user.id,
+        job_id: jobData.id,
+        action: 'POSTED'
+      })
 
       router.push('/feed')
     } catch (err: any) {

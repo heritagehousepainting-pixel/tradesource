@@ -55,11 +55,13 @@ export default function ContractorProfile() {
     const contractorId = params.id as string
     
     // Fetch contractor info
-    const { data: contractorData } = await supabase
+    const { data: contractorData, error } = await supabase
       .from('users')
       .select('*')
       .eq('id', contractorId)
       .single()
+    
+    console.log('Fetching contractor:', contractorId, 'Error:', error)
     
     if (contractorData) {
       setContractor(contractorData)
@@ -83,13 +85,34 @@ export default function ContractorProfile() {
   }
 
   if (!contractor) {
-    return <div className="min-h-screen flex items-center justify-center">Contractor not found</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center flex-col gap-4">
+        <p>Contractor not found</p>
+        <Link href="/feed" className="text-blue-600 underline">Back to Feed</Link>
+      </div>
+    )
   }
 
-  // Calculate average rating
-  const avgRating = reviews.length > 0 
-    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
-    : 'New'
+  // Parse external reviews
+  const reviewLinks = contractor.external_reviews 
+    ? contractor.external_reviews.split('\n').filter((r: string) => r.trim())
+    : []
+    
+  // Get ratings from other contractors/homeowners
+  const [ratings, setRatings] = useState<any[]>([])
+  
+  useEffect(() => {
+    const fetchRatings = async () => {
+      const { data } = await supabase
+        .from('reviews')
+        .select('*, users!inner(first_name, last_name)')
+        .eq('reviewed_id', contractor.id)
+        .order('created_at', { ascending: false })
+        .limit(10)
+      if (data) setRatings(data)
+    }
+    if (contractor.id) fetchRatings()
+  }, [contractor.id])
 
   return (
     <div className="min-h-screen bg-white">
@@ -129,7 +152,7 @@ export default function ContractorProfile() {
               <span className="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-medium">🛡️ Insured</span>
             )}
             <span className="bg-orange-100 text-orange-700 text-xs px-3 py-1 rounded-full font-medium">📋 W-9</span>
-            {contractor.external_reviews && (
+            {reviewLinks.length > 0 && (
               <span className="bg-yellow-100 text-yellow-700 text-xs px-3 py-1 rounded-full font-medium">⭐ External Reviews</span>
             )}
           </div>
@@ -173,22 +196,56 @@ export default function ContractorProfile() {
             </div>
           )}
 
-          {/* External Reviews */}
-          {contractor.external_reviews && (
+          {/* Platform Ratings & Reviews */}
+          {ratings && ratings.length > 0 && (
             <div className="mb-4">
-              <h3 className="font-medium mb-2">Reviews</h3>
+              <h3 className="font-medium mb-2">TradeSource Reviews ({ratings.length})</h3>
+              <div className="space-y-3">
+                {ratings.map((review: any) => (
+                  <div key={review.id} className={`p-3 rounded-lg ${review.is_issue ? 'bg-red-50 border border-red-200' : 'bg-slate-50'}`}>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{review.users?.first_name}</span>
+                        {review.is_issue && (
+                          <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">⚠️ Issue Reported</span>
+                        )}
+                      </div>
+                      <div className="flex">
+                        {[1,2,3,4,5].map((star) => (
+                          <span key={star} className={star <= review.rating ? 'text-yellow-500' : 'text-gray-300'}>⭐</span>
+                        ))}
+                      </div>
+                    </div>
+                    {review.feedback && (
+                      <p className="text-sm text-gray-600">{review.feedback}</p>
+                    )}
+                    {review.is_issue && review.issue_type && (
+                      <p className="text-xs text-red-600 mt-1">
+                        Issue: {review.issue_type.replace('_', ' ')}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* External Reviews */}
+          {reviewLinks.length > 0 && (
+            <div className="mb-4">
+              <h3 className="font-medium mb-2">External Reviews</h3>
               <div className="space-y-2">
-                {JSON.parse(contractor.external_reviews).map((review: any, i: number) => (
+                {reviewLinks.map((link: string, i: number) => (
                   <a 
                     key={i} 
-                    href={review.url} 
+                    href={link.trim()} 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50"
                   >
                     <span className="flex items-center gap-2">
-                      <span>{review.platform === 'google' ? '🔍' : review.platform === 'yelp' ? '⭐' : '📘'}</span>
-                      <span className="capitalize">{review.platform}</span>
+                      <span>{link.includes('google') ? '🔍' : link.includes('yelp') ? '⭐' : '📘'}</span>
+                      <span>{link.includes('google') ? 'Google' : link.includes('yelp') ? 'Yelp' : 'Review'}</span>
                     </span>
                     <span>View →</span>
                   </a>
@@ -220,38 +277,6 @@ export default function ContractorProfile() {
           >
             Message
           </Link>
-          <button className="flex-1 bg-green-600 text-white py-3 rounded-lg font-medium">
-            Hire Now
-          </button>
-        </div>
-
-        {/* Reviews */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Reviews ({reviews.length})</h2>
-          
-          {reviews.length === 0 ? (
-            <div className="text-center py-8 bg-slate-50 rounded-xl">
-              <p className="text-black">No reviews yet.</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {reviews.map(review => (
-                <div key={review.id} className="border rounded-lg p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="flex">
-                      {[...Array(5)].map((_, i) => (
-                        <span key={i} className={i < review.rating ? 'text-yellow-400' : 'text-black'}>★</span>
-                      ))}
-                    </div>
-                    <span className="text-sm text-black">
-                      {new Date(review.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <p className="text-black">{review.review_text}</p>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
       </main>
     </div>

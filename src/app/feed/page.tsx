@@ -18,6 +18,7 @@ interface Job {
   price_amount: number
   is_b2c: boolean
   created_at: string
+  posted_by: string
 }
 
 export default function Feed() {
@@ -57,8 +58,9 @@ export default function Feed() {
     
     if (userData) {
       setUserProfile(userData)
-      if (userData.is_admin || user.email?.includes('heritagehousepainting')) {
+      if (userData.is_admin || user.email?.toLowerCase().includes('heritagehousepainting')) {
         setIsAdmin(true)
+      } else {
       }
     }
     
@@ -85,10 +87,15 @@ export default function Feed() {
     }
   }
 
+  // Check URL for deleted job param on mount - no longer needed since we don't filter
+
   const fetchJobs = async () => {
+    // Force fresh fetch by adding a small delay to ensure DB is updated
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
     let query = supabase
       .from('jobs')
-      .select('*')
+      .select('id, title, description, county, job_type, work_category, price_type, price_amount, is_b2c, created_at, posted_by')
       .eq('status', 'OPEN')
       .order('created_at', { ascending: false })
 
@@ -122,9 +129,10 @@ export default function Feed() {
   }
 
   const filteredJobs = jobs.filter(job => 
-    searchQuery === '' || 
+    // Filter by search
+    (searchQuery === '' || 
     job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    job.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    job.description?.toLowerCase().includes(searchQuery.toLowerCase()))
   )
 
   return (
@@ -145,7 +153,7 @@ export default function Feed() {
               )}
             </Link>
             {isAdmin && (
-              <Link href="/admin" className="text-green-600 hover:text-green-700 font-medium text-black">Admin</Link>
+              <Link href="/admin" className="text-green-600 hover:text-green-700 font-medium">🔧 Admin</Link>
             )}
             <Link href="/profile" className="text-black">Profile</Link>
             <button onClick={handleSignOut} className="text-black">Sign out</button>
@@ -224,27 +232,53 @@ export default function Feed() {
         ) : (
           <div className="space-y-4">
             {filteredJobs.map(job => (
-              <Link key={job.id} href={`/jobs/${job.id}`} className="block">
-                <div className="border rounded-xl p-4 hover:shadow-md transition cursor-pointer">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
+              <div key={job.id} className="border rounded-xl p-4 hover:shadow-md transition">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <Link href={`/jobs/${job.id}`}>
                       <span className={`text-xs px-2 py-1 rounded ${job.is_b2c ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
                         {job.is_b2c ? 'Homeowner Project' : 'Overflow Job'}
                       </span>
                       <h3 className="font-semibold mt-2">{job.title}</h3>
-                    </div>
+                    </Link>
+                  </div>
+                  <div className="flex items-center gap-3">
                     <span className={`text-lg font-bold ${isUnverifiedContractor ? 'blur-sm select-none' : 'text-green-700'}`}>
                       {isUnverifiedContractor ? '••••••' : `$${job.price_amount?.toLocaleString()}`}
                     </span>
+                    {job.posted_by === user?.id && (
+                      <button
+                        onClick={async (e) => {
+                          e.preventDefault()
+                          if (confirm('Delete this job?')) {
+                            // Log deletion with title
+                            await supabase.from('job_history').insert({
+                              user_id: user.id,
+                              job_id: job.id,
+                              job_title: job.title,
+                              action: 'DELETED'
+                            })
+                            await supabase.from('jobs').delete().eq('id', job.id)
+                            // Refresh feed
+                            fetchJobs()
+                          }
+                        }}
+                        className="text-red-500 text-sm hover:underline"
+                      >
+                        🗑️
+                      </button>
+                    )}
                   </div>
-                  <p className=" text-sm text-black mb-2 line-clamp-2">{job.description}</p>
+                </div>
+                <Link href={`/jobs/${job.id}`}>
+                  <p className="text-sm text-black mb-2 line-clamp-2">{job.description}</p>
                   <div className="flex gap-4 text-sm text-black">
                     <span>📍 {job.county}</span>
                     <span>🏠 {job.work_category}</span>
                     <span>💰 {job.price_type}</span>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </div>
             ))}
           </div>
         )}
