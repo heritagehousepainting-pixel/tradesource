@@ -31,6 +31,7 @@ export default function Feed() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [countyFilter, setCountyFilter] = useState('all')
   const [typeFilter, setTypeFilter] = useState('all')
+  const [timelineFilter, setTimelineFilter] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [notificationCount, setNotificationCount] = useState(0)
 
@@ -111,6 +112,10 @@ export default function Feed() {
       }
     }
 
+    if (timelineFilter !== 'all') {
+      query = query.eq('timeline', timelineFilter.toUpperCase())
+    }
+
     const { data, error } = await query
     
     if (!error && data) {
@@ -143,6 +148,7 @@ export default function Feed() {
           <Link href="/" className="text-xl font-bold text-black">TradeSource</Link>
           <nav className="flex gap-4 items-center text-sm">
             <Link href="/feed" className="font-medium text-black">Feed</Link>
+            <Link href="/contractors" className="text-black">Contractors</Link>
             <Link href="/community" className="text-black">Community</Link>
             <Link href="/jobs/post" className="text-black">Post</Link>
             <Link href="/messages" className="text-black relative">
@@ -220,6 +226,17 @@ export default function Feed() {
             <option value="FULL">Full Job</option>
             <option value="PIECE">Piece Work</option>
             <option value="b2c">Homeowner Projects</option>
+          </select>
+          <select 
+            className="px-3 py-2 border rounded-lg"
+            value={timelineFilter}
+            onChange={e => setTimelineFilter(e.target.value)}
+          >
+            <option value="all">Any Timeline</option>
+            <option value="ASAP">ASAP</option>
+            <option value="THIS_WEEK">This Week</option>
+            <option value="THIS_MONTH">This Month</option>
+            <option value="FLEXIBLE">Flexible</option>
           </select>
         </div>
 
