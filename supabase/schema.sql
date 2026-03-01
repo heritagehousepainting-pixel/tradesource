@@ -27,6 +27,7 @@ create table users (
   jobs_completed integer default 0,
   verification_status text default 'PENDING',
   verification_notes text,
+  verification_documents jsonb default '{}', -- Stores file paths for uploaded docs
   external_reviews text,  -- JSON array of review links
   portfolio_urls text[],   -- Array of portfolio image URLs
   subscription_tier text check (subscription_tier in ('BASIC', 'PRO', 'PREMIUM')) default 'BASIC',
@@ -162,3 +163,25 @@ insert into storage.buckets (id, name, public) values ('job-media', 'job-media',
 -- Storage policy for job-media
 create policy "Public can view job media" on storage.objects for select using (bucket_id = 'job-media');
 create policy "Authenticated users can upload job media" on storage.objects for insert with check (bucket_id = 'job-media' AND auth.role() = 'authenticated');
+
+-- Storage buckets for file uploads
+insert into storage.buckets (id, name, public) values ('verification-docs', 'verification-docs', true) on conflict (id) do nothing;
+insert into storage.buckets (id, name, public) values ('job-media', 'job-media', true) on conflict (id) do nothing;
+insert into storage.buckets (id, name, public) values ('portfolio', 'portfolio', true) on conflict (id) do nothing;
+insert into storage.buckets (id, name, public) values ('profile-photos', 'profile-photos', true) on conflict (id) do nothing;
+
+-- Storage policies
+drop policy if exists "Public can view verification docs" on storage.objects;
+drop policy if exists "Authenticated can upload verification docs" on storage.objects;
+
+create policy "Public can view verification docs" on storage.objects for select using (bucket_id = 'verification-docs');
+create policy "Authenticated can upload verification docs" on storage.objects for insert with check (bucket_id = 'verification-docs' AND auth.role() = 'authenticated');
+
+create policy "Public can view job media" on storage.objects for select using (bucket_id = 'job-media');
+create policy "Authenticated can upload job media" on storage.objects for insert with check (bucket_id = 'job-media' AND auth.role() = 'authenticated');
+
+create policy "Public can view portfolio" on storage.objects for select using (bucket_id = 'portfolio');
+create policy "Authenticated can upload portfolio" on storage.objects for insert with check (bucket_id = 'portfolio' AND auth.role() = 'authenticated');
+
+create policy "Public can view profile photos" on storage.objects for select using (bucket_id = 'profile-photos');
+create policy "Authenticated can upload profile photos" on storage.objects for insert with check (bucket_id = 'profile-photos' AND auth.role() = 'authenticated');
