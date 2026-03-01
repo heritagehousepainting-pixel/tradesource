@@ -185,3 +185,38 @@ create policy "Authenticated can upload portfolio" on storage.objects for insert
 
 create policy "Public can view profile photos" on storage.objects for select using (bucket_id = 'profile-photos');
 create policy "Authenticated can upload profile photos" on storage.objects for insert with check (bucket_id = 'profile-photos' AND auth.role() = 'authenticated');
+
+-- Community/Forum Tables
+create table community_posts (
+  id uuid default gen_random_uuid() primary key,
+  user_id uuid references users(id) not null,
+  category text not null check (category in ('BUSINESS', 'ESTIMATING', 'TOOLS', 'HIRING', 'GENERAL')),
+  title text not null,
+  content text not null,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create table community_replies (
+  id uuid default gen_random_uuid() primary key,
+  post_id uuid references community_posts(id) not null,
+  user_id uuid references users(id) not null,
+  content text not null,
+  created_at timestamptz default now()
+);
+
+alter table community_posts enable row level security;
+alter table community_replies enable row level security;
+
+-- RLS: Only verified contractors can post
+create policy "Verified contractors can post" on community_posts for insert
+  with check (auth.uid() = user_id AND exists (
+    select 1 from users where id = auth.uid() and verification_status = 'APPROVED'
+  ));
+
+create policy "Anyone can view community posts" on community_posts for select using (true);
+create policy "Verified contractors can reply" on community_replies for insert
+  with check (auth.uid() = user_id AND exists (
+    select 1 from users where id = auth.uid() and verification_status = 'APPROVED'
+  ));
+create policy "Anyone can view replies" on community_replies for select using (true);

@@ -143,6 +143,7 @@ export default function Feed() {
           <Link href="/" className="text-xl font-bold text-black">TradeSource</Link>
           <nav className="flex gap-4 items-center text-sm">
             <Link href="/feed" className="font-medium text-black">Feed</Link>
+            <Link href="/community" className="text-black">Community</Link>
             <Link href="/jobs/post" className="text-black">Post</Link>
             <Link href="/messages" className="text-black relative">
               Messages

@@ -14,6 +14,7 @@ export default function PostJob() {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [user, setUser] = useState<any>(null)
+  const [userProfile, setUserProfile] = useState<any>(null)
   const [mediaUrls, setMediaUrls] = useState<string[]>([])
   const [previews, setPreviews] = useState<string[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -40,6 +41,17 @@ export default function PostJob() {
       return
     }
     setUser(user)
+    
+    // Get user profile for subscription check
+    const { data: profile } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
+      .single()
+    
+    if (profile) {
+      setUserProfile(profile)
+    }
   }
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,6 +109,27 @@ export default function PostJob() {
     e.preventDefault()
     setLoading(true)
     setError('')
+
+    // Check subscription limits for contractors
+    if (userProfile?.user_type === 'CONTRACTOR' && !formData.isB2C) {
+      const tier = userProfile?.subscription_tier || 'BASIC'
+      
+      // Count active jobs
+      const { count } = await supabase
+        .from('jobs')
+        .select('*', { count: 'exact', head: true })
+        .eq('posted_by', user.id)
+        .eq('status', 'OPEN')
+      
+      const limits = { BASIC: 4, PRO: 12, PREMIUM: 99999 }
+      const limit = limits[tier as keyof typeof limits] || 4
+      
+      if (count >= limit) {
+        setError(`You've reached your ${limit} active job limit for the ${tier} plan. Upgrade to post more.`)
+        setLoading(false)
+        return
+      }
+    }
 
     try {
       const { data: jobData, error: insertError } = await supabase.from('jobs').insert({
