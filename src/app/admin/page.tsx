@@ -171,10 +171,15 @@ export default function AdminVerification() {
     <div className="min-h-screen bg-white">
       <header className="border-b">
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold">TradeSource Admin</Link>
+          <Link href="/feed" className="text-xl font-bold text-black">TradeSource Admin</Link>
           <nav className="flex gap-4 items-center text-sm">
-            <Link href="/feed">Feed</Link>
-            <Link href="/admin" className="font-medium">Verification</Link>
+            <Link href="/feed" className="text-black">Feed</Link>
+            <Link href="/contractors" className="text-black">Contractors</Link>
+            <Link href="/community" className="text-black">Community</Link>
+            <Link href="/jobs/post" className="text-black">Post</Link>
+            <Link href="/messages" className="text-black">Messages</Link>
+            <Link href="/profile" className="text-black">Profile</Link>
+            <Link href="/admin" className="text-black font-medium">Admin</Link>
             <button onClick={handleSignOut} className="text-black hover:text-black">Sign out</button>
           </nav>
         </div>

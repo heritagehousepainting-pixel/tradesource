@@ -741,6 +741,13 @@ export default function Messages() {
       <header className="border-b bg-white">
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
           <Link href="/" className="text-xl font-bold text-black">TradeSource</Link>
+          <nav className="flex gap-4 items-center text-sm">
+            <Link href="/feed" className="text-black">Feed</Link>
+            <Link href="/contractors" className="text-black">Contractors</Link>
+            <Link href="/community" className="text-black">Community</Link>
+            <Link href="/jobs/post" className="text-black">Post</Link>
+            <Link href="/profile" className="text-black">Profile</Link>
+          </nav>
         </div>
       </header>
       <Suspense fallback={<div className="p-8 text-center text-black">Loading...</div>}>

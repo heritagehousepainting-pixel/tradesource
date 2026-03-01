@@ -93,7 +93,7 @@ export default function SignIn() {
           </form>
 
           <p className="mt-4 text-center text-sm text-black">
-            No account? <Link href="/contractor/signup" className="text-black underline">Sign up</Link>
+            No account? <Link href="/contractor/signup" className="text-black underline">Sign up as Contractor</Link> or <Link href="/homeowner/signup" className="text-black underline">Homeowner</Link>
           </p>
         </div>
       </main>

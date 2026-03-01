@@ -228,11 +228,14 @@ export default function JobDetail() {
     <div className="min-h-screen bg-white">
       <header className="border-b">
         <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold">← Back to Feed</Link>
+          <Link href="/feed" className="text-xl font-bold text-black">← Back to Feed</Link>
           <nav className="flex gap-4 text-sm">
-            <Link href="/feed">Feed</Link>
-            <Link href="/jobs/post">Post</Link>
-            <Link href="/messages">Messages</Link>
+            <Link href="/feed" className="text-black">Feed</Link>
+            <Link href="/contractors" className="text-black">Contractors</Link>
+            <Link href="/community" className="text-black">Community</Link>
+            <Link href="/jobs/post" className="text-black">Post</Link>
+            <Link href="/messages" className="text-black">Messages</Link>
+            <Link href="/profile" className="text-black">Profile</Link>
           </nav>
         </div>
       </header>

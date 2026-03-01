@@ -129,6 +129,9 @@ export default function HomeownerSignup() {
           <p className="mt-4 text-center text-sm text-black">
             Already have an account? <Link href="/signin" className="text-black underline">Sign in</Link>
           </p>
+          <p className="mt-2 text-center text-sm text-black">
+            Are you a contractor? <Link href="/contractor/signup" className="text-black underline">Sign up here</Link>
+          </p>
         </div>
       </main>
     </div>
