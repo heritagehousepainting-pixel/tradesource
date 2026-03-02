@@ -208,6 +208,12 @@ export default function Home() {
               Post a Project
             </Link>
           </div>
+          
+          {/* Add to Home Screen Instructions */}
+          <div className="mt-8 p-4 bg-white/10 rounded-xl">
+            <p className="text-white text-sm mb-2">📱 To add to your home screen:</p>
+            <p className="text-blue-100 text-xs">Tap the share button below → scroll down → tap "Add to Home Screen"</p>
+          </div>
         </div>
       </section>
 
