@@ -255,51 +255,58 @@ export default function JobDetail() {
       </div>
 
       <main className="max-w-4xl mx-auto px-3 md:px-6 py-4">
-        <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-8 shadow-lg shadow-gray-900/5 border border-gray-100">
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium ${
-                job.is_b2c 
-                  ? 'bg-blue-50 text-blue-700 border border-blue-100' 
-                  : 'bg-green-50 text-green-700 border border-green-100'
-              }`}>
-                {job.is_b2c ? '🏠 Homeowner Project' : '💼 Overflow Job'}
-              </span>
-              <h1 className="text-xl md:text-2xl md:text-3xl font-bold text-gray-900 mt-3">{job.title}</h1>
-            </div>
-            <span className="text-xl md:text-2xl md:text-3xl font-bold text-gray-900">
-              ${job.price_amount?.toLocaleString()}
+        <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+          
+          {/* Header - Title & Price */}
+          <div className="mb-4">
+            <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+              job.is_b2c 
+                ? 'bg-blue-100 text-blue-700' 
+                : 'bg-green-100 text-green-700'
+            }`}>
+              {job.is_b2c ? '🏠 Homeowner' : '💼 Contractor'}
             </span>
+            <h1 className="text-2xl font-bold text-gray-900 mt-2">{job.title}</h1>
+            <p className="text-3xl font-bold text-blue-600 mt-1">${job.price_amount?.toLocaleString()}</p>
           </div>
 
-          <div className="flex gap-4 text-sm text-[#0F172A] mb-4">
-            <span>📍 {job.county}</span>
-            <span>🏠 {job.work_category}</span>
-            <span>💰 {job.price_type}</span>
-            <span>📋 {job.job_type}</span>
+          {/* Quick Info Cards */}
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">Location</p>
+              <p className="font-semibold text-gray-900">📍 {job.county}</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">Type</p>
+              <p className="font-semibold text-gray-900">{job.work_category}</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">Payment</p>
+              <p className="font-semibold text-gray-900">{job.price_type}</p>
+            </div>
+            <div className="bg-gray-50 rounded-lg p-3">
+              <p className="text-xs text-gray-500">Timeline</p>
+              <p className="font-semibold text-gray-900">{job.job_type}</p>
+            </div>
           </div>
 
-          <p className="text-[#0F172A] mb-4">{job.description}</p>
+          {/* Description */}
+          <div className="mb-4">
+            <h2 className="font-semibold text-gray-900 mb-2">Description</h2>
+            <p className="text-gray-600 text-sm">{job.description || 'No description provided.'}</p>
+          </div>
 
           {/* Media Gallery */}
           {job.media_urls && job.media_urls.length > 0 && (
-            <div className="mb-6">
-              <h3 className="font-medium mb-2">Photos & Videos</h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <div className="mb-4">
+              <h3 className="font-semibold text-gray-900 mb-2">📷 Photos</h3>
+              <div className="flex gap-2 overflow-x-auto pb-2">
                 {job.media_urls.map((url, index) => (
-                  <div key={index} className="relative aspect-video bg-gray-100 rounded-xl overflow-hidden">
+                  <div key={index} className="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                     {url.match(/\.(mp4|webm|mov)$/i) ? (
-                      <video 
-                        src={url} 
-                        controls 
-                        className="w-full h-full object-cover"
-                      />
+                      <video src={url} controls className="w-full h-full object-cover" />
                     ) : (
-                      <img 
-                        src={url} 
-                        alt={`Job photo ${index + 1}`}
-                        className="w-full h-full object-cover" 
-                      />
+                      <img src={url} alt={`Photo ${index + 1}`} className="w-full h-full object-cover" />
                     )}
                   </div>
                 ))}
@@ -308,39 +315,31 @@ export default function JobDetail() {
           )}
 
           {/* Posted by */}
-          <div className="bg-slate-50 rounded-xl p-4 mb-6">
-            <div className="flex justify-between items-start">
+          <div className="bg-gray-50 rounded-lg p-3 mb-4">
+            <p className="text-xs text-gray-500">Posted by</p>
+            <div className="flex items-center justify-between mt-1">
               <div>
-                <p className="text-sm text-[#0F172A] mb-2">Posted by</p>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">
-                    {job.users?.company_name || 'Individual Contractor'}
-                  </span>
-                  {job.users?.is_verified && (
-                    <span className="bg-[#10B981]/10 text-[#10B981] text-xs px-2 py-1 rounded">✓ Verified</span>
-                  )}
-                </div>
+                <span className="font-semibold text-gray-900">
+                  {job.users?.company_name || 'User'}
+                </span>
+                {job.users?.is_verified && (
+                  <span className="ml-2 bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">✓ Verified</span>
+                )}
               </div>
-              {/* Delete button for poster */}
               {job && user && job.posted_by === user.id && (
                 <button
                   onClick={async () => {
-                    if (confirm('Are you sure you want to delete this job? This cannot be undone.')) {
-                      // Log deletion BEFORE deleting - save title too
+                    if (confirm('Delete this job?')) {
                       await supabase.from('job_history').insert({
-                        user_id: user.id,
-                        job_id: job.id,
-                        job_title: job.title,  // Save title in case job gets deleted
-                        action: 'DELETED'
+                        user_id: user.id, job_id: job.id, job_title: job.title, action: 'DELETED'
                       })
                       await supabase.from('jobs').delete().eq('id', job.id)
-                      // Go to feed
                       router.push('/feed')
                     }
                   }}
-                  className="text-red-600 text-sm hover:underline"
+                  className="text-red-600 text-sm"
                 >
-                  🗑️ Delete Job
+                  🗑️
                 </button>
               )}
             </div>
