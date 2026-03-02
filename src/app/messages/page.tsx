@@ -216,7 +216,9 @@ function MessagesContent() {
 
     // Refresh
     loadData()
-    alert(`You accepted ${notif.from_name}! Start chatting below.`)
+    
+    // Redirect to Messages tab to start chatting
+    setActiveTab('messages')
   }
 
   const handleDecline = async (notif: Notification) => {
