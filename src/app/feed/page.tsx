@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import BottomNav from '@/components/BottomNav'
 
 export const dynamic = 'force-dynamic'
 
@@ -372,6 +373,7 @@ export default function Feed() {
           </div>
         )}
       </main>
+      <BottomNav />
     </div>
   )
 }
