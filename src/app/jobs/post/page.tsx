@@ -74,11 +74,12 @@ export default function PostJob() {
         job_type: 'B2C_PROJECT',
         price_type: formData.priceType,
         price_amount: parseInt(formData.priceAmount) || 0,
-        is_b2c: formData.isB2C,
+        is_b2c: true,
         square_footage: formData.squareFootage ? parseInt(formData.squareFootage) : null,
         timeline: formData.timeline,
         job_scope: formData.jobScope,
         status: 'OPEN',
+        media_urls: formData.mediaUrls,
       }
 
       const { error: insertError } = await supabase.from('jobs').insert(jobData)
