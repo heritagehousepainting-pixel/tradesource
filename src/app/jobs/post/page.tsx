@@ -23,7 +23,7 @@ export default function PostJob() {
     address: '',
     city: '',
     zip: '',
-    workCategory: 'Interior Painting',
+    workCategory: 'INTERIOR_PAINTING',
     priceType: 'FIXED',
     priceAmount: '',
     squareFootage: '',
@@ -94,8 +94,8 @@ export default function PostJob() {
   }
 
   const workCategories = [
-    'Interior Painting',
-    'Exterior Painting',
+    { value: 'INTERIOR_PAINTING', label: 'Interior Painting' },
+    { value: 'EXTERIOR_PAINTING', label: 'Exterior Painting' },
   ]
 
   const counties = [
@@ -181,7 +181,7 @@ export default function PostJob() {
                   onChange={e => setFormData({...formData, workCategory: e.target.value})}
                 >
                   {workCategories.map(cat => (
-                    <option key={cat} value={cat}>{cat}</option>
+                    <option key={cat.value} value={cat.value}>{cat.label}</option>
                   ))}
                 </select>
               </div>
