@@ -19,6 +19,7 @@ interface Job {
   is_b2c: boolean
   created_at: string
   posted_by: string
+  timeline?: string
 }
 
 export default function Feed() {

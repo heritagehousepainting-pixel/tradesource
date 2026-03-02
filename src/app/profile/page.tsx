@@ -712,31 +712,39 @@ export default function Profile() {
   const isContractor = profile?.user_type === 'CONTRACTOR'
 
   return (
-    <div className="min-h-screen bg-white text-[#0F172A]">
-      <header className="border-b">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold text-[#0F172A]">TradeSource</Link>
-          <nav className="flex gap-4 items-center text-sm">
-            <Link href="/feed" className="text-[#0F172A]">Feed</Link>
-            <Link href="/jobs/post" className="text-[#0F172A]">Post</Link>
-            <Link href="/messages" className="text-[#0F172A]">Messages</Link>
-            <Link href="/profile" className="text-[#0F172A] font-medium">Profile</Link>
+    <div className="min-h-screen bg-gray-50">
+      {/* Premium Header */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+          <Link href="/feed" className="text-xl font-bold text-gray-900">
+            Trade<span className="text-blue-600">Source</span>
+          </Link>
+          <nav className="flex gap-6 items-center text-sm">
+            <Link href="/feed" className="text-gray-600 hover:text-gray-900 transition-colors">Feed</Link>
+            <Link href="/contractors" className="text-gray-600 hover:text-gray-900 transition-colors">Contractors</Link>
+            <Link href="/community" className="text-gray-600 hover:text-gray-900 transition-colors">Community</Link>
+            <Link href="/jobs/post" className="text-gray-600 hover:text-gray-900 transition-colors">Post</Link>
+            <Link href="/messages" className="text-gray-600 hover:text-gray-900 transition-colors">Messages</Link>
+            <Link href="/profile" className="font-semibold text-gray-900">Profile</Link>
             {isAdmin && (
-              <Link href="/admin" className="text-green-600 font-medium">🔧 Admin</Link>
+              <Link href="/admin" className="text-green-600 font-semibold">🔧 Admin</Link>
             )}
-            <button onClick={handleSignOut} className="text-[#0F172A]">Sign out</button>
+            <button onClick={handleSignOut} className="text-gray-600 hover:text-gray-900 transition-colors">Sign out</button>
           </nav>
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-8">
+      <main className="max-w-4xl mx-auto px-6 py-8">
         {/* Header Section */}
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-[#0F172A]">My Profile</h1>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
+            <p className="text-gray-500 mt-1">Manage your account and verification</p>
+          </div>
           {!editing && (
             <button
               onClick={() => setEditing(true)}
-              className="text-[#0F172A] hover:text-[#0F172A] px-4 py-2 border border-gray-200 rounded-xl"
+              className="px-6 py-3 bg-gray-900 text-white rounded-xl font-semibold hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl"
             >
               Edit Profile
             </button>
@@ -748,17 +756,17 @@ export default function Profile() {
           <div className="mb-8">
             {/* Stats */}
             <div className="grid grid-cols-4 gap-4 mb-6">
-              <div className="text-center p-4 border border-gray-200 rounded-xl">
-                <div className="text-2xl font-bold text-[#0F172A]">{profile.jobs_completed || 0}</div>
-                <div className="text-sm">Jobs Done</div>
+              <div className="text-center p-6 bg-white rounded-2xl border border-gray-200 shadow-sm">
+                <div className="text-3xl font-bold text-gray-900">{profile.jobs_completed || 0}</div>
+                <div className="text-sm text-gray-500">Jobs Done</div>
               </div>
-              <div className="text-center p-4 border border-gray-200 rounded-xl">
-                <div className="text-2xl font-bold text-[#0F172A]">{profile.avg_rating || 0}</div>
-                <div className="text-sm">⭐ Rating</div>
+              <div className="text-center p-6 bg-white rounded-2xl border border-gray-200 shadow-sm">
+                <div className="text-3xl font-bold text-gray-900">{profile.avg_rating || 0}</div>
+                <div className="text-sm text-gray-500">⭐ Rating</div>
               </div>
-              <div className="text-center p-4 border border-gray-200 rounded-xl">
-                <div className="text-2xl font-bold text-[#0F172A]">{profile.review_count || 0}</div>
-                <div className="text-sm">Reviews</div>
+              <div className="text-center p-6 bg-white rounded-2xl border border-gray-200 shadow-sm">
+                <div className="text-3xl font-bold text-gray-900">{profile.review_count || 0}</div>
+                <div className="text-sm text-gray-500">Reviews</div>
               </div>
               <div className="text-center p-4 border border-gray-200 rounded-xl">
                 <div className="text-2xl font-bold text-[#0F172A]">{profile.years_experience || 0}</div>

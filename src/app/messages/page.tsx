@@ -737,20 +737,24 @@ function MessagesContent() {
 
 export default function Messages() {
   return (
-    <div className="min-h-screen bg-white">
-      <header className="border-b bg-white">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold text-[#0F172A]">TradeSource</Link>
-          <nav className="flex gap-4 items-center text-sm">
-            <Link href="/feed" className="text-[#0F172A]">Feed</Link>
-            <Link href="/contractors" className="text-[#0F172A]">Contractors</Link>
-            <Link href="/community" className="text-[#0F172A]">Community</Link>
-            <Link href="/jobs/post" className="text-[#0F172A]">Post</Link>
-            <Link href="/profile" className="text-[#0F172A]">Profile</Link>
+    <div className="min-h-screen bg-gray-50">
+      {/* Premium Header */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+          <Link href="/" className="text-xl font-bold text-gray-900">
+            Trade<span className="text-blue-600">Source</span>
+          </Link>
+          <nav className="flex gap-6 items-center text-sm">
+            <Link href="/feed" className="text-gray-600 hover:text-gray-900 transition-colors">Feed</Link>
+            <Link href="/contractors" className="text-gray-600 hover:text-gray-900 transition-colors">Contractors</Link>
+            <Link href="/community" className="text-gray-600 hover:text-gray-900 transition-colors">Community</Link>
+            <Link href="/jobs/post" className="text-gray-600 hover:text-gray-900 transition-colors">Post</Link>
+            <Link href="/messages" className="font-semibold text-gray-900">Messages</Link>
+            <Link href="/profile" className="text-gray-600 hover:text-gray-900 transition-colors">Profile</Link>
           </nav>
         </div>
       </header>
-      <Suspense fallback={<div className="p-8 text-center text-[#0F172A]">Loading...</div>}>
+      <Suspense fallback={<div className="p-8 text-center text-gray-900">Loading...</div>}>
         <MessagesContent />
       </Suspense>
     </div>

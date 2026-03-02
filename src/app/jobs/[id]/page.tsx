@@ -225,31 +225,41 @@ export default function JobDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="border-b">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold text-[#0F172A]">← Back to Feed</Link>
-          <nav className="flex gap-4 text-sm">
-            <Link href="/feed" className="text-[#0F172A]">Feed</Link>
-            <Link href="/contractors" className="text-[#0F172A]">Contractors</Link>
-            <Link href="/community" className="text-[#0F172A]">Community</Link>
-            <Link href="/jobs/post" className="text-[#0F172A]">Post</Link>
-            <Link href="/messages" className="text-[#0F172A]">Messages</Link>
-            <Link href="/profile" className="text-[#0F172A]">Profile</Link>
+    <div className="min-h-screen bg-gray-50">
+      {/* Premium Header */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+          <Link href="/feed" className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </Link>
+          <nav className="flex gap-6 items-center text-sm">
+            <Link href="/feed" className="text-gray-600 hover:text-gray-900 transition-colors">Feed</Link>
+            <Link href="/contractors" className="text-gray-600 hover:text-gray-900 transition-colors">Contractors</Link>
+            <Link href="/community" className="text-gray-600 hover:text-gray-900 transition-colors">Community</Link>
+            <Link href="/jobs/post" className="text-gray-600 hover:text-gray-900 transition-colors">Post</Link>
+            <Link href="/messages" className="text-gray-600 hover:text-gray-900 transition-colors">Messages</Link>
+            <Link href="/profile" className="text-gray-600 hover:text-gray-900 transition-colors">Profile</Link>
           </nav>
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-8">
-        <div className="border border-gray-200 rounded-xl p-6">
-          <div className="flex justify-between items-start mb-4">
+      <main className="max-w-4xl mx-auto px-6 py-8">
+        <div className="bg-white rounded-2xl p-8 shadow-lg shadow-gray-900/5 border border-gray-100">
+          <div className="flex justify-between items-start mb-6">
             <div>
-              <span className={`text-xs px-2 py-1 rounded ${job.is_b2c ? 'bg-[#3B82F6]/10 text-[#3B82F6]' : 'bg-[#10B981]/10 text-[#10B981]'}`}>
-                {job.is_b2c ? 'Homeowner Project' : 'Overflow Job'}
+              <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-medium ${
+                job.is_b2c 
+                  ? 'bg-blue-50 text-blue-700 border border-blue-100' 
+                  : 'bg-green-50 text-green-700 border border-green-100'
+              }`}>
+                {job.is_b2c ? '🏠 Homeowner Project' : '💼 Overflow Job'}
               </span>
-              <h1 className="text-2xl font-bold mt-2">{job.title}</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mt-3">{job.title}</h1>
             </div>
-            <span className="text-2xl font-bold text-[#10B981]">
+            <span className="text-3xl font-bold text-gray-900">
               ${job.price_amount?.toLocaleString()}
             </span>
           </div>

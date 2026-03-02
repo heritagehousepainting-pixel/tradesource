@@ -158,23 +158,29 @@ export default function PostJob() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="border-b">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold text-[#0F172A]">TradeSource</Link>
-          <nav className="flex gap-4 text-sm">
-            <Link href="/feed" className="text-[#0F172A]">Feed</Link>
-            <Link href="/contractors" className="text-[#0F172A]">Contractors</Link>
-            <Link href="/community" className="text-[#0F172A]">Community</Link>
-            <Link href="/jobs/post" className="text-[#0F172A]">Post</Link>
-            <Link href="/messages" className="text-[#0F172A]">Messages</Link>
-            <Link href="/profile" className="text-[#0F172A]">Profile</Link>
+    <div className="min-h-screen bg-gray-50">
+      {/* Premium Header */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+          <Link href="/feed" className="text-xl font-bold text-gray-900">
+            Trade<span className="text-blue-600">Source</span>
+          </Link>
+          <nav className="flex gap-6 items-center text-sm">
+            <Link href="/feed" className="text-gray-600 hover:text-gray-900 transition-colors">Feed</Link>
+            <Link href="/contractors" className="text-gray-600 hover:text-gray-900 transition-colors">Contractors</Link>
+            <Link href="/community" className="text-gray-600 hover:text-gray-900 transition-colors">Community</Link>
+            <Link href="/jobs/post" className="font-semibold text-gray-900">Post</Link>
+            <Link href="/messages" className="text-gray-600 hover:text-gray-900 transition-colors">Messages</Link>
+            <Link href="/profile" className="text-gray-600 hover:text-gray-900 transition-colors">Profile</Link>
           </nav>
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">Post a New Job</h1>
+      <main className="max-w-2xl mx-auto px-6 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Post a New Job</h1>
+          <p className="text-gray-500 mt-1">Fill in the details to get started</p>
+        </div>
 
         {error && (
           <div className="bg-red-50 text-red-600 p-3 rounded-xl mb-4 text-sm">
