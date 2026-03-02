@@ -155,6 +155,8 @@ function MessagesContent() {
   }
 
   const loadMessages = async (conv: Conversation) => {
+    if (!user) return
+    
     const { data } = await supabase
       .from('messages')
       .select('*')
@@ -162,6 +164,7 @@ function MessagesContent() {
       .order('created_at', { ascending: true })
 
     setMessages(data || [])
+    setActiveConversation(conv)
     
     if (data) {
       const unread = data.filter(m => m.receiver_id === user.id && !m.read)
