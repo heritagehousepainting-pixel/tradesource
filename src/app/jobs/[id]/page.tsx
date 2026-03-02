@@ -60,6 +60,7 @@ export default function JobDetail() {
   const [error, setError] = useState('')
   const [submitted, setSubmitted] = useState(false)
   const [isPoster, setIsPoster] = useState(false)
+  const [isSelectedContractor, setIsSelectedContractor] = useState(false)
   const [interests, setInterests] = useState<Interest[]>([])
 
   useEffect(() => {
@@ -109,6 +110,12 @@ export default function JobDetail() {
         
         if (interestsData) {
           setInterests(interestsData)
+          
+          // Check if current user is the selected contractor
+          const selected = interestsData?.find((i: any) => i.status === 'SELECTED' && i.user_id === user?.id)
+          if (selected) {
+            setIsSelectedContractor(true)
+          }
         }
       } else {
         // Check if already interested
@@ -353,24 +360,52 @@ export default function JobDetail() {
             </div>
           )}
 
-          {/* Mark Complete Button (when job is AWARDED, IN_PROGRESS, or COMPLETED) */}
-          {(job.status === 'AWARDED' || job.status === 'IN_PROGRESS' || job.status === 'COMPLETED') && (
-            <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
+          {/* Job Status & Actions - Show for awarded contractor or homeowner */}
+          {(job.status === 'AWARDED' || job.status === 'IN_PROGRESS' || job.status === 'COMPLETED') && isSelectedContractor && (
+            <div className="bg-gradient-to-r from-green-50 to-white border border-green-200 rounded-2xl p-6 mb-6 shadow-sm">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="font-medium text-green-800">Job Status: {job.status}</p>
-                  <p className="text-sm text-[#10B981]">This job has been awarded to a contractor.</p>
+                  <p className="font-bold text-green-800 text-lg">Job Status: {job.status.replace('_', ' ')}</p>
+                  {job.status === 'AWARDED' && (
+                    <p className="text-sm text-gray-500">You've been awarded this job. Ready to start?</p>
+                  )}
+                  {job.status === 'IN_PROGRESS' && (
+                    <p className="text-sm text-gray-500">Work in progress. Mark complete when done.</p>
+                  )}
+                  {job.status === 'COMPLETED' && (
+                    <p className="text-sm text-gray-500">Job completed! ✅</p>
+                  )}
                 </div>
-                <button
-                  onClick={() => {
-                    if (confirm('Mark this job as complete and leave a review?')) {
-                      setShowRating(true)
-                    }
-                  }}
-                  className="bg-green-600 text-white px-4 py-2 rounded-xl font-medium"
-                >
-                  ✓ Mark Complete
-                </button>
+                {job.status === 'AWARDED' && (
+                  <button
+                    onClick={async () => {
+                      if (confirm('Start working on this job?')) {
+                        await supabase.from('jobs').update({ status: 'IN_PROGRESS' }).eq('id', job.id)
+                        fetchJob()
+                      }
+                    }}
+                    className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-600/25 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                  >
+                    🚀 Start Job
+                  </button>
+                )}
+                {job.status === 'IN_PROGRESS' && (
+                  <button
+                    onClick={() => {
+                      if (confirm('Mark this job as complete and leave a review?')) {
+                        setShowRating(true)
+                      }
+                    }}
+                    className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-green-600/25 hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                  >
+                    ✓ Mark Complete
+                  </button>
+                )}
+                {job.status === 'COMPLETED' && (
+                  <div className="bg-green-100 text-green-700 px-6 py-3 rounded-xl font-bold">
+                    ✅ Completed
+                  </div>
+                )}
               </div>
             </div>
           )}
