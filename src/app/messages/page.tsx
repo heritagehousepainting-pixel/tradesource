@@ -214,8 +214,11 @@ function MessagesContent() {
       action: 'CONTRACTOR_SELECTED'
     })
 
-    // Refresh
-    loadData()
+    // Remove this notification from local state (so it disappears from Interests)
+    setNotifications(prev => prev.filter(n => n.id !== notif.id))
+    
+    // Reload conversations
+    await loadConversations()
     
     // Redirect to Messages tab to start chatting
     setActiveTab('messages')
