@@ -292,7 +292,7 @@ function MessagesContent() {
   // If viewing a conversation (mobile)
   if (activeConversation) {
     return (
-      <div className="flex flex-col h-screen bg-white">
+      <div className="flex flex-col h-[calc(100vh-64px)] bg-white">
         {/* Chat Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 z-10">
           <button onClick={() => setActiveConversation(null)} className="p-1">
@@ -308,30 +308,37 @@ function MessagesContent() {
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-3">
-          {messages.map(msg => (
-            <div key={msg.id} className={`flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}>
-              <div className={`max-w-[75%] px-4 py-2 rounded-2xl ${
-                msg.sender_id === user.id 
-                  ? 'bg-blue-600 text-white rounded-br-md' 
-                  : 'bg-gray-100 text-gray-900 rounded-bl-md'
-              }`}>
-                <p className="text-sm">{msg.message_text}</p>
-                <p className={`text-xs mt-1 ${msg.sender_id === user.id ? 'text-blue-100' : 'text-gray-500'}`}>
-                  {formatTime(msg.created_at)}
-                </p>
-              </div>
+          {messages.length === 0 ? (
+            <div className="text-center text-gray-400 py-8">
+              <p>No messages yet</p>
+              <p className="text-sm">Start the conversation!</p>
             </div>
-          ))}
+          ) : (
+            messages.map(msg => (
+              <div key={msg.id} className={`flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[75%] px-4 py-2 rounded-2xl ${
+                  msg.sender_id === user.id 
+                    ? 'bg-blue-600 text-white rounded-br-md' 
+                    : 'bg-gray-100 text-gray-900 rounded-bl-md'
+                }`}>
+                  <p className="text-sm">{msg.message_text}</p>
+                  <p className={`text-xs mt-1 ${msg.sender_id === user.id ? 'text-blue-100' : 'text-gray-500'}`}>
+                    {formatTime(msg.created_at)}
+                  </p>
+                </div>
+              </div>
+            ))
+          )}
         </div>
 
         {/* Input */}
-        <div className="border-t border-gray-200 p-3 flex gap-2">
+        <div className="border-t border-gray-200 p-3 flex gap-2 bg-white">
           <input
             type="text"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-            placeholder="Message..."
+            placeholder="Type a message..."
             className="flex-1 bg-gray-100 border-0 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
@@ -342,6 +349,11 @@ function MessagesContent() {
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
             </svg>
+          </button>
+        </div>
+      </div>
+    )
+  }
           </button>
         </div>
       </div>
