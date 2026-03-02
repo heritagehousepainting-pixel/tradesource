@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import BottomNav from '@/components/BottomNav'
 
 export const dynamic = 'force-dynamic'
 
@@ -712,29 +713,8 @@ export default function Profile() {
   const isContractor = profile?.user_type === 'CONTRACTOR'
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Premium Header */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-3 md:px-6 py-4 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold text-gray-900">
-            Trade<span className="text-blue-600">Source</span>
-          </Link>
-          <nav className="flex gap-4 md:p-6 items-center text-sm">
-            <Link href="/feed" className="text-gray-600 hover:text-gray-900 transition-colors">Feed</Link>
-            <Link href="/contractors" className="text-gray-600 hover:text-gray-900 transition-colors">Contractors</Link>
-            <Link href="/community" className="text-gray-600 hover:text-gray-900 transition-colors">Community</Link>
-            <Link href="/jobs/post" className="text-gray-600 hover:text-gray-900 transition-colors">Post</Link>
-            <Link href="/messages" className="text-gray-600 hover:text-gray-900 transition-colors">Messages</Link>
-            <Link href="/profile" className="font-semibold text-gray-900">Profile</Link>
-            {isAdmin && (
-              <Link href="/admin" className="text-green-600 font-semibold">🔧 Admin</Link>
-            )}
-            <button onClick={handleSignOut} className="text-gray-600 hover:text-gray-900 transition-colors">Sign out</button>
-          </nav>
-        </div>
-      </header>
-
-      <main className="max-w-4xl mx-auto px-3 md:px-6 py-8">
+    <div className="min-h-screen bg-gray-50 pb-20">
+      <main className="max-w-4xl mx-auto px-3 md:px-6 py-4 md:py-8">
         {/* Header Section */}
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -1102,6 +1082,7 @@ export default function Profile() {
           <JobHistorySection userId={user.id} />
         )}
       </main>
+      <BottomNav />
     </div>
   )
 }

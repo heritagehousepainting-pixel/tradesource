@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import BottomNav from '@/components/BottomNav'
 
 export const dynamic = 'force-dynamic'
 
@@ -110,25 +111,8 @@ export default function PostJob() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Premium Header */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-3 md:px-6 py-4 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold text-gray-900">
-            Trade<span className="text-blue-600">Source</span>
-          </Link>
-          <nav className="flex gap-4 md:p-6 items-center text-sm">
-            <Link href="/feed" className="text-gray-600 hover:text-gray-900">Feed</Link>
-            <Link href="/contractors" className="text-gray-600 hover:text-gray-900">Contractors</Link>
-            <Link href="/community" className="text-gray-600 hover:text-gray-900">Community</Link>
-            <Link href="/jobs/post" className="font-semibold text-gray-900">Post</Link>
-            <Link href="/messages" className="text-gray-600 hover:text-gray-900">Messages</Link>
-            <Link href="/profile" className="text-gray-600 hover:text-gray-900">Profile</Link>
-          </nav>
-        </div>
-      </header>
-
-      <main className="max-w-2xl mx-auto px-3 md:px-6 py-8">
+    <div className="min-h-screen bg-gray-50 pb-20">
+      <main className="max-w-2xl mx-auto px-3 md:px-6 py-4 md:py-8">
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="text-xl md:text-2xl md:text-3xl font-bold text-gray-900">Post a Project</h1>
@@ -393,6 +377,7 @@ export default function PostJob() {
           </button>
         </form>
       </main>
+      <BottomNav />
     </div>
   )
 }

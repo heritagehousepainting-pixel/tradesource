@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import BottomNav from '@/components/BottomNav'
 
 export const dynamic = 'force-dynamic'
 
@@ -80,21 +81,8 @@ export default function Contractors() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold text-gray-900">TradeSource</Link>
-          <nav className="flex gap-4 items-center text-sm">
-            <Link href="/feed" className="text-gray-900">Feed</Link>
-            <Link href="/community" className="text-gray-900">Community</Link>
-            <Link href="/jobs/post" className="text-gray-900">Post</Link>
-            <Link href="/messages" className="text-gray-900">Messages</Link>
-            <Link href="/profile" className="text-gray-900">Profile</Link>
-          </nav>
-        </div>
-      </header>
-
-      <main className="max-w-6xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-gray-50 pb-20">
+      <main className="max-w-6xl mx-auto px-3 md:px-6 py-4 md:py-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-xl md:text-2xl font-bold text-gray-900">Find Contractors</h1>
         </div>
@@ -209,6 +197,7 @@ export default function Contractors() {
           </div>
         )}
       </main>
+      <BottomNav />
     </div>
   )
 }

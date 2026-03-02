@@ -4,6 +4,7 @@ import { useEffect, useState, Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import BottomNav from '@/components/BottomNav'
 
 interface Notification {
   id: string
@@ -776,26 +777,11 @@ function MessagesContent() {
 
 export default function Messages() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Premium Header */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-3 md:px-6 py-4 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold text-gray-900">
-            Trade<span className="text-blue-600">Source</span>
-          </Link>
-          <nav className="flex gap-4 md:p-6 items-center text-sm">
-            <Link href="/feed" className="text-gray-600 hover:text-gray-900 transition-colors">Feed</Link>
-            <Link href="/contractors" className="text-gray-600 hover:text-gray-900 transition-colors">Contractors</Link>
-            <Link href="/community" className="text-gray-600 hover:text-gray-900 transition-colors">Community</Link>
-            <Link href="/jobs/post" className="text-gray-600 hover:text-gray-900 transition-colors">Post</Link>
-            <Link href="/messages" className="font-semibold text-gray-900">Messages</Link>
-            <Link href="/profile" className="text-gray-600 hover:text-gray-900 transition-colors">Profile</Link>
-          </nav>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-50 pb-20">
       <Suspense fallback={<div className="p-4 md:p-8 text-center text-gray-900">Loading...</div>}>
         <MessagesContent />
       </Suspense>
+      <BottomNav />
     </div>
   )
 }
