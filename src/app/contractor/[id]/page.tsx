@@ -46,6 +46,7 @@ export default function ContractorProfile() {
   const [contractor, setContractor] = useState<Contractor | null>(null)
   const [reviews, setReviews] = useState<Review[]>([])
   const [loading, setLoading] = useState(true)
+  const [ratings, setRatings] = useState<any[]>([])
 
   useEffect(() => {
     fetchContractor()
@@ -99,8 +100,6 @@ export default function ContractorProfile() {
     : []
     
   // Get ratings from other contractors/homeowners
-  const [ratings, setRatings] = useState<any[]>([])
-  
   useEffect(() => {
     const fetchRatings = async () => {
       const { data } = await supabase
