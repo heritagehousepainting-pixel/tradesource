@@ -113,11 +113,11 @@ export default function PostJob() {
     <div className="min-h-screen bg-gray-50">
       {/* Premium Header */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="max-w-6xl mx-auto px-3 md:px-6 py-4 flex justify-between items-center">
           <Link href="/feed" className="text-xl font-bold text-gray-900">
             Trade<span className="text-blue-600">Source</span>
           </Link>
-          <nav className="flex gap-6 items-center text-sm">
+          <nav className="flex gap-4 md:p-6 items-center text-sm">
             <Link href="/feed" className="text-gray-600 hover:text-gray-900">Feed</Link>
             <Link href="/contractors" className="text-gray-600 hover:text-gray-900">Contractors</Link>
             <Link href="/community" className="text-gray-600 hover:text-gray-900">Community</Link>
@@ -128,10 +128,10 @@ export default function PostJob() {
         </div>
       </header>
 
-      <main className="max-w-2xl mx-auto px-6 py-8">
+      <main className="max-w-2xl mx-auto px-3 md:px-6 py-8">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Post a Project</h1>
+          <h1 className="text-xl md:text-2xl md:text-3xl font-bold text-gray-900">Post a Project</h1>
           <p className="text-gray-500 mt-2">Get quotes from verified contractors</p>
         </div>
 
@@ -143,7 +143,7 @@ export default function PostJob() {
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg shadow-gray-900/5 border border-gray-100 p-8">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl md:rounded-2xl shadow-lg shadow-gray-900/5 border border-gray-100 p-4 md:p-8">
           
           {/* Section: Basic Info */}
           <div className="space-y-6 mb-8">
@@ -301,7 +301,7 @@ export default function PostJob() {
           <div className="space-y-6 mb-8">
             <h3 className="text-lg font-semibold text-gray-900">Photos & Videos</h3>
             
-            <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-blue-400 transition-colors">
+            <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 md:p-8 text-center hover:border-blue-400 transition-colors">
               <svg className="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>

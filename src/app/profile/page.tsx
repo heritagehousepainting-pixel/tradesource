@@ -242,7 +242,7 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
   // If fully verified, show success
   if (isFullyVerified) {
     return (
-      <div className="border border-gray-200 rounded-xl p-6 bg-green-50 border-green-200">
+      <div className="border border-gray-200 rounded-xl p-4 md:p-6 bg-green-50 border-green-200">
         <h2 className="text-xl font-bold mb-4 text-green-800">✅ Verification Complete</h2>
         <p className="text-[#10B981]">Congratulations! You're fully verified and have full access to:</p>
         <ul className="mt-2 text-[#10B981] text-sm">
@@ -256,7 +256,7 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
   }
 
   return (
-    <div className="border border-gray-200 rounded-xl p-6">
+    <div className="border border-gray-200 rounded-xl p-4 md:p-6">
       <h2 className="text-xl font-bold mb-4">📋 Verification Requirements</h2>
       <p className="text-sm mb-6 text-[#64748B]600">
         Complete all 6 requirements and submit together for admin review. No partial submissions allowed.
@@ -539,7 +539,7 @@ function JobHistorySection({ userId }: { userId: string }) {
 
   if (history.length === 0) {
     return (
-      <div className="border border-gray-200 rounded-xl p-6 mt-6">
+      <div className="border border-gray-200 rounded-xl p-4 md:p-6 mt-6">
         <h2 className="text-xl font-bold mb-4">📋 My Job History</h2>
         <p className="text-[#64748B]500 text-sm">No job activity yet. Your job posts, completions, and deletions will appear here.</p>
       </div>
@@ -569,7 +569,7 @@ function JobHistorySection({ userId }: { userId: string }) {
   console.log('Rendering job history:', history)
   
   return (
-    <div className="border border-gray-200 rounded-xl p-6 mt-6">
+    <div className="border border-gray-200 rounded-xl p-4 md:p-6 mt-6">
       <h2 className="text-xl font-bold mb-4">📋 My Job History ({history.length} items)</h2>
       <div className="space-y-3">
         {history.map((item) => (
@@ -715,11 +715,11 @@ export default function Profile() {
     <div className="min-h-screen bg-gray-50">
       {/* Premium Header */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+        <div className="max-w-6xl mx-auto px-3 md:px-6 py-4 flex justify-between items-center">
           <Link href="/feed" className="text-xl font-bold text-gray-900">
             Trade<span className="text-blue-600">Source</span>
           </Link>
-          <nav className="flex gap-6 items-center text-sm">
+          <nav className="flex gap-4 md:p-6 items-center text-sm">
             <Link href="/feed" className="text-gray-600 hover:text-gray-900 transition-colors">Feed</Link>
             <Link href="/contractors" className="text-gray-600 hover:text-gray-900 transition-colors">Contractors</Link>
             <Link href="/community" className="text-gray-600 hover:text-gray-900 transition-colors">Community</Link>
@@ -734,11 +734,11 @@ export default function Profile() {
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-8">
+      <main className="max-w-4xl mx-auto px-3 md:px-6 py-8">
         {/* Header Section */}
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
+            <h1 className="text-xl md:text-2xl md:text-3xl font-bold text-gray-900">My Profile</h1>
             <p className="text-gray-500 mt-1">Manage your account and verification</p>
           </div>
           {!editing && (
@@ -756,20 +756,20 @@ export default function Profile() {
           <div className="mb-8">
             {/* Stats */}
             <div className="grid grid-cols-4 gap-4 mb-6">
-              <div className="text-center p-6 bg-white rounded-2xl border border-gray-200 shadow-sm">
-                <div className="text-3xl font-bold text-gray-900">{profile.jobs_completed || 0}</div>
+              <div className="text-center p-4 md:p-6 bg-white rounded-xl md:rounded-2xl border border-gray-200 shadow-sm">
+                <div className="text-xl md:text-2xl md:text-3xl font-bold text-gray-900">{profile.jobs_completed || 0}</div>
                 <div className="text-sm text-gray-500">Jobs Done</div>
               </div>
-              <div className="text-center p-6 bg-white rounded-2xl border border-gray-200 shadow-sm">
-                <div className="text-3xl font-bold text-gray-900">{profile.avg_rating || 0}</div>
+              <div className="text-center p-4 md:p-6 bg-white rounded-xl md:rounded-2xl border border-gray-200 shadow-sm">
+                <div className="text-xl md:text-2xl md:text-3xl font-bold text-gray-900">{profile.avg_rating || 0}</div>
                 <div className="text-sm text-gray-500">⭐ Rating</div>
               </div>
-              <div className="text-center p-6 bg-white rounded-2xl border border-gray-200 shadow-sm">
-                <div className="text-3xl font-bold text-gray-900">{profile.review_count || 0}</div>
+              <div className="text-center p-4 md:p-6 bg-white rounded-xl md:rounded-2xl border border-gray-200 shadow-sm">
+                <div className="text-xl md:text-2xl md:text-3xl font-bold text-gray-900">{profile.review_count || 0}</div>
                 <div className="text-sm text-gray-500">Reviews</div>
               </div>
               <div className="text-center p-4 border border-gray-200 rounded-xl">
-                <div className="text-2xl font-bold text-[#0F172A]">{profile.years_experience || 0}</div>
+                <div className="text-xl md:text-2xl font-bold text-[#0F172A]">{profile.years_experience || 0}</div>
                 <div className="text-sm">Years Exp.</div>
               </div>
             </div>
@@ -792,7 +792,7 @@ export default function Profile() {
         )}
 
         {/* Profile Details */}
-        <div className="border border-gray-200 rounded-xl p-6">
+        <div className="border border-gray-200 rounded-xl p-4 md:p-6">
           <h2 className="text-xl font-bold mb-4 text-[#0F172A]">Profile Details</h2>
           
           {editing ? (
@@ -957,7 +957,7 @@ export default function Profile() {
 
         {/* Portfolio Section for Contractors */}
         {isContractor && (
-          <div className="border border-gray-200 rounded-xl p-6 mt-6">
+          <div className="border border-gray-200 rounded-xl p-4 md:p-6 mt-6">
             <h2 className="text-xl font-bold mb-4">Portfolio</h2>
             <p className="text-sm mb-4 opacity-70">Showcase your best work to homeowners.</p>
             
@@ -983,7 +983,7 @@ export default function Profile() {
 
         {/* External Reviews Section - EDITABLE */}
         {isContractor && (
-          <div className="border border-gray-200 rounded-xl p-6 mt-6">
+          <div className="border border-gray-200 rounded-xl p-4 md:p-6 mt-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">External Reviews</h2>
               <button

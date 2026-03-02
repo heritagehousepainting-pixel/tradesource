@@ -96,13 +96,13 @@ export default function Contractors() {
 
       <main className="max-w-6xl mx-auto px-4 py-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Find Contractors</h1>
+          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Find Contractors</h1>
         </div>
 
         {/* Filters */}
         <div className="flex gap-4 mb-6 flex-wrap">
           <select 
-            className="px-3 py-2 border border-gray-200 rounded-2xl"
+            className="px-3 py-2 border border-gray-200 rounded-xl md:rounded-2xl"
             value={countyFilter}
             onChange={e => setCountyFilter(e.target.value)}
           >
@@ -114,7 +114,7 @@ export default function Contractors() {
           </select>
 
           <select 
-            className="px-3 py-2 border border-gray-200 rounded-2xl"
+            className="px-3 py-2 border border-gray-200 rounded-xl md:rounded-2xl"
             value={verifiedFilter}
             onChange={e => setVerifiedFilter(e.target.value)}
           >
@@ -128,7 +128,7 @@ export default function Contractors() {
             placeholder="Search contractors..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-2xl flex-1 min-w-[200px]"
+            className="px-3 py-2 border border-gray-200 rounded-xl md:rounded-2xl flex-1 min-w-[200px]"
           />
         </div>
 
@@ -150,7 +150,7 @@ export default function Contractors() {
               <Link
                 key={contractor.id}
                 href={`/contractor/${contractor.id}`}
-                className="border border-gray-200 rounded-2xl p-4 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 transition"
+                className="border border-gray-200 rounded-xl md:rounded-2xl p-4 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 transition"
               >
                 {/* Header */}
                 <div className="flex items-start gap-3 mb-3">
@@ -177,15 +177,15 @@ export default function Contractors() {
 
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-2 mb-3 text-center">
-                  <div className="bg-gray-50 rounded-2xl p-2">
+                  <div className="bg-gray-50 rounded-xl md:rounded-2xl p-2">
                     <p className="font-bold text-gray-900">{contractor.avg_rating || 0}</p>
                     <p className="text-xs text-gray-500500">Rating</p>
                   </div>
-                  <div className="bg-gray-50 rounded-2xl p-2">
+                  <div className="bg-gray-50 rounded-xl md:rounded-2xl p-2">
                     <p className="font-bold text-gray-900">{contractor.jobs_completed || 0}</p>
                     <p className="text-xs text-gray-500500">Jobs</p>
                   </div>
-                  <div className="bg-gray-50 rounded-2xl p-2">
+                  <div className="bg-gray-50 rounded-xl md:rounded-2xl p-2">
                     <p className="font-bold text-gray-900">{contractor.years_experience || 0}</p>
                     <p className="text-xs text-gray-500500">Years</p>
                   </div>
