@@ -29,6 +29,8 @@ interface UserProfile {
   years_experience: number
   profile_photo_url: string
   external_reviews: string
+  external_rating: number
+  external_review_count: number
   portfolio_urls: string[]
   review_count: number
   avg_rating: number
