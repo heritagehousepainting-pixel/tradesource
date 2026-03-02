@@ -17,7 +17,7 @@ export default function Home() {
             Trade<span className="text-blue-600">Source</span>
           </h1>
           <nav className="flex gap-3 md:gap-8 items-center">
-            <Link href="/signin" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors hidden sm:block">
+            <Link href="/signin" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors ">
               Sign In
             </Link>
             <Link href="/contractor/signup" className="bg-gray-900 text-white px-3 md:px-5 py-2 rounded-xl font-semibold text-sm hover:bg-gray-800 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
