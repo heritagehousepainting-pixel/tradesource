@@ -11,6 +11,7 @@ export default function PostJob() {
   const router = useRouter()
   const supabase = createClient()
   const [loading, setLoading] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const [user, setUser] = useState<any>(null)
   const [userProfile, setUserProfile] = useState<any>(null)
@@ -314,16 +315,48 @@ export default function PostJob() {
                 id="media-upload"
                 onChange={async (e) => {
                   const files = e.target.files
-                  if (!files) return
+                  if (!files || files.length === 0) return
                   
-                  // For MVP, just store the file names/URLs
-                  // In production, you'd upload to Supabase Storage
-                  const urls = Array.from(files).map(f => f.name)
-                  setFormData({...formData, mediaUrls: [...formData.mediaUrls, ...urls]})
+                  setUploading(true)
+                  const uploadedUrls: string[] = []
+                  
+                  for (const file of Array.from(files)) {
+                    try {
+                      const fileName = `${Date.now()}-${file.name}`
+                      const { data, error } = await supabase.storage
+                        .from('job-media')
+                        .upload(fileName, file)
+                      
+                      if (error) {
+                        console.error('Upload error:', error)
+                        continue
+                      }
+                      
+                      // Get public URL
+                      const { data: urlData } = supabase.storage
+                        .from('job-media')
+                        .getPublicUrl(fileName)
+                      
+                      if (urlData.publicUrl) {
+                        uploadedUrls.push(urlData.publicUrl)
+                      }
+                    } catch (err) {
+                      console.error('Error uploading file:', err)
+                    }
+                  }
+                  
+                  if (uploadedUrls.length > 0) {
+                    setFormData({
+                      ...formData, 
+                      mediaUrls: [...formData.mediaUrls, ...uploadedUrls]
+                    })
+                  }
+                  
+                  setUploading(false)
                 }}
               />
               <label htmlFor="media-upload" className="inline-block mt-4 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold cursor-pointer hover:bg-blue-700 transition-colors">
-                Browse Files
+                {uploading ? 'Uploading...' : 'Browse Files'}
               </label>
             </div>
 
