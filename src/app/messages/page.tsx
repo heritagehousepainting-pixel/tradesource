@@ -34,9 +34,9 @@ interface Conversation {
 
 function MessagesContent() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const supabase = createClient()
   const [user, setUser] = useState<any>(null)
+  const [notifications, setNotifications] = useState<Notification[]>([])
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<any[]>([])
@@ -44,6 +44,7 @@ function MessagesContent() {
   const [sending, setSending] = useState(false)
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [activeTab, setActiveTab] = useState<'interests' | 'messages'>('interests')
 
   useEffect(() => {
     checkUser()
@@ -51,7 +52,7 @@ function MessagesContent() {
 
   useEffect(() => {
     if (user) {
-      loadConversations()
+      loadData()
       
       // Real-time subscription
       const channel = supabase
@@ -61,7 +62,17 @@ function MessagesContent() {
           schema: 'public',
           table: 'messages',
           filter: `receiver_id=eq.${user.id}`,
-        }, () => loadConversations())
+        }, () => {
+          loadData()
+        })
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        }, () => {
+          loadData()
+        })
         .subscribe()
 
       return () => { supabase.removeChannel(channel) }
@@ -77,10 +88,25 @@ function MessagesContent() {
     setUser(user)
   }
 
+  const loadData = async () => {
+    if (!user) return
+    
+    // Load notifications (interests on user's jobs)
+    const { data: notifs } = await supabase
+      .from('notifications')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+    
+    if (notifs) setNotifications(notifs)
+    
+    // Load conversations
+    loadConversations()
+  }
+
   const loadConversations = async () => {
     if (!user) return
 
-    // Get all unique conversations
     const { data: sentMessages } = await supabase
       .from('messages')
       .select('*')
@@ -92,20 +118,12 @@ function MessagesContent() {
       return
     }
 
-    // Group by conversation partner + job
     const convMap = new Map<string, Conversation>()
     
     for (const msg of sentMessages) {
       const otherId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id
       
-      // Get job info
-      const { data: job } = await supabase
-        .from('jobs')
-        .select('title')
-        .eq('id', msg.job_id)
-        .single()
-      
-      // Get other user info
+      const { data: job } = await supabase.from('jobs').select('title').eq('id', msg.job_id).single()
       const { data: otherUser } = await supabase
         .from('users')
         .select('first_name, last_name, company_name, profile_photo_url')
@@ -129,7 +147,6 @@ function MessagesContent() {
       }
     }
 
-    // Sort by last message time
     const sorted = Array.from(convMap.values())
       .sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime())
     
@@ -146,14 +163,10 @@ function MessagesContent() {
 
     setMessages(data || [])
     
-    // Mark as read
     if (data) {
       const unread = data.filter(m => m.receiver_id === user.id && !m.read)
       if (unread.length > 0) {
-        await supabase
-          .from('messages')
-          .update({ read: true })
-          .in('id', unread.map(m => m.id))
+        await supabase.from('messages').update({ read: true }).in('id', unread.map(m => m.id))
       }
     }
   }
@@ -163,15 +176,13 @@ function MessagesContent() {
     
     setSending(true)
     
-    const { error } = await supabase
-      .from('messages')
-      .insert({
-        job_id: activeConversation.job_id,
-        sender_id: user.id,
-        receiver_id: activeConversation.other_user_id,
-        message_text: newMessage.trim(),
-        read: false
-      })
+    const { error } = await supabase.from('messages').insert({
+      job_id: activeConversation.job_id,
+      sender_id: user.id,
+      receiver_id: activeConversation.other_user_id,
+      message_text: newMessage.trim(),
+      read: false
+    })
 
     if (!error) {
       setNewMessage('')
@@ -180,6 +191,42 @@ function MessagesContent() {
     }
     
     setSending(false)
+  }
+
+  const handleAccept = async (notif: Notification) => {
+    // Update interest status to SELECTED
+    await supabase
+      .from('interests')
+      .update({ status: 'SELECTED' })
+      .eq('job_id', notif.job_id)
+      .eq('user_id', notif.from_user_id)
+    
+    // Update job status
+    await supabase
+      .from('jobs')
+      .update({ status: 'AWARDED', selected_contractor_id: notif.from_user_id })
+      .eq('id', notif.job_id)
+    
+    // Log in history
+    await supabase.from('job_history').insert({
+      user_id: user.id,
+      job_id: notif.job_id,
+      action: 'CONTRACTOR_SELECTED'
+    })
+
+    // Refresh
+    loadData()
+    alert(`You accepted ${notif.from_name}! Start chatting below.`)
+  }
+
+  const handleDecline = async (notif: Notification) => {
+    await supabase
+      .from('interests')
+      .update({ status: 'DECLINED' })
+      .eq('job_id', notif.job_id)
+      .eq('user_id', notif.from_user_id)
+    
+    loadData()
   }
 
   const formatTime = (dateStr: string) => {
@@ -203,18 +250,10 @@ function MessagesContent() {
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
   }
 
-  const filteredConversations = conversations.filter(c => 
-    c.other_user_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.job_title.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const unreadNotifs = notifications.filter(n => !n.read).length
+  const unreadMessages = conversations.filter(c => c.unread).length
 
-  if (loading) {
-    return (
-      <div className="flex-1 flex items-center justify-center min-h-screen bg-white">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    )
-  }
+  const myJobNotifications = notifications.filter(n => n.type === 'interest')
 
   // If viewing a conversation (mobile)
   if (activeConversation) {
@@ -275,78 +314,149 @@ function MessagesContent() {
     )
   }
 
-  // Main Messages List (Facebook Marketplace style)
+  // Main Messages List
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
       <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 z-10">
         <h1 className="text-xl font-bold text-gray-900">Messages</h1>
-        
-        {/* Search */}
-        <div className="mt-3 relative">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search conversations..."
-            className="w-full bg-gray-100 border-0 rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
       </div>
 
-      {/* Conversations List */}
-      {filteredConversations.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-            </svg>
-          </div>
-          <p className="text-gray-500 font-medium">No messages yet</p>
-          <p className="text-gray-400 text-sm mt-1">Start a conversation by expressing interest on a job</p>
-        </div>
-      ) : (
-        <div className="divide-y divide-gray-100">
-          {filteredConversations.map(conv => (
-            <div
-              key={conv.id}
-              onClick={() => {
-                setActiveConversation(conv)
-                loadMessages(conv)
-              }}
-              className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer"
-            >
-              {/* Avatar */}
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
-                {conv.other_user_photo ? (
-                  <img src={conv.other_user_photo} alt="" className="w-12 h-12 rounded-full object-cover" />
-                ) : (
-                  getInitials(conv.other_user_name)
-                )}
-              </div>
+      {/* Tabs */}
+      <div className="flex border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab('interests')}
+          className={`flex-1 py-3 text-center font-semibold text-sm ${
+            activeTab === 'interests' 
+              ? 'text-blue-600 border-b-2 border-blue-600' 
+              : 'text-gray-500'
+          }`}
+        >
+          Interests {unreadNotifs > 0 && <span className="ml-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">{unreadNotifs}</span>}
+        </button>
+        <button
+          onClick={() => setActiveTab('messages')}
+          className={`flex-1 py-3 text-center font-semibold text-sm ${
+            activeTab === 'messages' 
+              ? 'text-blue-600 border-b-2 border-blue-600' 
+              : 'text-gray-500'
+          }`}
+        >
+          Messages {unreadMessages > 0 && <span className="ml-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">{unreadMessages}</span>}
+        </button>
+      </div>
 
-              {/* Content */}
-              <div className="flex-1 min-w-0">
-                <div className="flex justify-between items-baseline">
-                  <h3 className="font-semibold text-gray-900 truncate">{conv.other_user_name}</h3>
-                  <span className="text-xs text-gray-500">{formatTime(conv.last_message_at)}</span>
-                </div>
-                {conv.other_user_company && (
-                  <p className="text-xs text-gray-500 truncate">{conv.other_user_company}</p>
-                )}
-                <p className="text-sm text-gray-600 truncate mt-0.5">{conv.last_message}</p>
-                <p className="text-xs text-blue-600 mt">re: {conv.job_title}-0.5</p>
+      {/* Interests Tab */}
+      {activeTab === 'interests' && (
+        <div>
+          {myJobNotifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
               </div>
-
-              {/* Unread indicator */}
-              {conv.unread && (
-                <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0"></div>
-              )}
+              <p className="text-gray-500 font-medium">No interests yet</p>
+              <p className="text-gray-400 text-sm mt-1">When contractors express interest, they'll appear here</p>
             </div>
-          ))}
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {myJobNotifications.map(notif => (
+                <div key={notif.id} className="p-4 hover:bg-gray-50">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                      {getInitials(notif.from_name)}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-semibold text-gray-900">{notif.from_name}</p>
+                          <p className="text-sm text-gray-500">{notif.from_company}</p>
+                        </div>
+                        <span className="text-xs text-gray-400">{formatTime(notif.created_at)}</span>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">Interested in: <span className="font-medium">{notif.job_title}</span></p>
+                      {notif.message && (
+                        <p className="text-sm text-gray-500 mt-2 italic">"{notif.message}"</p>
+                      )}
+                      
+                      <div className="flex gap-2 mt-3">
+                        <button
+                          onClick={() => handleAccept(notif)}
+                          className="flex-1 bg-green-600 text-white py-2 rounded-lg text-sm font-medium"
+                        >
+                          ✓ Accept
+                        </button>
+                        <button
+                          onClick={() => handleDecline(notif)}
+                          className="px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm"
+                        >
+                          Decline
+                        </button>
+                        <Link
+                          href={`/contractor/${notif.from_user_id}`}
+                          className="px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm"
+                        >
+                          View
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Messages Tab */}
+      {activeTab === 'messages' && (
+        <div>
+          {conversations.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              <p className="text-gray-500 font-medium">No messages yet</p>
+              <p className="text-gray-400 text-sm mt-1">Accept a contractor to start chatting</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {conversations.map(conv => (
+                <div
+                  key={conv.id}
+                  onClick={() => {
+                    setActiveConversation(conv)
+                    loadMessages(conv)
+                  }}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer"
+                >
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
+                    {conv.other_user_photo ? (
+                      <img src={conv.other_user_photo} alt="" className="w-12 h-12 rounded-full object-cover" />
+                    ) : (
+                      getInitials(conv.other_user_name)
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-baseline">
+                      <h3 className="font-semibold text-gray-900 truncate">{conv.other_user_name}</h3>
+                      <span className="text-xs text-gray-500">{formatTime(conv.last_message_at)}</span>
+                    </div>
+                    {conv.other_user_company && (
+                      <p className="text-xs text-gray-500 truncate">{conv.other_user_company}</p>
+                    )}
+                    <p className="text-sm text-gray-600 truncate">{conv.last_message}</p>
+                  </div>
+                  {conv.unread && (
+                    <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0"></div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
