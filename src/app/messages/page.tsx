@@ -226,11 +226,27 @@ function MessagesContent() {
     // Remove this notification from local state (so it disappears from Interests)
     setNotifications(prev => prev.filter(n => n.id !== notif.id))
     
-    // Reload conversations
-    await loadConversations()
-    
-    // Redirect to Messages tab to start chatting
+    // Switch to messages tab first
     setActiveTab('messages')
+    
+    // Wait a moment then reload conversations
+    setTimeout(async () => {
+      await loadConversations()
+      
+      // Also manually add the conversation to show immediately
+      const newConv: Conversation = {
+        id: `${notif.from_user_id}-${notif.job_id}`,
+        job_id: notif.job_id,
+        job_title: notif.job_title,
+        other_user_id: notif.from_user_id,
+        other_user_name: notif.from_name,
+        other_user_company: notif.from_company,
+        last_message: `Hi! I've accepted your interest for "${notif.job_title}". Let's discuss the details!`,
+        last_message_at: new Date().toISOString(),
+        unread: false
+      }
+      setConversations(prev => [newConv, ...prev])
+    }, 500)
   }
 
   const handleDecline = async (notif: Notification) => {
