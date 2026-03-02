@@ -209,9 +209,17 @@ export default function Feed() {
 
       <main className="max-w-6xl mx-auto px-6 py-8">
         {/* Page Title */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Job Feed</h1>
-          <p className="text-gray-500 mt-1">Find your next project</p>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Job Feed</h1>
+            <p className="text-gray-500 mt-1">Find your next project</p>
+          </div>
+          <Link href="/jobs/post" className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg shadow-blue-600/25 hover:shadow-xl hover:-translate-y-0.5">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Post a Job
+          </Link>
         </div>
 
         {/* Premium Filters */}
