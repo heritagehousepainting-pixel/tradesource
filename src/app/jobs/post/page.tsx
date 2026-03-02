@@ -96,15 +96,6 @@ export default function PostJob() {
   const workCategories = [
     'Interior Painting',
     'Exterior Painting',
-    'Drywall',
-    'Flooring',
-    'Carpentry',
-    'Roofing',
-    'Electrical',
-    'Plumbing',
-    'HVAC',
-    'Landscaping',
-    'Other',
   ]
 
   const counties = [
