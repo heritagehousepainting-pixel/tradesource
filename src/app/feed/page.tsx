@@ -143,7 +143,7 @@ export default function Feed() {
   return (
     <div className="min-h-screen bg-white text-black">
       {/* Header */}
-      <header className="border-b sticky top-0 bg-white z-10">
+      <header className="border-b border-gray-100 sticky top-0 bg-white z-10">
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
           <Link href="/" className="text-xl font-bold text-black">TradeSource</Link>
           <nav className="flex gap-4 items-center text-sm">
@@ -160,7 +160,7 @@ export default function Feed() {
               )}
             </Link>
             {isAdmin && (
-              <Link href="/admin" className="text-green-600 hover:text-green-700 font-medium">🔧 Admin</Link>
+              <Link href="/admin" className="text-green-600 hover:text-[#10B981] font-bold font-medium">🔧 Admin</Link>
             )}
             <Link href="/profile" className="text-black">Profile</Link>
             <button onClick={handleSignOut} className="text-black">Sign out</button>
@@ -177,7 +177,7 @@ export default function Feed() {
                 <h3 className="font-bold text-black">🔒 Verification Required</h3>
                 <p className="text-sm text-black">Complete verification to unlock full access - see prices and post jobs.</p>
               </div>
-              <Link href="/profile" className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm">
+              <Link href="/profile" className="bg-[#0F172A] text-white px-4 py-2 rounded-lg text-sm">
                 Verify Now
               </Link>
             </div>
@@ -191,7 +191,7 @@ export default function Feed() {
               Post a Job (Verify First)
             </button>
           ) : (
-            <Link href="/jobs/post" className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium">
+            <Link href="/jobs/post" className="bg-[#0F172A] text-white px-4 py-2 rounded-lg text-sm font-medium">
               Post a Job
             </Link>
           )}
@@ -250,18 +250,18 @@ export default function Feed() {
         ) : (
           <div className="space-y-4">
             {filteredJobs.map(job => (
-              <div key={job.id} className="border rounded-xl p-4 hover:shadow-md transition">
+              <div key={job.id} className="border border-gray-200 rounded-2xl p-5 hover:shadow-lg hover:border-gray-300 transition-all duration-300">
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <Link href={`/jobs/${job.id}`}>
-                      <span className={`text-xs px-2 py-1 rounded ${job.is_b2c ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                      <span className={`text-xs px-2 py-1 rounded ${job.is_b2c ? 'bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20' : 'bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20'}`}>
                         {job.is_b2c ? 'Homeowner Project' : 'Overflow Job'}
                       </span>
                       <h3 className="font-semibold mt-2">{job.title}</h3>
                     </Link>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`text-lg font-bold ${isUnverifiedContractor ? 'blur-sm select-none' : 'text-green-700'}`}>
+                    <span className={`text-lg font-bold ${isUnverifiedContractor ? 'blur-sm select-none' : 'text-[#10B981] font-bold'}`}>
                       {isUnverifiedContractor ? '••••••' : `$${job.price_amount?.toLocaleString()}`}
                     </span>
                     {job.posted_by === user?.id && (
