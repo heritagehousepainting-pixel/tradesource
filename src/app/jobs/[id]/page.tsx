@@ -185,6 +185,26 @@ export default function JobDetail() {
     }
   }
 
+  const handleMarkComplete = async () => {
+    if (!user || !job) return
+    
+    // Update job status
+    await supabase
+      .from('jobs')
+      .update({ status: 'COMPLETED' })
+      .eq('id', job.id)
+    
+    // Log completion
+    await supabase.from('job_history').insert({
+      user_id: user.id,
+      job_id: job.id,
+      action: 'COMPLETED'
+    })
+    
+    // Refresh
+    fetchJob()
+  }
+
   const handleAccept = async (interest: Interest) => {
     if (!user || !job) return
     
@@ -410,6 +430,44 @@ export default function JobDetail() {
                   </div>
                 )}
               </div>
+            </div>
+          )}
+
+          {/* Action Buttons - Show for poster or awarded contractor */}
+          {(job.status === 'AWARDED' || job.status === 'IN_PROGRESS') && (isPoster || isSelectedContractor) && (
+            <div className="mt-4">
+              {job.status === 'AWARDED' && isSelectedContractor && (
+                <button
+                  onClick={async () => {
+                    if (confirm('Start working on this job?')) {
+                      await supabase.from('jobs').update({ status: 'IN_PROGRESS' }).eq('id', job.id)
+                      fetchJob()
+                    }
+                  }}
+                  className="w-full bg-blue-600 text-white py-3 rounded-xl font-bold mb-2"
+                >
+                  🚀 Start Job
+                </button>
+              )}
+              {(job.status === 'IN_PROGRESS' || job.status === 'AWARDED') && (
+                <button
+                  onClick={() => {
+                    if (confirm('Mark this job as complete?')) {
+                      handleMarkComplete()
+                    }
+                  }}
+                  className="w-full bg-green-600 text-white py-3 rounded-xl font-bold"
+                >
+                  ✓ Mark Job Complete
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Completed Banner */}
+          {job.status === 'COMPLETED' && (
+            <div className="mt-4 bg-green-100 border border-green-300 rounded-xl p-4 text-center">
+              <p className="font-bold text-green-700">✅ This job is completed</p>
             </div>
           )}
 
