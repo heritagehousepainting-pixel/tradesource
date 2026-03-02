@@ -352,42 +352,48 @@ function MessagesContent() {
   }
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !currentJobId || !currentUserId) {
-      // Try to get from activeConversation as fallback
-      if (!activeConversation || !newMessage.trim()) return
-    }
+    if (!newMessage.trim()) return
 
     const jobId = currentJobId || activeConversation
     const otherUserId = currentUserId || conversations.find(c => c.job_id === activeConversation)?.other_user_id
     
-    if (!jobId || !otherUserId) return
+    if (!jobId || !otherUserId || !user?.id) {
+      console.log('Missing info:', { jobId, otherUserId, userId: user?.id })
+      return
+    }
 
     setSending(true)
 
-    const { error } = await supabase.from('messages').insert({
-      job_id: jobId,
-      sender_id: user.id,
-      receiver_id: otherUserId,
-      message_text: newMessage,
-    })
-
-    // Also create a notification for the receiver
-    if (!error) {
-      await supabase.from('notifications').insert({
-        user_id: otherUserId,
-        type: 'message',
-        title: 'New Message',
-        message: newMessage.substring(0, 100),
+    try {
+      const { error } = await supabase.from('messages').insert({
         job_id: jobId,
-        from_user_id: user.id,
+        sender_id: user.id,
+        receiver_id: otherUserId,
+        message_text: newMessage,
       })
-    }
 
-    if (!error) {
-      setNewMessage('')
-      loadMessages(jobId, otherUserId)
-      loadConversations()
-      loadNotifications()
+      console.log('Message sent:', { error })
+
+      // Also create a notification for the receiver
+      if (!error) {
+        await supabase.from('notifications').insert({
+          user_id: otherUserId,
+          type: 'message',
+          title: 'New Message',
+          message: newMessage.substring(0, 100),
+          job_id: jobId,
+          from_user_id: user.id,
+        })
+      }
+
+      if (!error) {
+        setNewMessage('')
+        loadMessages(jobId, otherUserId)
+        loadConversations()
+        loadNotifications()
+      }
+    } catch (err) {
+      console.error('Send message error:', err)
     }
 
     setSending(false)
