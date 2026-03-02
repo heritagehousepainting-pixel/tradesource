@@ -149,6 +149,16 @@ export default function JobDetail() {
     if (error) {
       setError(error.message)
     } else {
+      // Create notification for the job poster
+      await supabase.from('notifications').insert({
+        user_id: job.posted_by,
+        type: 'interest',
+        title: 'New Interest',
+        message: `${user.email} is interested in your job: ${job.title}`,
+        job_id: job.id,
+        from_user_id: user.id,
+      })
+      
       setAlreadyInterested(true)
       setSubmitted(true)
     }
