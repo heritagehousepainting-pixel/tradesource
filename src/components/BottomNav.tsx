@@ -2,10 +2,85 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase'
 
-export default function BottomNav() {
+interface BottomNavProps {
+  notificationCount?: number
+}
+
+export default function BottomNav({ notificationCount = 0 }: BottomNavProps) {
   const pathname = usePathname()
-  
+  const [unreadCount, setUnreadCount] = useState(notificationCount)
+  const supabase = createClient()
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    checkUser()
+  }, [])
+
+  useEffect(() => {
+    if (user) {
+      // Request notification permission
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission()
+      }
+
+      // Subscribe to real-time updates
+      const channel = supabase
+        .channel('bottom-nav-notifications')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        }, () => {
+          fetchUnreadCount()
+        })
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `receiver_id=eq.${user.id}`,
+        }, () => {
+          fetchUnreadCount()
+        })
+        .subscribe()
+
+      fetchUnreadCount()
+
+      return () => {
+        supabase.removeChannel(channel)
+      }
+    }
+  }, [user])
+
+  const checkUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    setUser(user)
+  }
+
+  const fetchUnreadCount = async () => {
+    if (!user) return
+
+    // Get unread notifications
+    const { data: notifs } = await supabase
+      .from('notifications')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('read', false)
+
+    // Get unread messages
+    const { data: msgs } = await supabase
+      .from('messages')
+      .select('id')
+      .eq('receiver_id', user.id)
+      .eq('read', false)
+
+    const total = (notifs?.length || 0) + (msgs?.length || 0)
+    setUnreadCount(total)
+  }
+
   const navItems = [
     {
       href: '/feed',
@@ -43,6 +118,7 @@ export default function BottomNav() {
         </svg>
       ),
       label: 'Chat',
+      badge: unreadCount > 0,
     },
     {
       href: '/profile',
@@ -65,7 +141,7 @@ export default function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center flex-1 h-full ${
+              className={`relative flex flex-col items-center justify-center flex-1 h-full ${
                 item.primary 
                   ? '' 
                   : isActive 
@@ -80,6 +156,11 @@ export default function BottomNav() {
               ) : (
                 <div className={isActive ? 'text-blue-600' : 'text-gray-400'}>
                   {item.icon}
+                  {item.badge && unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
                 </div>
               )}
               <span className={`text-xs mt-1 ${item.primary ? 'text-blue-600 mt-0' : isActive ? 'text-blue-600' : 'text-gray-400'}`}>
