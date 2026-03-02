@@ -145,7 +145,7 @@ export default function Feed() {
       {/* Header */}
       <header className="border-b border-gray-100 sticky top-0 bg-white z-10">
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold text-[#0F172A]">TradeSource</Link>
+          <Link href="/" className="text-xl font-bold text-[#0F172A] text-[#0F172A]">TradeSource</Link>
           <nav className="flex gap-4 items-center text-sm">
             <Link href="/feed" className="font-medium text-[#0F172A]">Feed</Link>
             <Link href="/contractors" className="text-[#0F172A]">Contractors</Link>
@@ -160,7 +160,7 @@ export default function Feed() {
               )}
             </Link>
             {isAdmin && (
-              <Link href="/admin" className="text-green-600 hover:text-[#10B981] font-bold font-medium">🔧 Admin</Link>
+              <Link href="/admin" className="text-green-600 hover:text-[#10B981] font-bold text-[#0F172A] font-medium">🔧 Admin</Link>
             )}
             <Link href="/profile" className="text-[#0F172A]">Profile</Link>
             <button onClick={handleSignOut} className="text-[#0F172A]">Sign out</button>
@@ -174,7 +174,7 @@ export default function Feed() {
           <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-[#0F172A]">🔒 Verification Required</h3>
+                <h3 className="font-bold text-[#0F172A] text-[#0F172A]">🔒 Verification Required</h3>
                 <p className="text-sm text-[#0F172A]">Complete verification to unlock full access - see prices and post jobs.</p>
               </div>
               <Link href="/profile" className="bg-[#0F172A] text-white px-4 py-2 rounded-xl text-sm">
@@ -185,7 +185,7 @@ export default function Feed() {
         )}
 
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-[#0F172A]">Job Feed</h1>
+          <h1 className="text-2xl font-bold text-[#0F172A] text-[#0F172A]">Job Feed</h1>
           {isUnverifiedContractor ? (
             <button disabled className="bg-gray-300 text-[#64748B]500 px-4 py-2 rounded-xl text-sm font-medium cursor-not-allowed">
               Post a Job (Verify First)
@@ -257,11 +257,11 @@ export default function Feed() {
                       <span className={`text-xs px-2 py-1 rounded ${job.is_b2c ? 'bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20' : 'bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20'}`}>
                         {job.is_b2c ? 'Homeowner Project' : 'Overflow Job'}
                       </span>
-                      <h3 className="font-semibold mt-2">{job.title}</h3>
+                      <h3 className="font-semibold text-[#0F172A] mt-2">{job.title}</h3>
                     </Link>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`text-lg font-bold ${isUnverifiedContractor ? 'blur-sm select-none' : 'text-[#10B981] font-bold'}`}>
+                    <span className={`text-lg font-bold text-[#0F172A] ${isUnverifiedContractor ? 'blur-sm select-none' : 'text-[#10B981] font-bold text-[#0F172A]'}`}>
                       {isUnverifiedContractor ? '••••••' : `$${job.price_amount?.toLocaleString()}`}
                     </span>
                     {job.posted_by === user?.id && (
