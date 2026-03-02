@@ -179,7 +179,7 @@ export default function PostJob() {
                 type="text"
                 required
                 placeholder="e.g., Interior painting for living room"
-                className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={formData.title}
                 onChange={e => setFormData({...formData, title: e.target.value})}
               />
@@ -191,7 +191,7 @@ export default function PostJob() {
                 required
                 rows={4}
                 placeholder="Describe the work needed..."
-                className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                 value={formData.description}
                 onChange={e => setFormData({...formData, description: e.target.value})}
               />
@@ -202,7 +202,7 @@ export default function PostJob() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Work Type *</label>
                 <select
                   required
-                  className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={formData.workCategory}
                   onChange={e => setFormData({...formData, workCategory: e.target.value})}
                 >
@@ -214,7 +214,7 @@ export default function PostJob() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Timeline</label>
                 <select
-                  className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={formData.timeline}
                   onChange={e => setFormData({...formData, timeline: e.target.value})}
                 >
@@ -234,7 +234,7 @@ export default function PostJob() {
               <label className="block text-sm font-medium text-gray-700 mb-2">County *</label>
               <select
                 required
-                className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={formData.county}
                 onChange={e => setFormData({...formData, county: e.target.value})}
               >
@@ -249,7 +249,7 @@ export default function PostJob() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
               <input
                 type="text"
-                className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={formData.address}
                 onChange={e => setFormData({...formData, address: e.target.value})}
                 placeholder="123 Main Street"
@@ -261,7 +261,7 @@ export default function PostJob() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">City</label>
                 <input
                   type="text"
-                  className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={formData.city}
                   onChange={e => setFormData({...formData, city: e.target.value})}
                   placeholder="Philadelphia"
@@ -271,7 +271,7 @@ export default function PostJob() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">ZIP Code</label>
                 <input
                   type="text"
-                  className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={formData.zip}
                   onChange={e => setFormData({...formData, zip: e.target.value})}
                   placeholder="19000"
@@ -288,7 +288,7 @@ export default function PostJob() {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Price Type</label>
                 <select
-                  className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={formData.priceType}
                   onChange={e => setFormData({...formData, priceType: e.target.value})}
                 >
@@ -301,7 +301,7 @@ export default function PostJob() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Budget ($)</label>
                 <input
                   type="number"
-                  className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={formData.priceAmount}
                   onChange={e => setFormData({...formData, priceAmount: e.target.value})}
                   placeholder="5000"
@@ -313,7 +313,7 @@ export default function PostJob() {
               <label className="block text-sm font-medium text-gray-700 mb-2">Square Footage (optional)</label>
               <input
                 type="number"
-                className="w-full px-4 py-3 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 value={formData.squareFootage}
                 onChange={e => setFormData({...formData, squareFootage: e.target.value})}
                 placeholder="2000"
