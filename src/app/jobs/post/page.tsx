@@ -152,23 +152,6 @@ export default function PostJob() {
         {/* Form */}
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-lg shadow-gray-900/5 border border-gray-100 p-8">
           
-          {/* Project Type */}
-          <div className="mb-8">
-            <label className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl cursor-pointer hover:bg-blue-100 transition-colors">
-              <input
-                type="checkbox"
-                id="isB2C"
-                className="w-5 h-5 text-blue-600 rounded"
-                checked={formData.isB2C}
-                onChange={e => setFormData({...formData, isB2C: e.target.checked})}
-              />
-              <div>
-                <span className="font-semibold text-gray-900">Homeowner Project</span>
-                <p className="text-sm text-gray-500">Free posting for residential work</p>
-              </div>
-            </label>
-          </div>
-
           {/* Section: Basic Info */}
           <div className="space-y-6 mb-8">
             <h3 className="text-lg font-semibold text-gray-900">Project Details</h3>
