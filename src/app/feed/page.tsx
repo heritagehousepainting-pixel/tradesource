@@ -51,6 +51,11 @@ export default function Feed() {
     }
     setUser(user)
     
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission()
+    }
+    
     // Check if admin and get full profile
     const { data: userData } = await supabase
       .from('users')
@@ -71,6 +76,31 @@ export default function Feed() {
       .eq('read', false)
     
     if (notifData) setNotificationCount(notifData.length)
+
+    // Real-time subscription for new notifications
+    const channel = supabase
+      .channel('feed-notifications')
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'notifications',
+        filter: `user_id=eq.${user.id}`,
+      }, (payload) => {
+        console.log('New notification:', payload)
+        // Refresh notification count
+        setNotificationCount(prev => prev + 1)
+        // Show browser notification
+        if (Notification.permission === 'granted') {
+          new Notification('New Notification', {
+            body: 'You have a new notification on TradeSource',
+          })
+        }
+      })
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }
 
   const fetchJobs = async () => {
