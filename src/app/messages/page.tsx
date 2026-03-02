@@ -61,6 +61,46 @@ function MessagesContent() {
   useEffect(() => {
     if (user) {
       loadData()
+      
+      // Real-time subscription for new messages
+      const messagesChannel = supabase
+        .channel('messages-realtime')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `receiver_id=eq.${user.id}`,
+        }, (payload) => {
+          console.log('New message received:', payload)
+          // Reload data to show new message
+          loadData()
+          // Show browser notification if permitted
+          if (Notification.permission === 'granted') {
+            new Notification('New Message', {
+              body: 'You have a new message on TradeSource',
+            })
+          }
+        })
+        .subscribe()
+
+      // Also listen for new notifications
+      const notifChannel = supabase
+        .channel('notifications-realtime')
+        .on('postgres_changes', {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        }, (payload) => {
+          console.log('New notification:', payload)
+          loadData()
+        })
+        .subscribe()
+
+      return () => {
+        supabase.removeChannel(messagesChannel)
+        supabase.removeChannel(notifChannel)
+      }
     }
   }, [user])
 
@@ -79,6 +119,11 @@ function MessagesContent() {
 
   const checkUser = async () => {
     try {
+      // Request notification permission
+      if ('Notification' in window) {
+        Notification.requestPermission()
+      }
+      
       const { data: { user }, error: authError } = await supabase.auth.getUser()
       if (authError) {
         console.error('Auth error:', authError)
