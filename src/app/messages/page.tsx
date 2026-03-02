@@ -218,10 +218,11 @@ function MessagesContent() {
   const loadMessageNotifications = async () => {
     try {
       const { data: msgNotifs } = await supabase
-        .from('message_notifications')
+        .from('notifications')
         .select('*, from_user:users(first_name, last_name), job:jobs(title)')
         .eq('user_id', user.id)
-        .eq('is_read', false)
+        .eq('type', 'message')
+        .eq('read', false)
         .order('created_at', { ascending: false })
         .limit(10)
 
@@ -237,7 +238,7 @@ function MessagesContent() {
           from_company: 'New message',
           message: n.message || '',
           created_at: n.created_at,
-          read: n.is_read,
+          read: n.read,
           status: 'MESSAGE'
         }))
         
@@ -372,11 +373,13 @@ function MessagesContent() {
 
     // Also create a notification for the receiver
     if (!error) {
-      await supabase.from('message_notifications').insert({
+      await supabase.from('notifications').insert({
         user_id: otherUserId,
-        from_user_id: user.id,
-        job_id: jobId,
+        type: 'message',
+        title: 'New Message',
         message: newMessage.substring(0, 100),
+        job_id: jobId,
+        from_user_id: user.id,
       })
     }
 
