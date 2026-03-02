@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import BottomNav from '@/components/BottomNav'
 import { createClient } from '@/lib/supabase'
 
 export const dynamic = 'force-dynamic'
@@ -137,24 +138,10 @@ export default function Community() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="border-b">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold text-[#0F172A]">TradeSource</Link>
-          <nav className="flex gap-4 items-center text-sm">
-            <Link href="/feed" className="text-[#0F172A]">Feed</Link>
-            <Link href="/contractors" className="text-[#0F172A]">Contractors</Link>
-            <Link href="/community" className="text-[#0F172A]">Community</Link>
-            <Link href="/jobs/post" className="text-[#0F172A]">Post</Link>
-            <Link href="/messages" className="text-[#0F172A]">Messages</Link>
-            <Link href="/profile" className="text-[#0F172A]">Profile</Link>
-          </nav>
-        </div>
-      </header>
-
-      <main className="max-w-4xl mx-auto px-4 py-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-[#0F172A]">Community</h1>
+    <div className="min-h-screen bg-white pb-20">
+      <main className="max-w-4xl mx-auto px-4 py-4">
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-xl font-bold text-[#0F172A]">Community</h1>
           {isVerified ? (
             <button
               onClick={() => setShowNewPost(true)}
@@ -296,6 +283,7 @@ export default function Community() {
           </div>
         )}
       </main>
+      <BottomNav />
     </div>
   )
 }

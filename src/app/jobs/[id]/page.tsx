@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
 import RatingPopup from '@/components/RatingPopup'
+import BottomNav from '@/components/BottomNav'
 
 export const dynamic = 'force-dynamic'
 
@@ -242,28 +243,18 @@ export default function JobDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Premium Header */}
-      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-3 md:px-6 py-4 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back
-          </Link>
-          <nav className="flex gap-4 md:p-6 items-center text-sm">
-            <Link href="/feed" className="text-gray-600 hover:text-gray-900 transition-colors">Feed</Link>
-            <Link href="/contractors" className="text-gray-600 hover:text-gray-900 transition-colors">Contractors</Link>
-            <Link href="/community" className="text-gray-600 hover:text-gray-900 transition-colors">Community</Link>
-            <Link href="/jobs/post" className="text-gray-600 hover:text-gray-900 transition-colors">Post</Link>
-            <Link href="/messages" className="text-gray-600 hover:text-gray-900 transition-colors">Messages</Link>
-            <Link href="/profile" className="text-gray-600 hover:text-gray-900 transition-colors">Profile</Link>
-          </nav>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-50 pb-20">
+      {/* Simple Back Button */}
+      <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 z-10">
+        <Link href="/feed" className="flex items-center gap-2 text-gray-900 font-medium">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back
+        </Link>
+      </div>
 
-      <main className="max-w-4xl mx-auto px-3 md:px-6 py-8">
+      <main className="max-w-4xl mx-auto px-3 md:px-6 py-4">
         <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-8 shadow-lg shadow-gray-900/5 border border-gray-100">
           <div className="flex justify-between items-start mb-6">
             <div>
@@ -588,6 +579,7 @@ export default function JobDetail() {
           onCancel={() => setShowRating(false)}
         />
       )}
+      <BottomNav />
     </div>
   )
 }

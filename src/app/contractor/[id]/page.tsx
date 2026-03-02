@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase'
+import BottomNav from '@/components/BottomNav'
 
 export const dynamic = 'force-dynamic'
 
@@ -114,24 +115,20 @@ export default function ContractorProfile() {
     : []
 
   return (
-    <div className="min-h-screen bg-white">
-      <header className="border-b">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold text-[#0F172A]">← Back to Feed</Link>
-          <nav className="flex gap-4 text-sm">
-            <Link href="/feed" className="text-[#0F172A]">Feed</Link>
-            <Link href="/contractors" className="text-[#0F172A]">Contractors</Link>
-            <Link href="/community" className="text-[#0F172A]">Community</Link>
-            <Link href="/jobs/post" className="text-[#0F172A]">Post</Link>
-            <Link href="/messages" className="text-[#0F172A]">Messages</Link>
-            <Link href="/profile" className="text-[#0F172A]">Profile</Link>
-          </nav>
-        </div>
-      </header>
+    <div className="min-h-screen bg-white pb-20">
+      {/* Simple Back */}
+      <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 z-10">
+        <Link href="/feed" className="flex items-center gap-2 text-gray-900 font-medium">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back
+        </Link>
+      </div>
 
-      <main className="max-w-2xl mx-auto px-4 py-8">
+      <main className="max-w-2xl mx-auto px-4 py-4">
         {/* Profile Card */}
-        <div className="border border-gray-200 rounded-xl p-6 mb-6">
+        <div className="border border-gray-200 rounded-xl p-4 mb-4">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-2xl font-bold">
               {contractor.first_name?.[0]}{contractor.last_name?.[0]}
@@ -286,6 +283,7 @@ export default function ContractorProfile() {
           </Link>
         </div>
       </main>
+      <BottomNav />
     </div>
   )
 }
