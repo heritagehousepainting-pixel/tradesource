@@ -214,6 +214,15 @@ function MessagesContent() {
       action: 'CONTRACTOR_SELECTED'
     })
 
+    // Create initial message to start conversation
+    await supabase.from('messages').insert({
+      job_id: notif.job_id,
+      sender_id: user.id,
+      receiver_id: notif.from_user_id,
+      message_text: `Hi! I've accepted your interest for "${notif.job_title}". Let's discuss the details!`,
+      read: false
+    })
+
     // Remove this notification from local state (so it disappears from Interests)
     setNotifications(prev => prev.filter(n => n.id !== notif.id))
     
