@@ -23,7 +23,7 @@ export default function PostJob() {
     address: '',
     city: '',
     zip: '',
-    workCategory: 'INTERIOR_PAINTING',
+    workCategory: 'INTERIOR',
     priceType: 'FIXED',
     priceAmount: '',
     squareFootage: '',
@@ -71,7 +71,7 @@ export default function PostJob() {
         zip: formData.zip,
         state: 'PA',
         work_category: formData.workCategory,
-        job_type: formData.workCategory,
+        job_type: 'B2C_PROJECT',
         price_type: formData.priceType,
         price_amount: parseInt(formData.priceAmount) || 0,
         is_b2c: formData.isB2C,
@@ -94,8 +94,8 @@ export default function PostJob() {
   }
 
   const workCategories = [
-    { value: 'INTERIOR_PAINTING', label: 'Interior Painting' },
-    { value: 'EXTERIOR_PAINTING', label: 'Exterior Painting' },
+    { value: 'INTERIOR', label: 'Interior Painting' },
+    { value: 'EXTERIOR', label: 'Exterior Painting' },
   ]
 
   const counties = [
