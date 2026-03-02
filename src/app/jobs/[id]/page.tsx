@@ -360,23 +360,26 @@ export default function JobDetail() {
             </div>
           )}
 
-          {/* Job Status & Actions - Show for awarded contractor or homeowner */}
-          {(job.status === 'AWARDED' || job.status === 'IN_PROGRESS' || job.status === 'COMPLETED') && isSelectedContractor && (
+          {/* Job Status & Actions - Show for awarded contractor OR homeowner */}
+          {(job.status === 'AWARDED' || job.status === 'IN_PROGRESS' || job.status === 'COMPLETED') && (isPoster || isSelectedContractor) && (
             <div className="bg-gradient-to-r from-green-50 to-white border border-green-200 rounded-2xl p-6 mb-6 shadow-sm">
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-bold text-green-800 text-lg">Job Status: {job.status.replace('_', ' ')}</p>
-                  {job.status === 'AWARDED' && (
+                  {job.status === 'AWARDED' && isSelectedContractor && (
                     <p className="text-sm text-gray-500">You've been awarded this job. Ready to start?</p>
                   )}
+                  {job.status === 'AWARDED' && isPoster && (
+                    <p className="text-sm text-gray-500">A contractor has been awarded. Track progress below.</p>
+                  )}
                   {job.status === 'IN_PROGRESS' && (
-                    <p className="text-sm text-gray-500">Work in progress. Mark complete when done.</p>
+                    <p className="text-sm text-gray-500">Work in progress. {isPoster ? 'The contractor is working on this.' : 'Mark complete when done.'}</p>
                   )}
                   {job.status === 'COMPLETED' && (
                     <p className="text-sm text-gray-500">Job completed! ✅</p>
                   )}
                 </div>
-                {job.status === 'AWARDED' && (
+                {job.status === 'AWARDED' && isSelectedContractor && (
                   <button
                     onClick={async () => {
                       if (confirm('Start working on this job?')) {
@@ -389,7 +392,7 @@ export default function JobDetail() {
                     🚀 Start Job
                   </button>
                 )}
-                {job.status === 'IN_PROGRESS' && (
+                {(job.status === 'IN_PROGRESS' || job.status === 'AWARDED') && (isPoster || isSelectedContractor) && (
                   <button
                     onClick={() => {
                       if (confirm('Mark this job as complete and leave a review?')) {
