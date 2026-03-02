@@ -175,22 +175,40 @@ function MessagesContent() {
   }
 
   const sendMessage = async () => {
-    if (!newMessage.trim() || !activeConversation || !user) return
+    if (!newMessage.trim()) return
+    if (!activeConversation) {
+      alert('No conversation selected')
+      return
+    }
+    if (!user) {
+      alert('Please sign in again')
+      return
+    }
     
     setSending(true)
+    const messageText = newMessage.trim()
+    const jobId = activeConversation.job_id
+    const receiverId = activeConversation.other_user_id
     
-    const { error } = await supabase.from('messages').insert({
-      job_id: activeConversation.job_id,
-      sender_id: user.id,
-      receiver_id: activeConversation.other_user_id,
-      message_text: newMessage.trim(),
-      read: false
-    })
+    try {
+      const { error } = await supabase.from('messages').insert({
+        job_id: jobId,
+        sender_id: user.id,
+        receiver_id: receiverId,
+        message_text: messageText,
+        read: false
+      })
 
-    if (!error) {
-      setNewMessage('')
-      loadMessages(activeConversation)
-      loadConversations()
+      if (error) {
+        console.error('Error sending message:', error)
+        alert('Failed to send: ' + error.message)
+      } else {
+        setNewMessage('')
+        loadMessages(activeConversation)
+        loadConversations()
+      }
+    } catch (err) {
+      console.error('Error:', err)
     }
     
     setSending(false)
