@@ -243,8 +243,8 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
   // If fully verified, show success
   if (isFullyVerified) {
     return (
-      <div className="border border-gray-200 rounded-xl p-4 md:p-6 bg-green-50 border-green-200">
-        <h2 className="text-xl font-bold mb-4 text-green-800">✅ Verification Complete</h2>
+      <div className="border border-gray-200 rounded-xl p-3 md:p-3 bg-green-50 border-green-200">
+        <h2 className="text-lg font-bold mb-4 text-green-800">✅ Verification Complete</h2>
         <p className="text-[#10B981]">Congratulations! You're fully verified and have full access to:</p>
         <ul className="mt-2 text-[#10B981] text-sm">
           <li>• View all job prices</li>
@@ -257,22 +257,22 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
   }
 
   return (
-    <div className="border border-gray-200 rounded-xl p-4 md:p-6">
-      <h2 className="text-xl font-bold mb-4">📋 Verification Requirements</h2>
-      <p className="text-sm mb-6 text-[#64748B]600">
+    <div className="border border-gray-200 rounded-xl p-3 md:p-3">
+      <h2 className="text-lg font-bold mb-4">📋 Verification Requirements</h2>
+      <p className="text-sm mb-4 text-[#64748B]600">
         Complete all 6 requirements and submit together for admin review. No partial submissions allowed.
       </p>
 
       {/* Status Messages */}
       {showPending && (
-        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-xl mb-6">
+        <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-xl mb-4">
           <p className="text-yellow-800 font-medium">⏳ Under Review</p>
           <p className="text-sm text-[#F59E0B]">Your verification is being processed. You'll receive email notification once approved.</p>
         </div>
       )}
 
       {showRejected && (
-        <div className="bg-red-50 border border-red-200 p-4 rounded-xl mb-6">
+        <div className="bg-red-50 border border-red-200 p-3 rounded-xl mb-4">
           <p className="text-red-800 font-medium">❌ Verification Rejected</p>
           <p className="text-sm text-[#EF4444] mb-2">
             <strong>Admin Feedback:</strong> {profile.verification_notes || 'Please review and correct the issues below.'}
@@ -285,7 +285,7 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
       {!showPending && (
         <div className="space-y-6">
           {/* Requirement 1: Driver's License */}
-          <div className="border border-gray-200 rounded-xl p-4">
+          <div className="border border-gray-200 rounded-xl p-3">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
               🪪 1. Driver's License
               {formData.driverLicense && <span className="text-green-600 text-sm">✓ Uploaded</span>}
@@ -300,7 +300,7 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
           </div>
 
           {/* Requirement 2: PA License + Certificate */}
-          <div className="border border-gray-200 rounded-xl p-4">
+          <div className="border border-gray-200 rounded-xl p-3">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
               🏢 2. Pennsylvania HIC License
               {formData.paLicenseNumber && formData.paLicenseCert && <span className="text-green-600 text-sm">✓ Complete</span>}
@@ -324,7 +324,7 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
           </div>
 
           {/* Requirement 3: General Liability Insurance */}
-          <div className="border border-gray-200 rounded-xl p-4">
+          <div className="border border-gray-200 rounded-xl p-3">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
               🛡️ 3. General Liability Insurance ($1M+ Required)
               {formData.insuranceProvider && formData.insuranceExpiry && formData.insuranceCert && <span className="text-green-600 text-sm">✓ Complete</span>}
@@ -357,7 +357,7 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
           </div>
 
           {/* Requirement 4: Workmen's Comp Insurance */}
-          <div className="border border-gray-200 rounded-xl p-4">
+          <div className="border border-gray-200 rounded-xl p-3">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
               👷 4. Workmen's Compensation Insurance (Required)
               {formData.workmenCompProvider && formData.workmenCompExpiry && formData.workmenCompCert && <span className="text-green-600 text-sm">✓ Complete</span>}
@@ -390,7 +390,7 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
           </div>
 
           {/* Requirement 5: W-9 Tax Form */}
-          <div className="border border-gray-200 rounded-xl p-4">
+          <div className="border border-gray-200 rounded-xl p-3">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
               📋 5. W-9 Tax Form
               {formData.w9Form && <span className="text-green-600 text-sm">✓ Uploaded</span>}
@@ -407,7 +407,7 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
           </div>
 
           {/* External Reviews - REQUIRED */}
-          <div className="border border-gray-200 rounded-xl p-4 bg-yellow-50 border-yellow-300">
+          <div className="border border-gray-200 rounded-xl p-3 bg-yellow-50 border-yellow-300">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
               ⭐ 6. External Reviews (Required)
               {formData.reviewLinks.trim() !== '' && <span className="text-green-600 text-sm">✓ Added</span>}
@@ -456,7 +456,7 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
           </div>
 
           {/* Progress Indicator */}
-          <div className="bg-gray-50 rounded-xl p-4">
+          <div className="bg-gray-50 rounded-xl p-3">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">Completion Progress</span>
               <span className="text-sm">
@@ -540,8 +540,8 @@ function JobHistorySection({ userId }: { userId: string }) {
 
   if (history.length === 0) {
     return (
-      <div className="border border-gray-200 rounded-xl p-4 md:p-6 mt-6">
-        <h2 className="text-xl font-bold mb-4">📋 My Job History</h2>
+      <div className="border border-gray-200 rounded-xl p-3 md:p-3 mt-4">
+        <h2 className="text-lg font-bold mb-4">📋 My Job History</h2>
         <p className="text-[#64748B]500 text-sm">No job activity yet. Your job posts, completions, and deletions will appear here.</p>
       </div>
     )
@@ -570,8 +570,8 @@ function JobHistorySection({ userId }: { userId: string }) {
   console.log('Rendering job history:', history)
   
   return (
-    <div className="border border-gray-200 rounded-xl p-4 md:p-6 mt-6">
-      <h2 className="text-xl font-bold mb-4">📋 My Job History ({history.length} items)</h2>
+    <div className="border border-gray-200 rounded-xl p-3 md:p-3 mt-4">
+      <h2 className="text-lg font-bold mb-4">📋 My Job History ({history.length} items)</h2>
       <div className="space-y-3">
         {history.map((item) => (
           <div key={item.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
@@ -735,27 +735,27 @@ export default function Profile() {
         {isContractor && profile && (
           <div className="mb-8">
             {/* Stats */}
-            <div className="grid grid-cols-4 gap-4 mb-6">
-              <div className="text-center p-4 md:p-6 bg-white rounded-xl md:rounded-2xl border border-gray-200 shadow-sm">
+            <div className="grid grid-cols-4 gap-3 mb-4">
+              <div className="text-center p-3 md:p-3 bg-white rounded-xl md:rounded-xl border border-gray-200 shadow-sm">
                 <div className="text-xl md:text-2xl md:text-3xl font-bold text-gray-900">{profile.jobs_completed || 0}</div>
                 <div className="text-sm text-gray-500">Jobs Done</div>
               </div>
-              <div className="text-center p-4 md:p-6 bg-white rounded-xl md:rounded-2xl border border-gray-200 shadow-sm">
+              <div className="text-center p-3 md:p-3 bg-white rounded-xl md:rounded-xl border border-gray-200 shadow-sm">
                 <div className="text-xl md:text-2xl md:text-3xl font-bold text-gray-900">{profile.avg_rating || 0}</div>
                 <div className="text-sm text-gray-500">⭐ Rating</div>
               </div>
-              <div className="text-center p-4 md:p-6 bg-white rounded-xl md:rounded-2xl border border-gray-200 shadow-sm">
+              <div className="text-center p-3 md:p-3 bg-white rounded-xl md:rounded-xl border border-gray-200 shadow-sm">
                 <div className="text-xl md:text-2xl md:text-3xl font-bold text-gray-900">{profile.review_count || 0}</div>
                 <div className="text-sm text-gray-500">Reviews</div>
               </div>
-              <div className="text-center p-4 border border-gray-200 rounded-xl">
-                <div className="text-xl md:text-2xl font-bold text-[#0F172A]">{profile.years_experience || 0}</div>
+              <div className="text-center p-3 border border-gray-200 rounded-xl">
+                <div className="text-xl md:text-xl font-bold text-[#0F172A]">{profile.years_experience || 0}</div>
                 <div className="text-sm">Years Exp.</div>
               </div>
             </div>
 
             {/* Verification Badges */}
-            <div className="grid grid-cols-4 gap-3 mb-6">
+            <div className="grid grid-cols-4 gap-3 mb-4">
               <Badge type="verified" label="Verified" verified={profile.verification_status === 'APPROVED'} />
               <Badge type="insured" label="Insured" verified={profile.verification_status === 'APPROVED'} />
               <Badge type="tax" label="W-9" verified={profile.verification_status === 'APPROVED'} />
@@ -772,12 +772,12 @@ export default function Profile() {
         )}
 
         {/* Profile Details */}
-        <div className="border border-gray-200 rounded-xl p-4 md:p-6">
-          <h2 className="text-xl font-bold mb-4 text-[#0F172A]">Profile Details</h2>
+        <div className="border border-gray-200 rounded-xl p-3 md:p-3">
+          <h2 className="text-lg font-bold mb-4 text-[#0F172A]">Profile Details</h2>
           
           {editing ? (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3">
                 <div>
                   <label className="block text-sm font-medium mb-1">First Name</label>
                   <input
@@ -885,7 +885,7 @@ export default function Profile() {
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3">
                 <div>
                   <div className="text-sm opacity-70">Name</div>
                   <div className="font-medium">{profile?.first_name} {profile?.last_name}</div>
@@ -937,8 +937,8 @@ export default function Profile() {
 
         {/* Portfolio Section for Contractors */}
         {isContractor && (
-          <div className="border border-gray-200 rounded-xl p-4 md:p-6 mt-6">
-            <h2 className="text-xl font-bold mb-4">Portfolio</h2>
+          <div className="border border-gray-200 rounded-xl p-3 md:p-3 mt-4">
+            <h2 className="text-lg font-bold mb-4">Portfolio</h2>
             <p className="text-sm mb-4 opacity-70">Showcase your best work to homeowners.</p>
             
             <div className="grid grid-cols-3 gap-3 mb-4">
@@ -963,9 +963,9 @@ export default function Profile() {
 
         {/* External Reviews Section - EDITABLE */}
         {isContractor && (
-          <div className="border border-gray-200 rounded-xl p-4 md:p-6 mt-6">
+          <div className="border border-gray-200 rounded-xl p-3 md:p-3 mt-4">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold">External Reviews</h2>
+              <h2 className="text-lg font-bold">External Reviews</h2>
               <button
                 onClick={() => {
                   if (!editingReviews) {

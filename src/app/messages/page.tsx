@@ -513,7 +513,7 @@ function MessagesContent() {
     <div className="flex h-[calc(100vh-73px)] bg-gray-50">
       {/* Sidebar */}
       <div className="w-1/3 border-r border-gray-200 overflow-y-auto bg-white">
-        <div className="p-4 md:p-6 border-b border-gray-100">
+        <div className="p-3 md:p-3 border-b border-gray-100">
           <h1 className="text-xl md:text-2xl font-bold text-gray-900">Messages</h1>
         </div>
         
@@ -521,7 +521,7 @@ function MessagesContent() {
         <div className="flex border-b border-gray-100 overflow-x-auto bg-gray-50">
           <button
             onClick={() => setActiveTab('interests')}
-            className={`flex-1 p-4 text-center font-semibold text-sm whitespace-nowrap transition-colors ${
+            className={`flex-1 p-3 text-center font-semibold text-sm whitespace-nowrap transition-colors ${
               activeTab === 'interests' 
                 ? 'bg-white text-blue-600 border-b-2 border-blue-600' 
                 : 'text-gray-500 hover:text-gray-900'
@@ -531,7 +531,7 @@ function MessagesContent() {
           </button>
           <button
             onClick={() => setActiveTab('accepted')}
-            className={`flex-1 p-4 text-center font-semibold text-sm whitespace-nowrap transition-colors ${
+            className={`flex-1 p-3 text-center font-semibold text-sm whitespace-nowrap transition-colors ${
               activeTab === 'accepted' 
                 ? 'bg-white text-blue-600 border-b-2 border-blue-600' 
                 : 'text-gray-500 hover:text-gray-900'
@@ -541,7 +541,7 @@ function MessagesContent() {
           </button>
           <button
             onClick={() => setActiveTab('chats')}
-            className={`flex-1 p-4 text-center font-semibold text-sm whitespace-nowrap transition-colors ${
+            className={`flex-1 p-3 text-center font-semibold text-sm whitespace-nowrap transition-colors ${
               activeTab === 'chats' 
                 ? 'bg-white text-blue-600 border-b-2 border-blue-600' 
                 : 'text-gray-500 hover:text-gray-900'
@@ -555,7 +555,7 @@ function MessagesContent() {
         {activeTab === 'interests' && (
           <div>
             {interestsList.length === 0 ? (
-              <div className="p-4 md:p-8 text-center text-gray-500">
+              <div className="p-3 md:p-4 text-center text-gray-500">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
@@ -568,7 +568,7 @@ function MessagesContent() {
                 {interestsList.map(notif => (
                   <div
                     key={notif.id}
-                    className="block p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+                    className="block p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
                   >
                     <Link href={`/jobs/${notif.job_id}`}>
                       <div className="font-semibold text-gray-900">{notif.from_name}</div>
@@ -580,7 +580,7 @@ function MessagesContent() {
                         </div>
                       )}
                     </Link>
-                    <div className="mt-2 flex gap-4 items-center">
+                    <div className="mt-2 flex gap-3 items-center">
                       <Link 
                         href={`/contractor/${notif.from_user_id}`}
                         className="text-xs text-blue-600 hover:underline"
@@ -611,7 +611,7 @@ function MessagesContent() {
         {activeTab === 'accepted' && (
           <div>
             {acceptedList.length === 0 ? (
-              <div className="p-4 text-gray-900 text-center">
+              <div className="p-3 text-gray-900 text-center">
                 No accepted contractors yet.
               </div>
             ) : (
@@ -619,7 +619,7 @@ function MessagesContent() {
                 {acceptedList.map(notif => (
                   <div
                     key={notif.id}
-                    className="block p-4 border-b hover:bg-gray-50"
+                    className="block p-3 border-b hover:bg-gray-50"
                   >
                     <div className="flex justify-between items-start">
                       <div>
@@ -645,7 +645,7 @@ function MessagesContent() {
         {activeTab === 'declined' && (
           <div>
             {declinedList.length === 0 ? (
-              <div className="p-4 text-gray-900 text-center">
+              <div className="p-3 text-gray-900 text-center">
                 No declined contractors.
               </div>
             ) : (
@@ -653,7 +653,7 @@ function MessagesContent() {
                 {declinedList.map(notif => (
                   <div
                     key={notif.id}
-                    className="block p-4 border-b hover:bg-gray-50"
+                    className="block p-3 border-b hover:bg-gray-50"
                   >
                     <div className="flex justify-between items-start">
                       <div>
@@ -678,7 +678,7 @@ function MessagesContent() {
         {/* My Applications Tab - for subs to see their applications */}
         {activeTab === 'applications' && (
           <div>
-            <div className="p-4 text-gray-900 text-center">
+            <div className="p-3 text-gray-900 text-center">
               My Applications - coming soon!
             </div>
           </div>
@@ -688,7 +688,7 @@ function MessagesContent() {
         {activeTab === 'chats' && (
           <div>
             {allChats.length === 0 ? (
-              <div className="p-4 text-gray-900 text-center">
+              <div className="p-3 text-gray-900 text-center">
                 No conversations yet.
               </div>
             ) : (
@@ -702,7 +702,7 @@ function MessagesContent() {
                       setCurrentUserId(chat.other_user_id)
                       loadMessages(chat.job_id, chat.other_user_id)
                     }}
-                    className={`block p-4 border-b hover:bg-gray-50 cursor-pointer ${
+                    className={`block p-3 border-b hover:bg-gray-50 cursor-pointer ${
                       activeConversation === chat.job_id ? 'bg-gray-100' : ''
                     }`}
                   >
@@ -721,7 +721,7 @@ function MessagesContent() {
       <div className="w-2/3 flex flex-col">
         {activeConversation ? (
           <>
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto p-3 space-y-4">
               {messages.map(msg => (
                 <div
                   key={msg.id}
@@ -745,7 +745,7 @@ function MessagesContent() {
               ))}
             </div>
 
-            <div className="border-t p-4">
+            <div className="border-t p-3">
               <div className="flex gap-2">
                 <textarea
                   value={newMessage}
@@ -778,7 +778,7 @@ function MessagesContent() {
 export default function Messages() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <Suspense fallback={<div className="p-4 md:p-8 text-center text-gray-900">Loading...</div>}>
+      <Suspense fallback={<div className="p-3 md:p-4 text-center text-gray-900">Loading...</div>}>
         <MessagesContent />
       </Suspense>
       <BottomNav />
