@@ -59,57 +59,32 @@ export default function Feed() {
     
     if (userData) {
       setUserProfile(userData)
-      if (userData.is_admin || user.email?.toLowerCase().includes('heritagehousepainting')) {
-        setIsAdmin(true)
-      } else {
-      }
+      setIsAdmin(userData.email === 'heritagehousepainting@gmail.com')
     }
     
-    fetchJobs()
-    fetchNotifications(user.id)
-  }
-
-  const fetchNotifications = async (userId: string) => {
-    // Get jobs posted by user
-    const { data: myJobs } = await supabase
-      .from('jobs')
+    // Get notification count
+    const { data: notifData } = await supabase
+      .from('notifications')
       .select('id')
-      .eq('posted_by', userId)
+      .eq('user_id', user.id)
+      .eq('read', false)
     
-    if (myJobs && myJobs.length > 0) {
-      const jobIds = myJobs.map(j => j.id)
-      // Count interests on user's jobs
-      const { count } = await supabase
-        .from('interests')
-        .select('*', { count: 'exact', head: true })
-        .in('job_id', jobIds)
-      
-      setNotificationCount(count || 0)
-    }
+    if (notifData) setNotificationCount(notifData.length)
   }
-
-  // Check URL for deleted job param on mount - no longer needed since we don't filter
 
   const fetchJobs = async () => {
-    // Force fresh fetch by adding a small delay to ensure DB is updated
-    await new Promise(resolve => setTimeout(resolve, 100))
-    
     let query = supabase
       .from('jobs')
-      .select('id, title, description, county, job_type, work_category, price_type, price_amount, is_b2c, created_at, posted_by')
-      .eq('status', 'OPEN')
+      .select('*')
       .order('created_at', { ascending: false })
+      .limit(100)
 
     if (countyFilter !== 'all') {
       query = query.eq('county', countyFilter)
     }
 
     if (typeFilter !== 'all') {
-      if (typeFilter === 'b2c') {
-        query = query.eq('is_b2c', true)
-      } else {
-        query = query.eq('job_type', typeFilter.toUpperCase())
-      }
+      query = query.eq('work_category', typeFilter)
     }
 
     if (timelineFilter !== 'all') {
@@ -140,136 +115,202 @@ export default function Feed() {
     job.description?.toLowerCase().includes(searchQuery.toLowerCase()))
   )
 
+  // Format time ago
+  const timeAgo = (date: string) => {
+    const now = new Date()
+    const jobDate = new Date(date)
+    const diff = Math.floor((now.getTime() - jobDate.getTime()) / 1000)
+    
+    if (diff < 60) return 'Just now'
+    if (diff < 3600) return `${Math.floor(diff / 60)}m ago`
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+    return `${Math.floor(diff / 86400)}d ago`
+  }
+
   return (
-    <div className="min-h-screen bg-white text-[#0F172A]">
-      {/* Header */}
-      <header className="border-b border-gray-100 sticky top-0 bg-white z-10">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold text-[#0F172A] text-[#0F172A]">TradeSource</Link>
-          <nav className="flex gap-4 items-center text-sm">
-            <Link href="/feed" className="font-medium text-[#0F172A]">Feed</Link>
-            <Link href="/contractors" className="text-[#0F172A]">Contractors</Link>
-            <Link href="/community" className="text-[#0F172A]">Community</Link>
-            <Link href="/jobs/post" className="text-[#0F172A]">Post</Link>
-            <Link href="/messages" className="text-[#0F172A] relative">
-              Messages
+    <div className="min-h-screen bg-gray-50">
+      {/* Premium Header */}
+      <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+          <Link href="/" className="text-xl font-bold text-gray-900">
+            Trade<span className="text-blue-600">Source</span>
+          </Link>
+          
+          {/* Search Bar */}
+          <div className="flex-1 max-w-md mx-8">
+            <div className="relative">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <input
+                type="text"
+                placeholder="Search jobs..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-gray-100 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all"
+              />
+            </div>
+          </div>
+          
+          <nav className="flex gap-6 items-center text-sm">
+            <Link href="/feed" className="font-semibold text-gray-900">Feed</Link>
+            <Link href="/contractors" className="text-gray-600 hover:text-gray-900 transition-colors">Contractors</Link>
+            <Link href="/community" className="text-gray-600 hover:text-gray-900 transition-colors">Community</Link>
+            <Link href="/jobs/post" className="text-gray-600 hover:text-gray-900 transition-colors">Post</Link>
+            <Link href="/messages" className="text-gray-600 hover:text-gray-900 transition-colors relative">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
               {notificationCount > 0 && (
-                <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-medium">
                   {notificationCount}
                 </span>
               )}
             </Link>
-            {isAdmin && (
-              <Link href="/admin" className="text-green-600 hover:text-[#10B981] font-bold text-[#0F172A] font-medium">🔧 Admin</Link>
-            )}
-            <Link href="/profile" className="text-[#0F172A]">Profile</Link>
-            <button onClick={handleSignOut} className="text-[#0F172A]">Sign out</button>
+            <Link href="/profile" className="text-gray-600 hover:text-gray-900 transition-colors">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                {userProfile?.first_name?.[0] || 'U'}
+              </div>
+            </Link>
           </nav>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-6">
-        {/* Verification Banner for Unverified Contractors */}
-        {isUnverifiedContractor && (
-          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-[#0F172A] text-[#0F172A]">🔒 Verification Required</h3>
-                <p className="text-sm text-[#0F172A]">Complete verification to unlock full access - see prices and post jobs.</p>
-              </div>
-              <Link href="/profile" className="bg-[#0F172A] text-white px-4 py-2 rounded-xl text-sm">
-                Verify Now
-              </Link>
-            </div>
-          </div>
-        )}
-
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-[#0F172A] text-[#0F172A]">Job Feed</h1>
-          {isUnverifiedContractor ? (
-            <button disabled className="bg-gray-300 text-[#64748B]500 px-4 py-2 rounded-xl text-sm font-medium cursor-not-allowed">
-              Post a Job (Verify First)
-            </button>
-          ) : (
-            <Link href="/jobs/post" className="bg-[#0F172A] text-white px-4 py-2 rounded-xl text-sm font-medium">
-              Post a Job
-            </Link>
-          )}
+      <main className="max-w-6xl mx-auto px-6 py-8">
+        {/* Page Title */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Job Feed</h1>
+          <p className="text-gray-500 mt-1">Find your next project</p>
         </div>
 
-        {/* Filters */}
-        <div className="flex gap-3 mb-6 flex-wrap">
-          <input
-            type="text"
-            placeholder="Search jobs..."
-            className="flex-1 min-w-[200px] px-3 py-2 border border-gray-200 rounded-xl"
-            value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
-          />
-          <select 
-            className="px-3 py-2 border border-gray-200 rounded-xl"
-            value={countyFilter}
-            onChange={e => setCountyFilter(e.target.value)}
-          >
-            <option value="all">All Counties</option>
-            <option value="Montgomery">Montgomery</option>
-            <option value="Bucks">Bucks</option>
-            <option value="Philadelphia">Philadelphia</option>
-            <option value="Delaware">Delaware</option>
-          </select>
-          <select 
-            className="px-3 py-2 border border-gray-200 rounded-xl"
-            value={typeFilter}
-            onChange={e => setTypeFilter(e.target.value)}
-          >
-            <option value="all">All Types</option>
-            <option value="FULL">Full Job</option>
-            <option value="PIECE">Piece Work</option>
-            <option value="b2c">Homeowner Projects</option>
-          </select>
-          <select 
-            className="px-3 py-2 border border-gray-200 rounded-xl"
-            value={timelineFilter}
-            onChange={e => setTimelineFilter(e.target.value)}
-          >
-            <option value="all">Any Timeline</option>
-            <option value="ASAP">ASAP</option>
-            <option value="THIS_WEEK">This Week</option>
-            <option value="THIS_MONTH">This Month</option>
-            <option value="FLEXIBLE">Flexible</option>
-          </select>
+        {/* Premium Filters */}
+        <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
+          <div className="flex flex-wrap gap-4">
+            <select 
+              value={countyFilter}
+              onChange={(e) => setCountyFilter(e.target.value)}
+              className="flex-1 min-w-[180px] px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Counties</option>
+              <option value="Montgomery">Montgomery</option>
+              <option value="Bucks">Bucks</option>
+              <option value="Philadelphia">Philadelphia</option>
+              <option value="Delaware">Delaware</option>
+              <option value="Chester">Chester</option>
+              <option value="Lehigh">Lehigh</option>
+            </select>
+            
+            <select 
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="flex-1 min-w-[180px] px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">All Types</option>
+              <option value="Interior Painting">Interior Painting</option>
+              <option value="Exterior Painting">Exterior Painting</option>
+              <option value="Drywall">Drywall</option>
+              <option value="Flooring">Flooring</option>
+              <option value="Carpentry">Carpentry</option>
+              <option value="Roofing">Roofing</option>
+            </select>
+            
+            <select 
+              value={timelineFilter}
+              onChange={(e) => setTimelineFilter(e.target.value)}
+              className="flex-1 min-w-[180px] px-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="all">Any Timeline</option>
+              <option value="ASAP">ASAP</option>
+              <option value="WITHIN_MONTH">Within Month</option>
+              <option value="FLEXIBLE">Flexible</option>
+            </select>
+          </div>
         </div>
 
         {/* Jobs List */}
         {loading ? (
-          <div className="text-center py-12 text-[#0F172A]">Loading...</div>
+          <div className="space-y-4">
+            {[1,2,3].map(i => (
+              <div key={i} className="bg-white rounded-2xl p-6 skeleton h-32"></div>
+            ))}
+          </div>
         ) : filteredJobs.length === 0 ? (
-          <div className="text-center py-12 text-[#0F172A]">
-            No jobs found. Be the first to post!
+          <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">No jobs found</h3>
+            <p className="text-gray-500 mb-4">Be the first to post a project!</p>
+            <Link href="/jobs/post" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition-colors">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Post a Job
+            </Link>
           </div>
         ) : (
           <div className="space-y-4">
             {filteredJobs.map(job => (
-              <div key={job.id} className="border border-gray-200 rounded-2xl p-5 hover:border border-gray-200 rounded-2xl p-6 shadow-lg hover:border-gray-300 transition-all duration-300">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <Link href={`/jobs/${job.id}`}>
-                      <span className={`text-xs px-2 py-1 rounded ${job.is_b2c ? 'bg-[#3B82F6]/10 text-[#3B82F6] border border-[#3B82F6]/20' : 'bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20'}`}>
-                        {job.is_b2c ? 'Homeowner Project' : 'Overflow Job'}
-                      </span>
-                      <h3 className="font-semibold text-[#0F172A] mt-2">{job.title}</h3>
-                    </Link>
+              <Link href={`/jobs/${job.id}`} key={job.id} className="block">
+                <div className="bg-white rounded-2xl p-6 border border-gray-200 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-900/5 transition-all duration-300 group">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-2">
+                        <span className={`text-xs px-3 py-1 rounded-full font-medium ${
+                          job.is_b2c 
+                            ? 'bg-blue-50 text-blue-700 border border-blue-100' 
+                            : 'bg-green-50 text-green-700 border border-green-100'
+                        }`}>
+                          {job.is_b2c ? '🏠 Homeowner' : '💼 Overflow'}
+                        </span>
+                        <span className="text-xs text-gray-400">{timeAgo(job.created_at)}</span>
+                      </div>
+                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+                        {job.title}
+                      </h3>
+                    </div>
+                    <div className="text-right">
+                      <div className={`text-2xl font-bold ${isUnverifiedContractor ? 'blur-sm' : 'text-gray-900'}`}>
+                        {isUnverifiedContractor ? '••••••' : `$${job.price_amount?.toLocaleString()}`}
+                      </div>
+                      <div className="text-xs text-gray-500">{job.price_type}</div>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`text-lg font-bold text-[#0F172A] ${isUnverifiedContractor ? 'blur-sm select-none' : 'text-[#10B981] font-bold text-[#0F172A]'}`}>
-                      {isUnverifiedContractor ? '••••••' : `$${job.price_amount?.toLocaleString()}`}
+                  
+                  <p className="text-gray-500 text-sm mb-4 line-clamp-2">{job.description}</p>
+                  
+                  <div className="flex flex-wrap gap-3">
+                    <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg text-sm text-gray-600">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                      {job.county}
                     </span>
-                    {job.posted_by === user?.id && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg text-sm text-gray-600">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                      </svg>
+                      {job.work_category}
+                    </span>
+                    {job.timeline && (
+                      <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg text-sm text-gray-600">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {job.timeline.replace('_', ' ')}
+                      </span>
+                    )}
+                  </div>
+                  
+                  {job.posted_by === user?.id && (
+                    <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end">
                       <button
                         onClick={async (e) => {
                           e.preventDefault()
                           if (confirm('Delete this job?')) {
-                            // Log deletion with title
                             await supabase.from('job_history').insert({
                               user_id: user.id,
                               job_id: job.id,
@@ -277,26 +318,17 @@ export default function Feed() {
                               action: 'DELETED'
                             })
                             await supabase.from('jobs').delete().eq('id', job.id)
-                            // Refresh feed
                             fetchJobs()
                           }
                         }}
-                        className="text-red-500 text-sm hover:underline"
+                        className="text-red-500 text-sm hover:text-red-700 transition-colors"
                       >
-                        🗑️
+                        Delete job
                       </button>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
-                <Link href={`/jobs/${job.id}`}>
-                  <p className="text-sm text-[#0F172A] mb-2 line-clamp-2">{job.description}</p>
-                  <div className="flex gap-4 text-sm text-[#0F172A]">
-                    <span>📍 {job.county}</span>
-                    <span>🏠 {job.work_category}</span>
-                    <span>💰 {job.price_type}</span>
-                  </div>
-                </Link>
-              </div>
+              </Link>
             ))}
           </div>
         )}
