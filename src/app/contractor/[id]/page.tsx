@@ -52,6 +52,20 @@ export default function ContractorProfile() {
     fetchContractor()
   }, [])
 
+  useEffect(() => {
+    const fetchRatings = async () => {
+      if (!contractor?.id) return
+      const { data } = await supabase
+        .from('reviews')
+        .select('*, users!inner(first_name, last_name)')
+        .eq('reviewed_id', contractor.id)
+        .order('created_at', { ascending: false })
+        .limit(10)
+      if (data) setRatings(data)
+    }
+    fetchRatings()
+  }, [contractor?.id])
+
   const fetchContractor = async () => {
     const contractorId = params.id as string
     
@@ -98,20 +112,6 @@ export default function ContractorProfile() {
   const reviewLinks = contractor.external_reviews 
     ? contractor.external_reviews.split('\n').filter((r: string) => r.trim())
     : []
-    
-  // Get ratings from other contractors/homeowners
-  useEffect(() => {
-    const fetchRatings = async () => {
-      const { data } = await supabase
-        .from('reviews')
-        .select('*, users!inner(first_name, last_name)')
-        .eq('reviewed_id', contractor.id)
-        .order('created_at', { ascending: false })
-        .limit(10)
-      if (data) setRatings(data)
-    }
-    if (contractor.id) fetchRatings()
-  }, [contractor.id])
 
   return (
     <div className="min-h-screen bg-white">
