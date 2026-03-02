@@ -247,13 +247,14 @@ function MessagesContent() {
   }
 
   const getInitials = (name: string) => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    if (!name) return '?'
+    return name.split(' ').map(n => n[0] || '').join('').toUpperCase().slice(0, 2) || '?'
   }
 
-  const unreadNotifs = notifications.filter(n => !n.read).length
-  const unreadMessages = conversations.filter(c => c.unread).length
+  const unreadNotifs = (notifications || []).filter(n => !n?.read).length
+  const unreadMessages = (conversations || []).filter(c => c?.unread).length
 
-  const myJobNotifications = notifications.filter(n => n.type === 'interest')
+  const myJobNotifications = (notifications || []).filter(n => n?.type === 'interest')
 
   // If viewing a conversation (mobile)
   if (activeConversation) {
@@ -315,6 +316,14 @@ function MessagesContent() {
   }
 
   // Main Messages List
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
