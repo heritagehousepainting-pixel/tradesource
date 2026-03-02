@@ -83,26 +83,26 @@ export default function Contractors() {
     <div className="min-h-screen bg-white">
       <header className="border-b">
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold text-black">TradeSource</Link>
+          <Link href="/feed" className="text-xl font-bold text-[#0F172A]">TradeSource</Link>
           <nav className="flex gap-4 items-center text-sm">
-            <Link href="/feed" className="text-black">Feed</Link>
-            <Link href="/community" className="text-black">Community</Link>
-            <Link href="/jobs/post" className="text-black">Post</Link>
-            <Link href="/messages" className="text-black">Messages</Link>
-            <Link href="/profile" className="text-black">Profile</Link>
+            <Link href="/feed" className="text-[#0F172A]">Feed</Link>
+            <Link href="/community" className="text-[#0F172A]">Community</Link>
+            <Link href="/jobs/post" className="text-[#0F172A]">Post</Link>
+            <Link href="/messages" className="text-[#0F172A]">Messages</Link>
+            <Link href="/profile" className="text-[#0F172A]">Profile</Link>
           </nav>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 py-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-black">Find Contractors</h1>
+          <h1 className="text-2xl font-bold text-[#0F172A]">Find Contractors</h1>
         </div>
 
         {/* Filters */}
         <div className="flex gap-4 mb-6 flex-wrap">
           <select 
-            className="px-3 py-2 border rounded-lg"
+            className="px-3 py-2 border border-gray-200 rounded-xl"
             value={countyFilter}
             onChange={e => setCountyFilter(e.target.value)}
           >
@@ -114,7 +114,7 @@ export default function Contractors() {
           </select>
 
           <select 
-            className="px-3 py-2 border rounded-lg"
+            className="px-3 py-2 border border-gray-200 rounded-xl"
             value={verifiedFilter}
             onChange={e => setVerifiedFilter(e.target.value)}
           >
@@ -128,12 +128,12 @@ export default function Contractors() {
             placeholder="Search contractors..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="px-3 py-2 border rounded-lg flex-1 min-w-[200px]"
+            className="px-3 py-2 border border-gray-200 rounded-xl flex-1 min-w-[200px]"
           />
         </div>
 
         {/* Contractor Count */}
-        <p className="text-sm text-gray-500 mb-4">
+        <p className="text-sm text-[#64748B]500 mb-4">
           {contractors.length} verified contractor{contractors.length !== 1 ? 's' : ''} found
         </p>
 
@@ -141,7 +141,7 @@ export default function Contractors() {
         {loading ? (
           <div className="text-center py-12">Loading...</div>
         ) : contractors.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-[#64748B]500">
             No contractors found. Try adjusting your filters.
           </div>
         ) : (
@@ -150,50 +150,50 @@ export default function Contractors() {
               <Link
                 key={contractor.id}
                 href={`/contractor/${contractor.id}`}
-                className="border rounded-xl p-4 hover:shadow-md transition"
+                className="border border-gray-200 rounded-xl p-4 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 transition"
               >
                 {/* Header */}
                 <div className="flex items-start gap-3 mb-3">
-                  <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-xl font-bold text-gray-600">
+                  <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-xl font-bold text-[#64748B]600">
                     {contractor.first_name?.[0]}{contractor.last_name?.[0]}
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold text-black">
+                    <h3 className="font-semibold text-[#0F172A]">
                       {contractor.company_name || `${contractor.first_name} ${contractor.last_name}`}
                     </h3>
-                    <p className="text-sm text-gray-500">{contractor.trade_type}</p>
+                    <p className="text-sm text-[#64748B]500">{contractor.trade_type}</p>
                   </div>
                 </div>
 
                 {/* Badges */}
                 <div className="flex gap-2 mb-3">
                   {contractor.is_verified && (
-                    <span className="bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">✓ Verified</span>
+                    <span className="bg-[#3B82F6]/10 text-[#3B82F6] text-xs px-2 py-1 rounded-full">✓ Verified</span>
                   )}
                   {contractor.is_insured && (
-                    <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">🛡️ Insured</span>
+                    <span className="bg-[#10B981]/10 text-[#10B981] text-xs px-2 py-1 rounded-full">🛡️ Insured</span>
                   )}
                 </div>
 
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-2 mb-3 text-center">
-                  <div className="bg-gray-50 rounded-lg p-2">
-                    <p className="font-bold text-black">{contractor.avg_rating || 0}</p>
-                    <p className="text-xs text-gray-500">Rating</p>
+                  <div className="bg-gray-50 rounded-xl p-2">
+                    <p className="font-bold text-[#0F172A]">{contractor.avg_rating || 0}</p>
+                    <p className="text-xs text-[#64748B]500">Rating</p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-2">
-                    <p className="font-bold text-black">{contractor.jobs_completed || 0}</p>
-                    <p className="text-xs text-gray-500">Jobs</p>
+                  <div className="bg-gray-50 rounded-xl p-2">
+                    <p className="font-bold text-[#0F172A]">{contractor.jobs_completed || 0}</p>
+                    <p className="text-xs text-[#64748B]500">Jobs</p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-2">
-                    <p className="font-bold text-black">{contractor.years_experience || 0}</p>
-                    <p className="text-xs text-gray-500">Years</p>
+                  <div className="bg-gray-50 rounded-xl p-2">
+                    <p className="font-bold text-[#0F172A]">{contractor.years_experience || 0}</p>
+                    <p className="text-xs text-[#64748B]500">Years</p>
                   </div>
                 </div>
 
                 {/* Bio */}
                 {contractor.bio && (
-                  <p className="text-sm text-gray-600 line-clamp-2">{contractor.bio}</p>
+                  <p className="text-sm text-[#64748B]600 line-clamp-2">{contractor.bio}</p>
                 )}
 
                 {/* Service Area */}

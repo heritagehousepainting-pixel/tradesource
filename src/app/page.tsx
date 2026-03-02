@@ -30,7 +30,7 @@ export default function Home() {
             find reliable subs, and grow your business.
           </p>
           <div className="flex justify-center gap-4">
-            <Link href="/contractor/signup" className="bg-[#3B82F6] text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#2563EB] transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5">
+            <Link href="/contractor/signup" className="bg-[#3B82F6] text-white px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#2563EB] transition-all border border-gray-200 rounded-2xl p-6 shadow-lg hover:shadow-xl hover:-translate-y-0.5">
               Get Started
             </Link>
             <Link href="/homeowner/signup" className="border-2 border-[#0F172A] text-[#0F172A] px-8 py-4 rounded-xl text-lg font-semibold hover:bg-[#0F172A] hover:text-white transition-all">
@@ -67,7 +67,7 @@ export default function Home() {
       {/* Trust Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="bg-white rounded-3xl p-10 shadow-lg">
+          <div className="bg-white rounded-3xl p-10 border border-gray-200 rounded-2xl p-6 shadow-lg">
             <h3 className="text-2xl font-bold mb-8 text-[#0F172A]">Why TradeSource Works</h3>
             <ul className="space-y-5">
               <li className="flex items-center gap-4 text-[#0F172A]">

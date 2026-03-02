@@ -144,7 +144,7 @@ export default function AdminVerification() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-          <button onClick={handleSignOut} className="text-black underline">
+          <button onClick={handleSignOut} className="text-[#0F172A] underline">
             Sign out
           </button>
         </div>
@@ -171,16 +171,16 @@ export default function AdminVerification() {
     <div className="min-h-screen bg-white">
       <header className="border-b">
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold text-black">TradeSource Admin</Link>
+          <Link href="/feed" className="text-xl font-bold text-[#0F172A]">TradeSource Admin</Link>
           <nav className="flex gap-4 items-center text-sm">
-            <Link href="/feed" className="text-black">Feed</Link>
-            <Link href="/contractors" className="text-black">Contractors</Link>
-            <Link href="/community" className="text-black">Community</Link>
-            <Link href="/jobs/post" className="text-black">Post</Link>
-            <Link href="/messages" className="text-black">Messages</Link>
-            <Link href="/profile" className="text-black">Profile</Link>
-            <Link href="/admin" className="text-black font-medium">Admin</Link>
-            <button onClick={handleSignOut} className="text-black hover:text-black">Sign out</button>
+            <Link href="/feed" className="text-[#0F172A]">Feed</Link>
+            <Link href="/contractors" className="text-[#0F172A]">Contractors</Link>
+            <Link href="/community" className="text-[#0F172A]">Community</Link>
+            <Link href="/jobs/post" className="text-[#0F172A]">Post</Link>
+            <Link href="/messages" className="text-[#0F172A]">Messages</Link>
+            <Link href="/profile" className="text-[#0F172A]">Profile</Link>
+            <Link href="/admin" className="text-[#0F172A] font-medium">Admin</Link>
+            <button onClick={handleSignOut} className="text-[#0F172A] hover:text-[#0F172A]">Sign out</button>
           </nav>
         </div>
       </header>
@@ -191,19 +191,19 @@ export default function AdminVerification() {
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-8">
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-blue-700">{contractors.length}</p>
+            <p className="text-2xl font-bold text-[#3B82F6]">{contractors.length}</p>
             <p className="text-sm text-blue-600">Total Contractors</p>
           </div>
           <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-yellow-700">{pending.length}</p>
+            <p className="text-2xl font-bold text-[#F59E0B]">{pending.length}</p>
             <p className="text-sm text-yellow-600">Pending Verification</p>
           </div>
           <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-green-700">{verified.length}</p>
+            <p className="text-2xl font-bold text-[#10B981]">{verified.length}</p>
             <p className="text-sm text-green-600">Verified</p>
           </div>
           <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
-            <p className="text-2xl font-bold text-purple-700">{rejected.length}</p>
+            <p className="text-2xl font-bold text-[#8B5CF6]">{rejected.length}</p>
             <p className="text-sm text-purple-600">Rejected</p>
           </div>
         </div>
@@ -217,8 +217,8 @@ export default function AdminVerification() {
             onClick={() => setActiveTab('pending')}
             className={`px-4 py-2 font-medium ${
               activeTab === 'pending' 
-                ? 'border-b-2 border-slate-900 text-black' 
-                : 'text-black'
+                ? 'border-b-2 border-slate-900 text-[#0F172A]' 
+                : 'text-[#0F172A]'
             }`}
           >
             Pending ({pending.length})
@@ -227,8 +227,8 @@ export default function AdminVerification() {
             onClick={() => setActiveTab('verified')}
             className={`px-4 py-2 font-medium ${
               activeTab === 'verified' 
-                ? 'border-b-2 border-slate-900 text-black' 
-                : 'text-black'
+                ? 'border-b-2 border-slate-900 text-[#0F172A]' 
+                : 'text-[#0F172A]'
             }`}
           >
             Verified ({verified.length})
@@ -237,8 +237,8 @@ export default function AdminVerification() {
             onClick={() => setActiveTab('rejected')}
             className={`px-4 py-2 font-medium ${
               activeTab === 'rejected' 
-                ? 'border-b-2 border-slate-900 text-black' 
-                : 'text-black'
+                ? 'border-b-2 border-slate-900 text-[#0F172A]' 
+                : 'text-[#0F172A]'
             }`}
           >
             Rejected ({rejected.length})
@@ -248,7 +248,7 @@ export default function AdminVerification() {
         {/* List */}
         {currentContractors.length === 0 ? (
           <div className="text-center py-8 bg-slate-50 rounded-xl">
-            <p className="text-black">
+            <p className="text-[#0F172A]">
               {activeTab === 'pending' && 'No contractors pending verification.'}
               {activeTab === 'verified' && 'No verified contractors.'}
               {activeTab === 'rejected' && 'No rejected contractors.'}
@@ -257,16 +257,16 @@ export default function AdminVerification() {
         ) : (
           <div className="space-y-3">
             {currentContractors.map(contractor => (
-              <div key={contractor.id} className="border rounded-xl p-4">
+              <div key={contractor.id} className="border border-gray-200 rounded-xl p-4">
                 <div className="flex justify-between items-start mb-3">
                   <div>
                     <p className="font-semibold">
                       {contractor.first_name} {contractor.last_name}
                     </p>
-                    <p className="text-sm text-black">{contractor.company_name || 'No company'}</p>
-                    <p className="text-sm text-black">{contractor.email}</p>
-                    <p className="text-sm text-black">{contractor.trade_type?.replace('_', ' ')}</p>
-                    <p className="text-xs text-black">Signed up: {new Date(contractor.created_at).toLocaleDateString()}</p>
+                    <p className="text-sm text-[#0F172A]">{contractor.company_name || 'No company'}</p>
+                    <p className="text-sm text-[#0F172A]">{contractor.email}</p>
+                    <p className="text-sm text-[#0F172A]">{contractor.trade_type?.replace('_', ' ')}</p>
+                    <p className="text-xs text-[#0F172A]">Signed up: {new Date(contractor.created_at).toLocaleDateString()}</p>
                   </div>
                   <div className="flex gap-2">
                     {activeTab === 'pending' && (
@@ -274,7 +274,7 @@ export default function AdminVerification() {
                         <button
                           onClick={() => handleApprove(contractor.id)}
                           disabled={actionLoading === contractor.id}
-                          className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 disabled:opacity-50"
+                          className="bg-green-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-green-700 disabled:opacity-50"
                         >
                           ✅ Approve All
                         </button>
@@ -284,7 +284,7 @@ export default function AdminVerification() {
                             if (notes) handleReject(contractor.id, notes)
                           }}
                           disabled={actionLoading === contractor.id}
-                          className="bg-red-100 text-red-700 px-4 py-2 rounded-lg text-sm hover:bg-red-200 disabled:opacity-50"
+                          className="bg-[#EF4444]/10 text-[#EF4444] px-4 py-2 rounded-xl text-sm hover:bg-red-200 disabled:opacity-50"
                         >
                           ❌ Reject
                         </button>
@@ -297,7 +297,7 @@ export default function AdminVerification() {
                           if (notes) handleReject(contractor.id, notes)
                         }}
                         disabled={actionLoading === contractor.id}
-                        className="bg-red-100 text-red-700 px-4 py-2 rounded-lg text-sm hover:bg-red-200 disabled:opacity-50"
+                        className="bg-[#EF4444]/10 text-[#EF4444] px-4 py-2 rounded-xl text-sm hover:bg-red-200 disabled:opacity-50"
                       >
                         Revoke
                       </button>
@@ -306,7 +306,7 @@ export default function AdminVerification() {
                       <button
                         onClick={() => handleResetToPending(contractor.id)}
                         disabled={actionLoading === contractor.id}
-                        className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-lg text-sm hover:bg-yellow-200 disabled:opacity-50"
+                        className="bg-[#F59E0B]/10 text-[#F59E0B] px-4 py-2 rounded-xl text-sm hover:bg-yellow-200 disabled:opacity-50"
                       >
                         Reset to Pending
                       </button>
@@ -315,7 +315,7 @@ export default function AdminVerification() {
                 </div>
 
                 {/* Submitted Documents */}
-                <div className="bg-slate-50 rounded-lg p-3 text-sm">
+                <div className="bg-slate-50 rounded-xl p-3 text-sm">
                   <p className="font-medium mb-2">📋 Submitted Documents:</p>
                   <div className="space-y-2">
                     <div className="flex justify-between">
@@ -379,7 +379,7 @@ export default function AdminVerification() {
 
                 {/* Rejection feedback */}
                 {contractor.verification_status === 'REJECTED' && contractor.verification_notes && (
-                  <div className="mt-2 bg-red-50 border border-red-200 rounded-lg p-2 text-sm">
+                  <div className="mt-2 bg-red-50 border border-red-200 rounded-xl p-2 text-sm">
                     <strong>Rejection Feedback:</strong> {contractor.verification_notes}
                   </div>
                 )}

@@ -141,17 +141,17 @@ export default function Feed() {
   )
 
   return (
-    <div className="min-h-screen bg-white text-black">
+    <div className="min-h-screen bg-white text-[#0F172A]">
       {/* Header */}
       <header className="border-b border-gray-100 sticky top-0 bg-white z-10">
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold text-black">TradeSource</Link>
+          <Link href="/" className="text-xl font-bold text-[#0F172A]">TradeSource</Link>
           <nav className="flex gap-4 items-center text-sm">
-            <Link href="/feed" className="font-medium text-black">Feed</Link>
-            <Link href="/contractors" className="text-black">Contractors</Link>
-            <Link href="/community" className="text-black">Community</Link>
-            <Link href="/jobs/post" className="text-black">Post</Link>
-            <Link href="/messages" className="text-black relative">
+            <Link href="/feed" className="font-medium text-[#0F172A]">Feed</Link>
+            <Link href="/contractors" className="text-[#0F172A]">Contractors</Link>
+            <Link href="/community" className="text-[#0F172A]">Community</Link>
+            <Link href="/jobs/post" className="text-[#0F172A]">Post</Link>
+            <Link href="/messages" className="text-[#0F172A] relative">
               Messages
               {notificationCount > 0 && (
                 <span className="absolute -top-2 -right-3 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -162,8 +162,8 @@ export default function Feed() {
             {isAdmin && (
               <Link href="/admin" className="text-green-600 hover:text-[#10B981] font-bold font-medium">🔧 Admin</Link>
             )}
-            <Link href="/profile" className="text-black">Profile</Link>
-            <button onClick={handleSignOut} className="text-black">Sign out</button>
+            <Link href="/profile" className="text-[#0F172A]">Profile</Link>
+            <button onClick={handleSignOut} className="text-[#0F172A]">Sign out</button>
           </nav>
         </div>
       </header>
@@ -174,10 +174,10 @@ export default function Feed() {
           <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-black">🔒 Verification Required</h3>
-                <p className="text-sm text-black">Complete verification to unlock full access - see prices and post jobs.</p>
+                <h3 className="font-bold text-[#0F172A]">🔒 Verification Required</h3>
+                <p className="text-sm text-[#0F172A]">Complete verification to unlock full access - see prices and post jobs.</p>
               </div>
-              <Link href="/profile" className="bg-[#0F172A] text-white px-4 py-2 rounded-lg text-sm">
+              <Link href="/profile" className="bg-[#0F172A] text-white px-4 py-2 rounded-xl text-sm">
                 Verify Now
               </Link>
             </div>
@@ -185,13 +185,13 @@ export default function Feed() {
         )}
 
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-black">Job Feed</h1>
+          <h1 className="text-2xl font-bold text-[#0F172A]">Job Feed</h1>
           {isUnverifiedContractor ? (
-            <button disabled className="bg-gray-300 text-gray-500 px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed">
+            <button disabled className="bg-gray-300 text-[#64748B]500 px-4 py-2 rounded-xl text-sm font-medium cursor-not-allowed">
               Post a Job (Verify First)
             </button>
           ) : (
-            <Link href="/jobs/post" className="bg-[#0F172A] text-white px-4 py-2 rounded-lg text-sm font-medium">
+            <Link href="/jobs/post" className="bg-[#0F172A] text-white px-4 py-2 rounded-xl text-sm font-medium">
               Post a Job
             </Link>
           )}
@@ -202,12 +202,12 @@ export default function Feed() {
           <input
             type="text"
             placeholder="Search jobs..."
-            className="flex-1 min-w-[200px] px-3 py-2 border rounded-lg"
+            className="flex-1 min-w-[200px] px-3 py-2 border border-gray-200 rounded-xl"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
           <select 
-            className="px-3 py-2 border rounded-lg"
+            className="px-3 py-2 border border-gray-200 rounded-xl"
             value={countyFilter}
             onChange={e => setCountyFilter(e.target.value)}
           >
@@ -218,7 +218,7 @@ export default function Feed() {
             <option value="Delaware">Delaware</option>
           </select>
           <select 
-            className="px-3 py-2 border rounded-lg"
+            className="px-3 py-2 border border-gray-200 rounded-xl"
             value={typeFilter}
             onChange={e => setTypeFilter(e.target.value)}
           >
@@ -228,7 +228,7 @@ export default function Feed() {
             <option value="b2c">Homeowner Projects</option>
           </select>
           <select 
-            className="px-3 py-2 border rounded-lg"
+            className="px-3 py-2 border border-gray-200 rounded-xl"
             value={timelineFilter}
             onChange={e => setTimelineFilter(e.target.value)}
           >
@@ -242,15 +242,15 @@ export default function Feed() {
 
         {/* Jobs List */}
         {loading ? (
-          <div className="text-center py-12 text-black">Loading...</div>
+          <div className="text-center py-12 text-[#0F172A]">Loading...</div>
         ) : filteredJobs.length === 0 ? (
-          <div className="text-center py-12 text-black">
+          <div className="text-center py-12 text-[#0F172A]">
             No jobs found. Be the first to post!
           </div>
         ) : (
           <div className="space-y-4">
             {filteredJobs.map(job => (
-              <div key={job.id} className="border border-gray-200 rounded-2xl p-5 hover:shadow-lg hover:border-gray-300 transition-all duration-300">
+              <div key={job.id} className="border border-gray-200 rounded-2xl p-5 hover:border border-gray-200 rounded-2xl p-6 shadow-lg hover:border-gray-300 transition-all duration-300">
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <Link href={`/jobs/${job.id}`}>
@@ -289,8 +289,8 @@ export default function Feed() {
                   </div>
                 </div>
                 <Link href={`/jobs/${job.id}`}>
-                  <p className="text-sm text-black mb-2 line-clamp-2">{job.description}</p>
-                  <div className="flex gap-4 text-sm text-black">
+                  <p className="text-sm text-[#0F172A] mb-2 line-clamp-2">{job.description}</p>
+                  <div className="flex gap-4 text-sm text-[#0F172A]">
                     <span>📍 {job.county}</span>
                     <span>🏠 {job.work_category}</span>
                     <span>💰 {job.price_type}</span>

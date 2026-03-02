@@ -246,7 +246,7 @@ export default function AdminVerification() {
                             if (notes) handleReject(contractor.id, notes)
                           }}
                           disabled={actionLoading === contractor.id}
-                          className="bg-red-100 text-red-700 px-4 py-2 rounded-lg text-sm hover:bg-red-200 disabled:opacity-50"
+                          className="bg-[#EF4444]/10 text-[#EF4444] px-4 py-2 rounded-lg text-sm hover:bg-red-200 disabled:opacity-50"
                         >
                           ❌ Reject
                         </button>
@@ -259,7 +259,7 @@ export default function AdminVerification() {
                           if (notes) handleReject(contractor.id, notes)
                         }}
                         disabled={actionLoading === contractor.id}
-                        className="bg-red-100 text-red-700 px-4 py-2 rounded-lg text-sm hover:bg-red-200 disabled:opacity-50"
+                        className="bg-[#EF4444]/10 text-[#EF4444] px-4 py-2 rounded-lg text-sm hover:bg-red-200 disabled:opacity-50"
                       >
                         Revoke
                       </button>
@@ -268,7 +268,7 @@ export default function AdminVerification() {
                       <button
                         onClick={() => handleResetToPending(contractor.id)}
                         disabled={actionLoading === contractor.id}
-                        className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-lg text-sm hover:bg-yellow-200 disabled:opacity-50"
+                        className="bg-[#F59E0B]/10 text-[#F59E0B] px-4 py-2 rounded-lg text-sm hover:bg-yellow-200 disabled:opacity-50"
                       >
                         Reset to Pending
                       </button>

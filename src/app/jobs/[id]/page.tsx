@@ -228,40 +228,40 @@ export default function JobDetail() {
     <div className="min-h-screen bg-white">
       <header className="border-b">
         <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold text-black">← Back to Feed</Link>
+          <Link href="/feed" className="text-xl font-bold text-[#0F172A]">← Back to Feed</Link>
           <nav className="flex gap-4 text-sm">
-            <Link href="/feed" className="text-black">Feed</Link>
-            <Link href="/contractors" className="text-black">Contractors</Link>
-            <Link href="/community" className="text-black">Community</Link>
-            <Link href="/jobs/post" className="text-black">Post</Link>
-            <Link href="/messages" className="text-black">Messages</Link>
-            <Link href="/profile" className="text-black">Profile</Link>
+            <Link href="/feed" className="text-[#0F172A]">Feed</Link>
+            <Link href="/contractors" className="text-[#0F172A]">Contractors</Link>
+            <Link href="/community" className="text-[#0F172A]">Community</Link>
+            <Link href="/jobs/post" className="text-[#0F172A]">Post</Link>
+            <Link href="/messages" className="text-[#0F172A]">Messages</Link>
+            <Link href="/profile" className="text-[#0F172A]">Profile</Link>
           </nav>
         </div>
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-8">
-        <div className="border rounded-xl p-6">
+        <div className="border border-gray-200 rounded-xl p-6">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <span className={`text-xs px-2 py-1 rounded ${job.is_b2c ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+              <span className={`text-xs px-2 py-1 rounded ${job.is_b2c ? 'bg-[#3B82F6]/10 text-[#3B82F6]' : 'bg-[#10B981]/10 text-[#10B981]'}`}>
                 {job.is_b2c ? 'Homeowner Project' : 'Overflow Job'}
               </span>
               <h1 className="text-2xl font-bold mt-2">{job.title}</h1>
             </div>
-            <span className="text-2xl font-bold text-green-700">
+            <span className="text-2xl font-bold text-[#10B981]">
               ${job.price_amount?.toLocaleString()}
             </span>
           </div>
 
-          <div className="flex gap-4 text-sm text-black mb-4">
+          <div className="flex gap-4 text-sm text-[#0F172A] mb-4">
             <span>📍 {job.county}</span>
             <span>🏠 {job.work_category}</span>
             <span>💰 {job.price_type}</span>
             <span>📋 {job.job_type}</span>
           </div>
 
-          <p className="text-black mb-4">{job.description}</p>
+          <p className="text-[#0F172A] mb-4">{job.description}</p>
 
           {/* Media Gallery */}
           {job.media_urls && job.media_urls.length > 0 && (
@@ -269,7 +269,7 @@ export default function JobDetail() {
               <h3 className="font-medium mb-2">Photos & Videos</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {job.media_urls.map((url, index) => (
-                  <div key={index} className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                  <div key={index} className="relative aspect-video bg-gray-100 rounded-xl overflow-hidden">
                     {url.match(/\.(mp4|webm|mov)$/i) ? (
                       <video 
                         src={url} 
@@ -290,16 +290,16 @@ export default function JobDetail() {
           )}
 
           {/* Posted by */}
-          <div className="bg-slate-50 rounded-lg p-4 mb-6">
+          <div className="bg-slate-50 rounded-xl p-4 mb-6">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-sm text-black mb-2">Posted by</p>
+                <p className="text-sm text-[#0F172A] mb-2">Posted by</p>
                 <div className="flex items-center gap-2">
                   <span className="font-medium">
                     {job.users?.company_name || 'Individual Contractor'}
                   </span>
                   {job.users?.is_verified && (
-                    <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">✓ Verified</span>
+                    <span className="bg-[#10B981]/10 text-[#10B981] text-xs px-2 py-1 rounded">✓ Verified</span>
                   )}
                 </div>
               </div>
@@ -330,12 +330,12 @@ export default function JobDetail() {
 
           {/* Completed Banner with Review Button */}
           {job.status === 'COMPLETED' && (
-            <div className="bg-green-100 border border-green-300 rounded-lg p-4 mb-6">
+            <div className="bg-[#10B981]/10 border border-green-300 rounded-xl p-4 mb-6">
               <p className="font-bold text-green-800 text-center mb-3">✅ This job has been completed!</p>
               <div className="flex justify-center gap-3">
                 <button
                   onClick={() => setShowRating(true)}
-                  className="bg-slate-900 text-white px-4 py-2 rounded-lg font-medium"
+                  className="bg-[#0F172A] text-white px-4 py-2 rounded-xl font-medium"
                 >
                   ⭐ Leave a Review
                 </button>
@@ -345,11 +345,11 @@ export default function JobDetail() {
 
           {/* Mark Complete Button (when job is AWARDED, IN_PROGRESS, or COMPLETED) */}
           {(job.status === 'AWARDED' || job.status === 'IN_PROGRESS' || job.status === 'COMPLETED') && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+            <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6">
               <div className="flex justify-between items-center">
                 <div>
                   <p className="font-medium text-green-800">Job Status: {job.status}</p>
-                  <p className="text-sm text-green-700">This job has been awarded to a contractor.</p>
+                  <p className="text-sm text-[#10B981]">This job has been awarded to a contractor.</p>
                 </div>
                 <button
                   onClick={() => {
@@ -357,7 +357,7 @@ export default function JobDetail() {
                       setShowRating(true)
                     }
                   }}
-                  className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium"
+                  className="bg-green-600 text-white px-4 py-2 rounded-xl font-medium"
                 >
                   ✓ Mark Complete
                 </button>
@@ -371,11 +371,11 @@ export default function JobDetail() {
               <h3 className="font-semibold mb-4">Contractors Interested ({interests.length})</h3>
               
               {interests.length === 0 ? (
-                <p className="text-black">No contractors have expressed interest yet.</p>
+                <p className="text-[#0F172A]">No contractors have expressed interest yet.</p>
               ) : (
                 <div className="space-y-3">
                   {interests.map(interest => (
-                    <div key={interest.id} className="border rounded-lg p-4">
+                    <div key={interest.id} className="border border-gray-200 rounded-xl p-4">
                       <div className="flex justify-between items-start">
                         <div>
                           <Link 
@@ -384,27 +384,27 @@ export default function JobDetail() {
                           >
                             {interest.users?.first_name} {interest.users?.last_name}
                           </Link>
-                          <p className="text-sm text-black">
+                          <p className="text-sm text-[#0F172A]">
                             {interest.users?.company_name || 'Individual'} • {interest.users?.trade_type}
                           </p>
                           {interest.status === 'SELECTED' && (
-                            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Selected</span>
+                            <span className="text-xs bg-[#10B981]/10 text-[#10B981] px-2 py-1 rounded">Selected</span>
                           )}
                           {interest.status === 'DECLINED' && (
-                            <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">Declined</span>
+                            <span className="text-xs bg-[#EF4444]/10 text-[#EF4444] px-2 py-1 rounded">Declined</span>
                           )}
                         </div>
                         {interest.status !== 'SELECTED' && interest.status !== 'DECLINED' && (
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleAccept(interest)}
-                              className="bg-green-600 text-white px-3 py-2 rounded-lg text-sm"
+                              className="bg-green-600 text-white px-3 py-2 rounded-xl text-sm"
                             >
                               Accept
                             </button>
                             <button
                               onClick={() => handleDecline(interest)}
-                              className="bg-red-100 text-red-700 px-3 py-2 rounded-lg text-sm"
+                              className="bg-[#EF4444]/10 text-[#EF4444] px-3 py-2 rounded-xl text-sm"
                             >
                               Decline
                             </button>
@@ -414,7 +414,7 @@ export default function JobDetail() {
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleStartChat(interest)}
-                              className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm"
+                              className="bg-[#0F172A] text-white px-4 py-2 rounded-xl text-sm"
                             >
                               Message
                             </button>
@@ -436,7 +436,7 @@ export default function JobDetail() {
                                   fetchJob()
                                 }
                               }}
-                              className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm"
+                              className="bg-green-600 text-white px-4 py-2 rounded-xl text-sm"
                             >
                               Mark Complete
                             </button>
@@ -445,10 +445,10 @@ export default function JobDetail() {
                       </div>
                       {interest.message && (
                         <div className="mt-3 p-3 bg-slate-50 rounded">
-                          <p className="text-sm text-black italic">"{interest.message}"</p>
+                          <p className="text-sm text-[#0F172A] italic">"{interest.message}"</p>
                         </div>
                       )}
-                      <p className="text-xs text-black mt-2">
+                      <p className="text-xs text-[#0F172A] mt-2">
                         Click name to view profile & reviews
                       </p>
                     </div>
@@ -465,8 +465,8 @@ export default function JobDetail() {
               
               {/* Verification Required for Contractors */}
               {userProfile?.user_type === 'CONTRACTOR' && userProfile?.verification_status !== 'APPROVED' && (
-                <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-4">
-                  <p className="text-black text-sm mb-2">
+                <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-xl mb-4">
+                  <p className="text-[#0F172A] text-sm mb-2">
                     🔒 <strong>Verification required</strong> to apply to jobs.
                   </p>
                   <Link href="/profile" className="text-blue-600 text-sm underline">
@@ -476,12 +476,12 @@ export default function JobDetail() {
               )}
               
               {error && (
-                <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-3 text-sm">
+                <div className="bg-red-50 text-red-600 p-3 rounded-xl mb-3 text-sm">
                   {error}
                 </div>
               )}
               <textarea
-                className="w-full border rounded-lg p-3 mb-3"
+                className="w-full border border-gray-200 rounded-xl p-3 mb-3"
                 rows={3}
                 placeholder="Introduce yourself and explain why you're a good fit..."
                 value={message}
@@ -491,7 +491,7 @@ export default function JobDetail() {
               <button
                 onClick={handleInterested}
                 disabled={submitting || (userProfile?.user_type === 'CONTRACTOR' && userProfile?.verification_status !== 'APPROVED')}
-                className="w-full bg-slate-900 text-white py-3 rounded-lg font-medium hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-[#0F172A] text-white py-3 rounded-xl font-medium hover:bg-[#1E293B] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {submitting ? 'Submitting...' : "I'm Interested"}
               </button>
@@ -500,7 +500,7 @@ export default function JobDetail() {
 
           {alreadyInterested && (
             <div className="border-t pt-6">
-              <div className="bg-green-50 text-green-700 p-4 rounded-lg text-center">
+              <div className="bg-green-50 text-[#10B981] p-4 rounded-xl text-center">
                 ✓ You've expressed interest in this job
               </div>
             </div>
@@ -508,7 +508,7 @@ export default function JobDetail() {
 
           {submitted && (
             <div className="border-t pt-6">
-              <div className="bg-blue-50 text-blue-700 p-4 rounded-lg text-center">
+              <div className="bg-blue-50 text-[#3B82F6] p-4 rounded-xl text-center">
                 ✓ Interest submitted! The poster will be notified.
               </div>
             </div>

@@ -118,21 +118,21 @@ export default function ContractorProfile() {
     <div className="min-h-screen bg-white">
       <header className="border-b">
         <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold text-black">← Back to Feed</Link>
+          <Link href="/feed" className="text-xl font-bold text-[#0F172A]">← Back to Feed</Link>
           <nav className="flex gap-4 text-sm">
-            <Link href="/feed" className="text-black">Feed</Link>
-            <Link href="/contractors" className="text-black">Contractors</Link>
-            <Link href="/community" className="text-black">Community</Link>
-            <Link href="/jobs/post" className="text-black">Post</Link>
-            <Link href="/messages" className="text-black">Messages</Link>
-            <Link href="/profile" className="text-black">Profile</Link>
+            <Link href="/feed" className="text-[#0F172A]">Feed</Link>
+            <Link href="/contractors" className="text-[#0F172A]">Contractors</Link>
+            <Link href="/community" className="text-[#0F172A]">Community</Link>
+            <Link href="/jobs/post" className="text-[#0F172A]">Post</Link>
+            <Link href="/messages" className="text-[#0F172A]">Messages</Link>
+            <Link href="/profile" className="text-[#0F172A]">Profile</Link>
           </nav>
         </div>
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-8">
         {/* Profile Card */}
-        <div className="border rounded-xl p-6 mb-6">
+        <div className="border border-gray-200 rounded-xl p-6 mb-6">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-2xl font-bold">
               {contractor.first_name?.[0]}{contractor.last_name?.[0]}
@@ -143,52 +143,52 @@ export default function ContractorProfile() {
                   {contractor.first_name} {contractor.last_name}
                 </h1>
                 {contractor.is_verified && (
-                  <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">✓ Verified</span>
+                  <span className="bg-[#10B981]/10 text-[#10B981] text-xs px-2 py-1 rounded">✓ Verified</span>
                 )}
               </div>
-              <p className="text-black">{contractor.company_name || 'Individual Contractor'}</p>
-              <p className="text-sm text-black">{contractor.trade_type?.replace('_', ' ')}</p>
+              <p className="text-[#0F172A]">{contractor.company_name || 'Individual Contractor'}</p>
+              <p className="text-sm text-[#0F172A]">{contractor.trade_type?.replace('_', ' ')}</p>
             </div>
           </div>
 
           {/* Verification Badges */}
           <div className="flex flex-wrap gap-2 mb-4">
             {contractor.is_verified && (
-              <span className="bg-blue-100 text-blue-700 text-xs px-3 py-1 rounded-full font-medium">✓ Verified</span>
+              <span className="bg-[#3B82F6]/10 text-[#3B82F6] text-xs px-3 py-1 rounded-full font-medium">✓ Verified</span>
             )}
             {contractor.is_insured && (
-              <span className="bg-green-100 text-green-700 text-xs px-3 py-1 rounded-full font-medium">🛡️ Insured</span>
+              <span className="bg-[#10B981]/10 text-[#10B981] text-xs px-3 py-1 rounded-full font-medium">🛡️ Insured</span>
             )}
-            <span className="bg-orange-100 text-orange-700 text-xs px-3 py-1 rounded-full font-medium">📋 W-9</span>
+            <span className="bg-[#F97316]/10 text-[#F97316] text-xs px-3 py-1 rounded-full font-medium">📋 W-9</span>
             {reviewLinks.length > 0 && (
-              <span className="bg-yellow-100 text-yellow-700 text-xs px-3 py-1 rounded-full font-medium">⭐ External Reviews</span>
+              <span className="bg-[#F59E0B]/10 text-[#F59E0B] text-xs px-3 py-1 rounded-full font-medium">⭐ External Reviews</span>
             )}
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-4 gap-2 mb-4">
-            <div className="bg-slate-50 rounded-lg p-3 text-center">
+            <div className="bg-slate-50 rounded-xl p-3 text-center">
               <p className="text-xl font-bold">{contractor.avg_rating || contractor.jobs_completed || 0}</p>
-              <p className="text-xs text-black">Rating</p>
+              <p className="text-xs text-[#0F172A]">Rating</p>
             </div>
-            <div className="bg-slate-50 rounded-lg p-3 text-center">
+            <div className="bg-slate-50 rounded-xl p-3 text-center">
               <p className="text-xl font-bold">{contractor.review_count || reviews.length}</p>
-              <p className="text-xs text-black">Reviews</p>
+              <p className="text-xs text-[#0F172A]">Reviews</p>
             </div>
-            <div className="bg-slate-50 rounded-lg p-3 text-center">
+            <div className="bg-slate-50 rounded-xl p-3 text-center">
               <p className="text-xl font-bold">{contractor.jobs_completed || 0}</p>
-              <p className="text-xs text-black">Jobs Done</p>
+              <p className="text-xs text-[#0F172A]">Jobs Done</p>
             </div>
-            <div className="bg-slate-50 rounded-lg p-3 text-center">
+            <div className="bg-slate-50 rounded-xl p-3 text-center">
               <p className="text-xl font-bold">{contractor.years_experience || 0}</p>
-              <p className="text-xs text-black">Years</p>
+              <p className="text-xs text-[#0F172A]">Years</p>
             </div>
           </div>
 
           {contractor.bio && (
             <div className="mb-4">
               <h3 className="font-medium mb-2">About</h3>
-              <p className="text-black">{contractor.bio}</p>
+              <p className="text-[#0F172A]">{contractor.bio}</p>
             </div>
           )}
 
@@ -210,22 +210,22 @@ export default function ContractorProfile() {
               <h3 className="font-medium mb-2">TradeSource Reviews ({ratings.length})</h3>
               <div className="space-y-3">
                 {ratings.map((review: any) => (
-                  <div key={review.id} className={`p-3 rounded-lg ${review.is_issue ? 'bg-red-50 border border-red-200' : 'bg-slate-50'}`}>
+                  <div key={review.id} className={`p-3 rounded-xl ${review.is_issue ? 'bg-red-50 border border-red-200' : 'bg-slate-50'}`}>
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{review.users?.first_name}</span>
                         {review.is_issue && (
-                          <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded">⚠️ Issue Reported</span>
+                          <span className="text-xs bg-[#EF4444]/10 text-[#EF4444] px-2 py-0.5 rounded">⚠️ Issue Reported</span>
                         )}
                       </div>
                       <div className="flex">
                         {[1,2,3,4,5].map((star) => (
-                          <span key={star} className={star <= review.rating ? 'text-yellow-500' : 'text-gray-300'}>⭐</span>
+                          <span key={star} className={star <= review.rating ? 'text-yellow-500' : 'text-[#64748B]300'}>⭐</span>
                         ))}
                       </div>
                     </div>
                     {review.feedback && (
-                      <p className="text-sm text-gray-600">{review.feedback}</p>
+                      <p className="text-sm text-[#64748B]600">{review.feedback}</p>
                     )}
                     {review.is_issue && review.issue_type && (
                       <p className="text-xs text-red-600 mt-1">
@@ -249,7 +249,7 @@ export default function ContractorProfile() {
                     href={link.trim()} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50"
+                    className="flex items-center justify-between p-3 border border-gray-200 rounded-xl hover:bg-gray-50"
                   >
                     <span className="flex items-center gap-2">
                       <span>{link.includes('google') ? '🔍' : link.includes('yelp') ? '⭐' : '📘'}</span>
@@ -265,11 +265,11 @@ export default function ContractorProfile() {
 
         {/* Portfolio */}
         {contractor.portfolio_urls && contractor.portfolio_urls.length > 0 && (
-          <div className="border rounded-xl p-6 mb-6">
+          <div className="border border-gray-200 rounded-xl p-6 mb-6">
             <h2 className="text-xl font-semibold mb-4">Portfolio</h2>
             <div className="grid grid-cols-2 gap-3">
               {contractor.portfolio_urls.slice(0, 6).map((url, i) => (
-                <div key={i} className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                <div key={i} className="aspect-square bg-gray-100 rounded-xl overflow-hidden">
                   <img src={url} alt="Portfolio" className="w-full h-full object-cover" />
                 </div>
               ))}
@@ -281,7 +281,7 @@ export default function ContractorProfile() {
         <div className="flex gap-4">
           <Link 
             href={`/messages?contractor=${contractor.id}`}
-            className="flex-1 bg-slate-900 text-white py-3 rounded-lg text-center font-medium"
+            className="flex-1 bg-[#0F172A] text-white py-3 rounded-xl text-center font-medium"
           >
             Message
           </Link>

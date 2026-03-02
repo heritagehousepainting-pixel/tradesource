@@ -140,30 +140,30 @@ export default function Community() {
     <div className="min-h-screen bg-white">
       <header className="border-b">
         <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold text-black">TradeSource</Link>
+          <Link href="/feed" className="text-xl font-bold text-[#0F172A]">TradeSource</Link>
           <nav className="flex gap-4 items-center text-sm">
-            <Link href="/feed" className="text-black">Feed</Link>
-            <Link href="/contractors" className="text-black">Contractors</Link>
-            <Link href="/community" className="text-black">Community</Link>
-            <Link href="/jobs/post" className="text-black">Post</Link>
-            <Link href="/messages" className="text-black">Messages</Link>
-            <Link href="/profile" className="text-black">Profile</Link>
+            <Link href="/feed" className="text-[#0F172A]">Feed</Link>
+            <Link href="/contractors" className="text-[#0F172A]">Contractors</Link>
+            <Link href="/community" className="text-[#0F172A]">Community</Link>
+            <Link href="/jobs/post" className="text-[#0F172A]">Post</Link>
+            <Link href="/messages" className="text-[#0F172A]">Messages</Link>
+            <Link href="/profile" className="text-[#0F172A]">Profile</Link>
           </nav>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-6">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-black">Community</h1>
+          <h1 className="text-2xl font-bold text-[#0F172A]">Community</h1>
           {isVerified ? (
             <button
               onClick={() => setShowNewPost(true)}
-              className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium"
+              className="bg-[#0F172A] text-white px-4 py-2 rounded-xl text-sm font-medium"
             >
               + New Post
             </button>
           ) : (
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-[#64748B]500">
               🔒 Only verified contractors can post
             </div>
           )}
@@ -175,10 +175,10 @@ export default function Community() {
             <button
               key={cat.key}
               onClick={() => setActiveCategory(cat.key)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap ${
                 activeCategory === cat.key
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-[#0F172A] text-white'
+                  : 'bg-gray-100 text-[#64748B]700 hover:bg-gray-200'
               }`}
             >
               {cat.label}
@@ -188,7 +188,7 @@ export default function Community() {
 
         {/* Access Warning */}
         {!isVerified && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
             <p className="text-yellow-800">
               🔒 <strong>Verification required</strong> to post in the community. 
               Complete your verification to unlock.
@@ -201,7 +201,7 @@ export default function Community() {
 
         {/* Posts List */}
         {posts.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-[#64748B]500">
             No posts yet. Be the first to post!
           </div>
         ) : (
@@ -210,19 +210,19 @@ export default function Community() {
               <Link
                 key={post.id}
                 href={`/community/${post.id}`}
-                className="block border rounded-xl p-4 hover:bg-gray-50 transition"
+                className="block border border-gray-200 rounded-xl p-4 hover:bg-gray-50 transition"
               >
                 <div className="flex justify-between items-start mb-2">
-                  <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded">
+                  <span className="bg-gray-100 text-[#64748B]700 text-xs px-2 py-1 rounded">
                     {post.category}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-[#64748B]500">
                     {new Date(post.created_at).toLocaleDateString()}
                   </span>
                 </div>
-                <h3 className="font-semibold text-black mb-1">{post.title}</h3>
-                <p className="text-sm text-gray-600 line-clamp-2 mb-2">{post.content}</p>
-                <div className="flex justify-between items-center text-sm text-gray-500">
+                <h3 className="font-semibold text-[#0F172A] mb-1">{post.title}</h3>
+                <p className="text-sm text-[#64748B]600 line-clamp-2 mb-2">{post.content}</p>
+                <div className="flex justify-between items-center text-sm text-[#64748B]500">
                   <span>
                     {post.users?.first_name} {post.users?.last_name}
                     {post.users?.company_name && ` - ${post.users.company_name}`}
@@ -246,7 +246,7 @@ export default function Community() {
                   <select
                     value={newPost.category}
                     onChange={(e) => setNewPost({ ...newPost, category: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2"
                   >
                     {categories.filter(c => c.key !== 'all').map((cat) => (
                       <option key={cat.key} value={cat.key}>{cat.label}</option>
@@ -261,7 +261,7 @@ export default function Community() {
                     value={newPost.title}
                     onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
                     placeholder="What's your topic?"
-                    className="w-full border rounded-lg px-3 py-2"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2"
                   />
                 </div>
 
@@ -272,21 +272,21 @@ export default function Community() {
                     onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
                     placeholder="Share your thoughts..."
                     rows={5}
-                    className="w-full border rounded-lg px-3 py-2"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2"
                   />
                 </div>
 
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowNewPost(false)}
-                    className="flex-1 border py-2 rounded-lg font-medium"
+                    className="flex-1 border py-2 rounded-xl font-medium"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={handleCreatePost}
                     disabled={submitting}
-                    className="flex-1 bg-slate-900 text-white py-2 rounded-lg font-medium disabled:opacity-50"
+                    className="flex-1 bg-[#0F172A] text-white py-2 rounded-xl font-medium disabled:opacity-50"
                   >
                     {submitting ? 'Posting...' : 'Post'}
                   </button>

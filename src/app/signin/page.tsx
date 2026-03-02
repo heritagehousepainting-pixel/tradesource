@@ -45,17 +45,17 @@ export default function SignIn() {
     <div className="min-h-screen bg-slate-50">
       <header className="bg-white border-b py-4">
         <div className="max-w-4xl mx-auto px-4">
-          <Link href="/" className="text-xl font-bold text-black">TradeSource</Link>
+          <Link href="/" className="text-xl font-bold text-[#0F172A]">TradeSource</Link>
         </div>
       </header>
 
       <main className="max-w-md mx-auto px-4 py-12">
-        <div className="bg-white rounded-xl p-8 shadow-sm">
+        <div className="bg-white rounded-xl p-8 shadow-md">
           <h1 className="text-2xl font-bold mb-2">Sign In</h1>
-          <p className="text-black mb-6">Welcome back.</p>
+          <p className="text-[#0F172A] mb-6">Welcome back.</p>
 
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">
+            <div className="bg-red-50 text-red-600 p-3 rounded-xl mb-4 text-sm">
               {error}
             </div>
           )}
@@ -66,7 +66,7 @@ export default function SignIn() {
               <input
                 type="email"
                 required
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                 value={formData.email}
                 onChange={e => setFormData({...formData, email: e.target.value})}
               />
@@ -77,7 +77,7 @@ export default function SignIn() {
               <input
                 type="password"
                 required
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                 value={formData.password}
                 onChange={e => setFormData({...formData, password: e.target.value})}
               />
@@ -86,14 +86,14 @@ export default function SignIn() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-slate-900 text-white py-3 rounded-lg font-medium hover:bg-slate-800 disabled:opacity-50"
+              className="w-full bg-[#3B82F6] text-white py-3 rounded-xl font-medium hover:bg-[#2563EB] disabled:opacity-50"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
 
-          <p className="mt-4 text-center text-sm text-black">
-            No account? <Link href="/contractor/signup" className="text-black underline">Sign up as Contractor</Link> or <Link href="/homeowner/signup" className="text-black underline">Homeowner</Link>
+          <p className="mt-4 text-center text-sm text-[#0F172A]">
+            No account? <Link href="/contractor/signup" className="text-[#0F172A] underline">Sign up as Contractor</Link> or <Link href="/homeowner/signup" className="text-[#0F172A] underline">Homeowner</Link>
           </p>
         </div>
       </main>

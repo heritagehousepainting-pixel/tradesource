@@ -55,17 +55,17 @@ export default function HomeownerSignup() {
     <div className="min-h-screen bg-slate-50">
       <header className="bg-white border-b py-4">
         <div className="max-w-4xl mx-auto px-4">
-          <Link href="/" className="text-xl font-bold text-black">TradeSource</Link>
+          <Link href="/" className="text-xl font-bold text-[#0F172A]">TradeSource</Link>
         </div>
       </header>
 
       <main className="max-w-md mx-auto px-4 py-12">
-        <div className="bg-white rounded-xl p-8 shadow-sm">
+        <div className="bg-white rounded-xl p-8 shadow-md">
           <h1 className="text-2xl font-bold mb-2">Post a Project Free</h1>
-          <p className="text-black mb-6">Connect with verified painters in your area.</p>
+          <p className="text-[#0F172A] mb-6">Connect with verified painters in your area.</p>
 
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">
+            <div className="bg-red-50 text-red-600 p-3 rounded-xl mb-4 text-sm">
               {error}
             </div>
           )}
@@ -77,7 +77,7 @@ export default function HomeownerSignup() {
                 <input
                   type="text"
                   required
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                   value={formData.firstName}
                   onChange={e => setFormData({...formData, firstName: e.target.value})}
                 />
@@ -87,7 +87,7 @@ export default function HomeownerSignup() {
                 <input
                   type="text"
                   required
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                   value={formData.lastName}
                   onChange={e => setFormData({...formData, lastName: e.target.value})}
                 />
@@ -99,7 +99,7 @@ export default function HomeownerSignup() {
               <input
                 type="email"
                 required
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                 value={formData.email}
                 onChange={e => setFormData({...formData, email: e.target.value})}
               />
@@ -111,7 +111,7 @@ export default function HomeownerSignup() {
                 type="password"
                 required
                 minLength={6}
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                 value={formData.password}
                 onChange={e => setFormData({...formData, password: e.target.value})}
               />
@@ -120,17 +120,17 @@ export default function HomeownerSignup() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-slate-900 text-white py-3 rounded-lg font-medium hover:bg-slate-800 disabled:opacity-50"
+              className="w-full bg-[#3B82F6] text-white py-3 rounded-xl font-medium hover:bg-[#2563EB] disabled:opacity-50"
             >
               {loading ? 'Creating Account...' : 'Get Started Free'}
             </button>
           </form>
 
-          <p className="mt-4 text-center text-sm text-black">
-            Already have an account? <Link href="/signin" className="text-black underline">Sign in</Link>
+          <p className="mt-4 text-center text-sm text-[#0F172A]">
+            Already have an account? <Link href="/signin" className="text-[#0F172A] underline">Sign in</Link>
           </p>
-          <p className="mt-2 text-center text-sm text-black">
-            Are you a contractor? <Link href="/contractor/signup" className="text-black underline">Sign up here</Link>
+          <p className="mt-2 text-center text-sm text-[#0F172A]">
+            Are you a contractor? <Link href="/contractor/signup" className="text-[#0F172A] underline">Sign up here</Link>
           </p>
         </div>
       </main>

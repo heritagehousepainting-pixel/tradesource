@@ -44,10 +44,10 @@ interface UserProfile {
 // Badge component
 function Badge({ type, label, verified }: { type: 'verified' | 'insured' | 'tax' | 'reviews'; label: string; verified: boolean }) {
   const colors = {
-    verified: 'bg-blue-100 text-blue-700 border-blue-300',
-    insured: 'bg-green-100 text-green-700 border-green-300',
-    tax: 'bg-orange-100 text-orange-700 border-orange-300',
-    reviews: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+    verified: 'bg-[#3B82F6]/10 text-[#3B82F6] border-blue-300',
+    insured: 'bg-[#10B981]/10 text-[#10B981] border-green-300',
+    tax: 'bg-[#F97316]/10 text-[#F97316] border-orange-300',
+    reviews: 'bg-[#F59E0B]/10 text-[#F59E0B] border-yellow-300',
   }
   const icons = {
     verified: '✓',
@@ -57,7 +57,7 @@ function Badge({ type, label, verified }: { type: 'verified' | 'insured' | 'tax'
   }
 
   return (
-    <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border ${colors[type]} ${verified ? '' : 'opacity-50'}`}>
+    <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border ${colors[type]} ${verified ? '' : 'opacity-50'}`}>
       <span className="text-lg">{icons[type]}</span>
       <span className="font-medium">{label}</span>
       {verified && <span className="text-xs">✓</span>}
@@ -240,10 +240,10 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
   // If fully verified, show success
   if (isFullyVerified) {
     return (
-      <div className="border rounded-xl p-6 bg-green-50 border-green-200">
+      <div className="border border-gray-200 rounded-xl p-6 bg-green-50 border-green-200">
         <h2 className="text-xl font-bold mb-4 text-green-800">✅ Verification Complete</h2>
-        <p className="text-green-700">Congratulations! You're fully verified and have full access to:</p>
-        <ul className="mt-2 text-green-700 text-sm">
+        <p className="text-[#10B981]">Congratulations! You're fully verified and have full access to:</p>
+        <ul className="mt-2 text-[#10B981] text-sm">
           <li>• View all job prices</li>
           <li>• Post jobs to the network</li>
           <li>• Express interest on jobs</li>
@@ -254,27 +254,27 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
   }
 
   return (
-    <div className="border rounded-xl p-6">
+    <div className="border border-gray-200 rounded-xl p-6">
       <h2 className="text-xl font-bold mb-4">📋 Verification Requirements</h2>
-      <p className="text-sm mb-6 text-gray-600">
+      <p className="text-sm mb-6 text-[#64748B]600">
         Complete all 6 requirements and submit together for admin review. No partial submissions allowed.
       </p>
 
       {/* Status Messages */}
       {showPending && (
-        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6">
+        <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-xl mb-6">
           <p className="text-yellow-800 font-medium">⏳ Under Review</p>
-          <p className="text-sm text-yellow-700">Your verification is being processed. You'll receive email notification once approved.</p>
+          <p className="text-sm text-[#F59E0B]">Your verification is being processed. You'll receive email notification once approved.</p>
         </div>
       )}
 
       {showRejected && (
-        <div className="bg-red-50 border border-red-200 p-4 rounded-lg mb-6">
+        <div className="bg-red-50 border border-red-200 p-4 rounded-xl mb-6">
           <p className="text-red-800 font-medium">❌ Verification Rejected</p>
-          <p className="text-sm text-red-700 mb-2">
+          <p className="text-sm text-[#EF4444] mb-2">
             <strong>Admin Feedback:</strong> {profile.verification_notes || 'Please review and correct the issues below.'}
           </p>
-          <p className="text-sm text-red-700">Fix the issues and resubmit all documents.</p>
+          <p className="text-sm text-[#EF4444]">Fix the issues and resubmit all documents.</p>
         </div>
       )}
 
@@ -282,7 +282,7 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
       {!showPending && (
         <div className="space-y-6">
           {/* Requirement 1: Driver's License */}
-          <div className="border rounded-lg p-4">
+          <div className="border border-gray-200 rounded-xl p-4">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
               🪪 1. Driver's License
               {formData.driverLicense && <span className="text-green-600 text-sm">✓ Uploaded</span>}
@@ -291,13 +291,13 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
               type="file"
               accept=".pdf,.jpg,.jpeg,.png"
               onChange={handleFileChange('driverLicense')}
-              className="w-full border rounded-lg px-3 py-2 text-sm"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm"
             />
-            <p className="text-xs text-gray-500 mt-1">Upload clear photo of your driver's license (PDF, JPG, PNG)</p>
+            <p className="text-xs text-[#64748B]500 mt-1">Upload clear photo of your driver's license (PDF, JPG, PNG)</p>
           </div>
 
           {/* Requirement 2: PA License + Certificate */}
-          <div className="border rounded-lg p-4">
+          <div className="border border-gray-200 rounded-xl p-4">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
               🏢 2. Pennsylvania HIC License
               {formData.paLicenseNumber && formData.paLicenseCert && <span className="text-green-600 text-sm">✓ Complete</span>}
@@ -308,20 +308,20 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
                 placeholder="Enter your PA HIC License Number"
                 value={formData.paLicenseNumber}
                 onChange={e => setFormData({ ...formData, paLicenseNumber: e.target.value })}
-                className="w-full border rounded-lg px-3 py-2"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2"
               />
               <input
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
                 onChange={handleFileChange('paLicenseCert')}
-                className="w-full border rounded-lg px-3 py-2 text-sm"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm"
               />
-              <p className="text-xs text-gray-500">Upload your PA HIC license certificate</p>
+              <p className="text-xs text-[#64748B]500">Upload your PA HIC license certificate</p>
             </div>
           </div>
 
           {/* Requirement 3: General Liability Insurance */}
-          <div className="border rounded-lg p-4">
+          <div className="border border-gray-200 rounded-xl p-4">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
               🛡️ 3. General Liability Insurance ($1M+ Required)
               {formData.insuranceProvider && formData.insuranceExpiry && formData.insuranceCert && <span className="text-green-600 text-sm">✓ Complete</span>}
@@ -332,29 +332,29 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
                 placeholder="Insurance Company Name"
                 value={formData.insuranceProvider}
                 onChange={e => setFormData({ ...formData, insuranceProvider: e.target.value })}
-                className="w-full border rounded-lg px-3 py-2"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2"
               />
               <div>
-                <label className="block text-xs font-medium mb-1 text-gray-600">Policy Expiration Date</label>
+                <label className="block text-xs font-medium mb-1 text-[#64748B]600">Policy Expiration Date</label>
                 <input
                   type="date"
                   value={formData.insuranceExpiry}
                   onChange={e => setFormData({ ...formData, insuranceExpiry: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2"
                 />
               </div>
               <input
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
                 onChange={handleFileChange('insuranceCert')}
-                className="w-full border rounded-lg px-3 py-2 text-sm"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm"
               />
-              <p className="text-xs text-gray-500">Upload Certificate of Insurance showing $1M+ liability coverage</p>
+              <p className="text-xs text-[#64748B]500">Upload Certificate of Insurance showing $1M+ liability coverage</p>
             </div>
           </div>
 
           {/* Requirement 4: Workmen's Comp Insurance */}
-          <div className="border rounded-lg p-4">
+          <div className="border border-gray-200 rounded-xl p-4">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
               👷 4. Workmen's Compensation Insurance (Required)
               {formData.workmenCompProvider && formData.workmenCompExpiry && formData.workmenCompCert && <span className="text-green-600 text-sm">✓ Complete</span>}
@@ -365,29 +365,29 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
                 placeholder="Workmen's Comp Insurance Company Name"
                 value={formData.workmenCompProvider || ''}
                 onChange={e => setFormData({ ...formData, workmenCompProvider: e.target.value })}
-                className="w-full border rounded-lg px-3 py-2"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2"
               />
               <div>
-                <label className="block text-xs font-medium mb-1 text-gray-600">Policy Expiration Date</label>
+                <label className="block text-xs font-medium mb-1 text-[#64748B]600">Policy Expiration Date</label>
                 <input
                   type="date"
                   value={formData.workmenCompExpiry || ''}
                   onChange={e => setFormData({ ...formData, workmenCompExpiry: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2"
                 />
               </div>
               <input
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
                 onChange={handleFileChange('workmenCompCert')}
-                className="w-full border rounded-lg px-3 py-2 text-sm"
+                className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm"
               />
-              <p className="text-xs text-gray-500">Upload Workmen's Compensation Certificate (Required for all contractors with employees)</p>
+              <p className="text-xs text-[#64748B]500">Upload Workmen's Compensation Certificate (Required for all contractors with employees)</p>
             </div>
           </div>
 
           {/* Requirement 5: W-9 Tax Form */}
-          <div className="border rounded-lg p-4">
+          <div className="border border-gray-200 rounded-xl p-4">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
               📋 5. W-9 Tax Form
               {formData.w9Form && <span className="text-green-600 text-sm">✓ Uploaded</span>}
@@ -396,15 +396,15 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
               type="file"
               accept=".pdf"
               onChange={handleFileChange('w9Form')}
-              className="w-full border rounded-lg px-3 py-2 text-sm"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm"
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-[#64748B]500 mt-1">
               Upload completed W-9 form. <a href="https://www.irs.gov/pub/irs-pdf/fw9.pdf" target="_blank" className="text-blue-600 underline">Download blank W-9 here</a>
             </p>
           </div>
 
           {/* External Reviews - REQUIRED */}
-          <div className="border rounded-lg p-4 bg-yellow-50 border-yellow-300">
+          <div className="border border-gray-200 rounded-xl p-4 bg-yellow-50 border-yellow-300">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
               ⭐ 6. External Reviews (Required)
               {formData.reviewLinks.trim() !== '' && <span className="text-green-600 text-sm">✓ Added</span>}
@@ -414,7 +414,7 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
               placeholder="Paste your Google, Yelp, or Facebook review link (required)"
               value={formData.reviewLinks}
               onChange={e => setFormData({ ...formData, reviewLinks: e.target.value })}
-              className="w-full border rounded-lg px-3 py-2 mb-2"
+              className="w-full border border-gray-200 rounded-xl px-3 py-2 mb-2"
             />
             
             {/* Extra Review Links (Bonus - Add More) */}
@@ -429,7 +429,7 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
                     newLinks[index] = e.target.value
                     setExtraReviewLinks(newLinks)
                   }}
-                  className="flex-1 border rounded-lg px-3 py-2"
+                  className="flex-1 border border-gray-200 rounded-xl px-3 py-2"
                 />
                 <button
                   type="button"
@@ -449,11 +449,11 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
               + Add another review link
             </button>
             
-            <p className="text-xs text-gray-500 mt-2">Required: At least one review link. More links = bonus!</p>
+            <p className="text-xs text-[#64748B]500 mt-2">Required: At least one review link. More links = bonus!</p>
           </div>
 
           {/* Progress Indicator */}
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 rounded-xl p-4">
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium">Completion Progress</span>
               <span className="text-sm">
@@ -474,10 +474,10 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
           <button
             onClick={handleSubmitAll}
             disabled={submitting || !allFieldsComplete}
-            className={`w-full py-3 rounded-lg font-medium transition-all ${
+            className={`w-full py-3 rounded-xl font-medium transition-all ${
               allFieldsComplete && !submitting
-                ? 'bg-slate-900 text-white hover:bg-slate-800' 
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                ? 'bg-[#0F172A] text-white hover:bg-[#1E293B]' 
+                : 'bg-gray-300 text-[#64748B]500 cursor-not-allowed'
             }`}
           >
             {submitting ? (
@@ -492,7 +492,7 @@ function VerificationSection({ profile, externalReviews, onUpdate }: { profile: 
             )}
           </button>
 
-          <p className="text-xs text-center text-gray-500">
+          <p className="text-xs text-center text-[#64748B]500">
             All documents will be reviewed by our admin team within 24-48 hours.
           </p>
         </div>
@@ -537,9 +537,9 @@ function JobHistorySection({ userId }: { userId: string }) {
 
   if (history.length === 0) {
     return (
-      <div className="border rounded-xl p-6 mt-6">
+      <div className="border border-gray-200 rounded-xl p-6 mt-6">
         <h2 className="text-xl font-bold mb-4">📋 My Job History</h2>
-        <p className="text-gray-500 text-sm">No job activity yet. Your job posts, completions, and deletions will appear here.</p>
+        <p className="text-[#64748B]500 text-sm">No job activity yet. Your job posts, completions, and deletions will appear here.</p>
       </div>
     )
   }
@@ -556,22 +556,22 @@ function JobHistorySection({ userId }: { userId: string }) {
 
   const getActionColor = (action: string) => {
     switch (action) {
-      case 'POSTED': return 'bg-blue-100 text-blue-700'
-      case 'COMPLETED': return 'bg-green-100 text-green-700'
-      case 'DELETED': return 'bg-red-100 text-red-700'
-      case 'AWARDED': return 'bg-purple-100 text-purple-700'
-      default: return 'bg-gray-100 text-gray-700'
+      case 'POSTED': return 'bg-[#3B82F6]/10 text-[#3B82F6]'
+      case 'COMPLETED': return 'bg-[#10B981]/10 text-[#10B981]'
+      case 'DELETED': return 'bg-[#EF4444]/10 text-[#EF4444]'
+      case 'AWARDED': return 'bg-[#8B5CF6]/10 text-[#8B5CF6]'
+      default: return 'bg-gray-100 text-[#64748B]700'
     }
   }
 
   console.log('Rendering job history:', history)
   
   return (
-    <div className="border rounded-xl p-6 mt-6">
+    <div className="border border-gray-200 rounded-xl p-6 mt-6">
       <h2 className="text-xl font-bold mb-4">📋 My Job History ({history.length} items)</h2>
       <div className="space-y-3">
         {history.map((item) => (
-          <div key={item.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-lg">
+          <div key={item.id} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl">
             <div className="flex items-center gap-3">
               <span className={`text-xs px-2 py-1 rounded ${getActionColor(item.action)}`}>
                 {getActionLabel(item.action)}
@@ -581,13 +581,13 @@ function JobHistorySection({ userId }: { userId: string }) {
                 {item.job_title || 'Job #' + item.job_id?.slice(0,8)}
               </span>
             </div>
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-[#64748B]500">
               {item.created_at ? new Date(item.created_at).toLocaleDateString() : 'Unknown'}
             </span>
           </div>
         ))}
         {history.length === 0 && (
-          <p className="text-gray-500 text-sm">No activity yet. Your job posts, completions, and deletions will appear here.</p>
+          <p className="text-[#64748B]500 text-sm">No activity yet. Your job posts, completions, and deletions will appear here.</p>
         )}
       </div>
     </div>
@@ -701,7 +701,7 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-black">
+      <div className="min-h-screen flex items-center justify-center text-[#0F172A]">
         <div className="animate-spin w-8 h-8 border-4 border-slate-900 border-t-transparent rounded-full"></div>
       </div>
     )
@@ -710,19 +710,19 @@ export default function Profile() {
   const isContractor = profile?.user_type === 'CONTRACTOR'
 
   return (
-    <div className="min-h-screen bg-white text-black">
+    <div className="min-h-screen bg-white text-[#0F172A]">
       <header className="border-b">
         <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold text-black">TradeSource</Link>
+          <Link href="/feed" className="text-xl font-bold text-[#0F172A]">TradeSource</Link>
           <nav className="flex gap-4 items-center text-sm">
-            <Link href="/feed" className="text-black">Feed</Link>
-            <Link href="/jobs/post" className="text-black">Post</Link>
-            <Link href="/messages" className="text-black">Messages</Link>
-            <Link href="/profile" className="text-black font-medium">Profile</Link>
+            <Link href="/feed" className="text-[#0F172A]">Feed</Link>
+            <Link href="/jobs/post" className="text-[#0F172A]">Post</Link>
+            <Link href="/messages" className="text-[#0F172A]">Messages</Link>
+            <Link href="/profile" className="text-[#0F172A] font-medium">Profile</Link>
             {isAdmin && (
               <Link href="/admin" className="text-green-600 font-medium">🔧 Admin</Link>
             )}
-            <button onClick={handleSignOut} className="text-black">Sign out</button>
+            <button onClick={handleSignOut} className="text-[#0F172A]">Sign out</button>
           </nav>
         </div>
       </header>
@@ -730,11 +730,11 @@ export default function Profile() {
       <main className="max-w-2xl mx-auto px-4 py-8">
         {/* Header Section */}
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-black">My Profile</h1>
+          <h1 className="text-2xl font-bold text-[#0F172A]">My Profile</h1>
           {!editing && (
             <button
               onClick={() => setEditing(true)}
-              className="text-black hover:text-black px-4 py-2 border rounded-lg"
+              className="text-[#0F172A] hover:text-[#0F172A] px-4 py-2 border border-gray-200 rounded-xl"
             >
               Edit Profile
             </button>
@@ -746,20 +746,20 @@ export default function Profile() {
           <div className="mb-8">
             {/* Stats */}
             <div className="grid grid-cols-4 gap-4 mb-6">
-              <div className="text-center p-4 border rounded-xl">
-                <div className="text-2xl font-bold text-black">{profile.jobs_completed || 0}</div>
+              <div className="text-center p-4 border border-gray-200 rounded-xl">
+                <div className="text-2xl font-bold text-[#0F172A]">{profile.jobs_completed || 0}</div>
                 <div className="text-sm">Jobs Done</div>
               </div>
-              <div className="text-center p-4 border rounded-xl">
-                <div className="text-2xl font-bold text-black">{profile.avg_rating || 0}</div>
+              <div className="text-center p-4 border border-gray-200 rounded-xl">
+                <div className="text-2xl font-bold text-[#0F172A]">{profile.avg_rating || 0}</div>
                 <div className="text-sm">⭐ Rating</div>
               </div>
-              <div className="text-center p-4 border rounded-xl">
-                <div className="text-2xl font-bold text-black">{profile.review_count || 0}</div>
+              <div className="text-center p-4 border border-gray-200 rounded-xl">
+                <div className="text-2xl font-bold text-[#0F172A]">{profile.review_count || 0}</div>
                 <div className="text-sm">Reviews</div>
               </div>
-              <div className="text-center p-4 border rounded-xl">
-                <div className="text-2xl font-bold text-black">{profile.years_experience || 0}</div>
+              <div className="text-center p-4 border border-gray-200 rounded-xl">
+                <div className="text-2xl font-bold text-[#0F172A]">{profile.years_experience || 0}</div>
                 <div className="text-sm">Years Exp.</div>
               </div>
             </div>
@@ -782,8 +782,8 @@ export default function Profile() {
         )}
 
         {/* Profile Details */}
-        <div className="border rounded-xl p-6">
-          <h2 className="text-xl font-bold mb-4 text-black">Profile Details</h2>
+        <div className="border border-gray-200 rounded-xl p-6">
+          <h2 className="text-xl font-bold mb-4 text-[#0F172A]">Profile Details</h2>
           
           {editing ? (
             <div className="space-y-4">
@@ -794,7 +794,7 @@ export default function Profile() {
                     type="text"
                     value={formData.first_name}
                     onChange={e => setFormData({ ...formData, first_name: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2"
                   />
                 </div>
                 <div>
@@ -803,7 +803,7 @@ export default function Profile() {
                     type="text"
                     value={formData.last_name}
                     onChange={e => setFormData({ ...formData, last_name: e.target.value })}
-                    className="w-full border rounded-lg px-3 py-2"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2"
                   />
                 </div>
               </div>
@@ -814,7 +814,7 @@ export default function Profile() {
                   type="text"
                   value={formData.company_name}
                   onChange={e => setFormData({ ...formData, company_name: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2"
                 />
               </div>
 
@@ -824,7 +824,7 @@ export default function Profile() {
                   type="tel"
                   value={formData.phone}
                   onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2"
                 />
               </div>
 
@@ -835,7 +835,7 @@ export default function Profile() {
                     <select
                       value={formData.trade_type}
                       onChange={e => setFormData({ ...formData, trade_type: e.target.value })}
-                      className="w-full border rounded-lg px-3 py-2"
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2"
                     >
                       <option value="PAINTER">Painter</option>
                       <option value="GENERAL_CONTRACTOR">General Contractor</option>
@@ -848,7 +848,7 @@ export default function Profile() {
                       type="number"
                       value={formData.years_experience}
                       onChange={e => setFormData({ ...formData, years_experience: parseInt(e.target.value) || 0 })}
-                      className="w-full border rounded-lg px-3 py-2"
+                      className="w-full border border-gray-200 rounded-xl px-3 py-2"
                     />
                   </div>
                 </>
@@ -860,7 +860,7 @@ export default function Profile() {
                   value={formData.bio}
                   onChange={e => setFormData({ ...formData, bio: e.target.value })}
                   rows={4}
-                  className="w-full border rounded-lg px-3 py-2"
+                  className="w-full border border-gray-200 rounded-xl px-3 py-2"
                   placeholder="Tell homeowners about your business..."
                 />
               </div>
@@ -881,13 +881,13 @@ export default function Profile() {
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="bg-slate-900 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                  className="bg-[#0F172A] text-white px-4 py-2 rounded-xl disabled:opacity-50"
                 >
                   {saving ? 'Saving...' : 'Save Changes'}
                 </button>
                 <button
                   onClick={() => setEditing(false)}
-                  className="border px-4 py-2 rounded-lg"
+                  className="border px-4 py-2 rounded-xl"
                 >
                   Cancel
                 </button>
@@ -947,25 +947,25 @@ export default function Profile() {
 
         {/* Portfolio Section for Contractors */}
         {isContractor && (
-          <div className="border rounded-xl p-6 mt-6">
+          <div className="border border-gray-200 rounded-xl p-6 mt-6">
             <h2 className="text-xl font-bold mb-4">Portfolio</h2>
             <p className="text-sm mb-4 opacity-70">Showcase your best work to homeowners.</p>
             
             <div className="grid grid-cols-3 gap-3 mb-4">
               {profile?.portfolio_urls && profile.portfolio_urls.length > 0 ? (
                 profile.portfolio_urls.map((url, i) => (
-                  <div key={i} className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                  <div key={i} className="aspect-square bg-gray-100 rounded-xl overflow-hidden">
                     <img src={url} alt="Portfolio" className="w-full h-full object-cover" />
                   </div>
                 ))
               ) : (
-                <div className="col-span-3 text-center py-8 border-2 border-dashed rounded-lg">
+                <div className="col-span-3 text-center py-8 border-2 border-dashed rounded-xl">
                   <p className="opacity-70">No portfolio images yet</p>
                 </div>
               )}
             </div>
             
-            <button className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm">
+            <button className="bg-[#0F172A] text-white px-4 py-2 rounded-xl text-sm">
               Add Portfolio Images
             </button>
           </div>
@@ -973,7 +973,7 @@ export default function Profile() {
 
         {/* External Reviews Section - EDITABLE */}
         {isContractor && (
-          <div className="border rounded-xl p-6 mt-6">
+          <div className="border border-gray-200 rounded-xl p-6 mt-6">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">External Reviews</h2>
               <button
@@ -1005,7 +1005,7 @@ export default function Profile() {
                       newLinks[0] = e.target.value
                       setEditReviewLinks(newLinks)
                     }}
-                    className="w-full border rounded-lg px-3 py-2"
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2"
                   />
                 </div>
                 
@@ -1021,7 +1021,7 @@ export default function Profile() {
                         newLinks[i + 1] = e.target.value
                         setEditReviewLinks(newLinks)
                       }}
-                      className="flex-1 border rounded-lg px-3 py-2"
+                      className="flex-1 border border-gray-200 rounded-xl px-3 py-2"
                     />
                     <button
                       onClick={() => {
@@ -1051,7 +1051,7 @@ export default function Profile() {
                     fetchProfile(user.id)
                     setEditingReviews(false)
                   }}
-                  className="w-full bg-slate-900 text-white py-2 rounded-lg mt-2"
+                  className="w-full bg-[#0F172A] text-white py-2 rounded-xl mt-2"
                 >
                   Save Reviews
                 </button>
@@ -1069,7 +1069,7 @@ export default function Profile() {
                         href={link.trim()} 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="flex items-center gap-2 p-3 border rounded-lg hover:bg-gray-50"
+                        className="flex items-center gap-2 p-3 border border-gray-200 rounded-xl hover:bg-gray-50"
                       >
                         <span className="text-lg">
                           {link.includes('google') ? '🔍' : link.includes('yelp') ? '⭐' : '📘'}

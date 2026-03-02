@@ -44,10 +44,10 @@ interface UserProfile {
 // Badge component
 function Badge({ type, label, verified }: { type: 'verified' | 'insured' | 'tax' | 'reviews'; label: string; verified: boolean }) {
   const colors = {
-    verified: 'bg-blue-100 text-blue-700 border-blue-300',
-    insured: 'bg-green-100 text-green-700 border-green-300',
-    tax: 'bg-orange-100 text-orange-700 border-orange-300',
-    reviews: 'bg-yellow-100 text-yellow-700 border-yellow-300',
+    verified: 'bg-[#3B82F6]/10 text-[#3B82F6] border-blue-300',
+    insured: 'bg-[#10B981]/10 text-[#10B981] border-green-300',
+    tax: 'bg-[#F97316]/10 text-[#F97316] border-orange-300',
+    reviews: 'bg-[#F59E0B]/10 text-[#F59E0B] border-yellow-300',
   }
   const icons = {
     verified: '✓',
@@ -174,8 +174,8 @@ function VerificationSection({ profile, onUpdate }: { profile: UserProfile; onUp
     return (
       <div className="border rounded-xl p-6 bg-green-50 border-green-200">
         <h2 className="text-xl font-bold mb-4 text-green-800">✅ Verification Complete</h2>
-        <p className="text-green-700">Congratulations! You're fully verified and have full access to:</p>
-        <ul className="mt-2 text-green-700 text-sm">
+        <p className="text-[#10B981]">Congratulations! You're fully verified and have full access to:</p>
+        <ul className="mt-2 text-[#10B981] text-sm">
           <li>• View all job prices</li>
           <li>• Post jobs to the network</li>
           <li>• Express interest on jobs</li>
@@ -196,17 +196,17 @@ function VerificationSection({ profile, onUpdate }: { profile: UserProfile; onUp
       {showPending && (
         <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg mb-6">
           <p className="text-yellow-800 font-medium">⏳ Under Review</p>
-          <p className="text-sm text-yellow-700">Your verification is being processed. You'll receive email notification once approved.</p>
+          <p className="text-sm text-[#F59E0B]">Your verification is being processed. You'll receive email notification once approved.</p>
         </div>
       )}
 
       {showRejected && (
         <div className="bg-red-50 border border-red-200 p-4 rounded-lg mb-6">
           <p className="text-red-800 font-medium">❌ Verification Rejected</p>
-          <p className="text-sm text-red-700 mb-2">
+          <p className="text-sm text-[#EF4444] mb-2">
             <strong>Admin Feedback:</strong> {profile.verification_notes || 'Please review and correct the issues below.'}
           </p>
-          <p className="text-sm text-red-700">Fix the issues and resubmit all documents.</p>
+          <p className="text-sm text-[#EF4444]">Fix the issues and resubmit all documents.</p>
         </div>
       )}
 
@@ -350,7 +350,7 @@ function VerificationSection({ profile, onUpdate }: { profile: UserProfile; onUp
             disabled={submitting || !allFieldsComplete}
             className={`w-full py-3 rounded-lg font-medium transition-all ${
               allFieldsComplete && !submitting
-                ? 'bg-slate-900 text-white hover:bg-slate-800' 
+                ? 'bg-[#0F172A] text-white hover:bg-slate-800' 
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
@@ -647,7 +647,7 @@ export default function Profile() {
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className="bg-slate-900 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                  className="bg-[#0F172A] text-white px-4 py-2 rounded-lg disabled:opacity-50"
                 >
                   {saving ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -731,7 +731,7 @@ export default function Profile() {
               )}
             </div>
             
-            <button className="bg-slate-900 text-white px-4 py-2 rounded-lg text-sm">
+            <button className="bg-[#0F172A] text-white px-4 py-2 rounded-lg text-sm">
               Add Portfolio Images
             </button>
           </div>

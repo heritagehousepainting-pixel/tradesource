@@ -455,9 +455,9 @@ function MessagesContent() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-white text-black">
+    <div className="flex h-[calc(100vh-64px)] bg-white text-[#0F172A]">
       {/* Sidebar */}
-      <div className="w-1/3 border-r overflow-y-auto bg-white text-black">
+      <div className="w-1/3 border-r overflow-y-auto bg-white text-[#0F172A]">
         <div className="p-4 border-b">
           <h1 className="text-xl font-bold">Messages</h1>
         </div>
@@ -468,8 +468,8 @@ function MessagesContent() {
             onClick={() => setActiveTab('interests')}
             className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
               activeTab === 'interests' 
-                ? 'border-b-2 border-slate-900 text-black' 
-                : 'text-black'
+                ? 'border-b-2 border-slate-900 text-[#0F172A]' 
+                : 'text-[#0F172A]'
             }`}
           >
             Interests ({getNotificationCount()})
@@ -478,8 +478,8 @@ function MessagesContent() {
             onClick={() => setActiveTab('accepted')}
             className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
               activeTab === 'accepted' 
-                ? 'border-b-2 border-slate-900 text-black' 
-                : 'text-black'
+                ? 'border-b-2 border-slate-900 text-[#0F172A]' 
+                : 'text-[#0F172A]'
             }`}
           >
             Accepted ({acceptedList.length})
@@ -488,8 +488,8 @@ function MessagesContent() {
             onClick={() => setActiveTab('declined')}
             className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
               activeTab === 'declined' 
-                ? 'border-b-2 border-slate-900 text-black' 
-                : 'text-black'
+                ? 'border-b-2 border-slate-900 text-[#0F172A]' 
+                : 'text-[#0F172A]'
             }`}
           >
             Declined ({declinedList.length})
@@ -498,8 +498,8 @@ function MessagesContent() {
             onClick={() => setActiveTab('applications')}
             className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
               activeTab === 'applications' 
-                ? 'border-b-2 border-black text-black' 
-                : 'text-black'
+                ? 'border-b-2 border-black text-[#0F172A]' 
+                : 'text-[#0F172A]'
             }`}
           >
             My Apps
@@ -508,8 +508,8 @@ function MessagesContent() {
             onClick={() => setActiveTab('chats')}
             className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
               activeTab === 'chats' 
-                ? 'border-b-2 border-black text-black' 
-                : 'text-black'
+                ? 'border-b-2 border-black text-[#0F172A]' 
+                : 'text-[#0F172A]'
             }`}
           >
             Chats ({allChats.length})
@@ -520,7 +520,7 @@ function MessagesContent() {
         {activeTab === 'interests' && (
           <div>
             {interestsList.length === 0 ? (
-              <div className="p-4 text-black text-center">
+              <div className="p-4 text-[#0F172A] text-center">
                 No new interests on your jobs.
               </div>
             ) : (
@@ -532,10 +532,10 @@ function MessagesContent() {
                   >
                     <Link href={`/jobs/${notif.job_id}`}>
                       <div className="font-medium cursor-pointer">{notif.from_name}</div>
-                      <div className="text-sm text-black">{notif.from_company}</div>
-                      <div className="text-xs text-black mt-1">re: {notif.job_title}</div>
+                      <div className="text-sm text-[#0F172A]">{notif.from_company}</div>
+                      <div className="text-xs text-[#0F172A] mt-1">re: {notif.job_title}</div>
                       {notif.message && (
-                        <div className="mt-2 text-sm text-black italic line-clamp-2">
+                        <div className="mt-2 text-sm text-[#0F172A] italic line-clamp-2">
                           "{notif.message}"
                         </div>
                       )}
@@ -571,7 +571,7 @@ function MessagesContent() {
         {activeTab === 'accepted' && (
           <div>
             {acceptedList.length === 0 ? (
-              <div className="p-4 text-black text-center">
+              <div className="p-4 text-[#0F172A] text-center">
                 No accepted contractors yet.
               </div>
             ) : (
@@ -584,12 +584,12 @@ function MessagesContent() {
                     <div className="flex justify-between items-start">
                       <div>
                         <div className="font-medium text-green-600">✓ {notif.from_name}</div>
-                        <div className="text-sm text-black">{notif.from_company}</div>
-                        <div className="text-xs text-black">re: {notif.job_title}</div>
+                        <div className="text-sm text-[#0F172A]">{notif.from_company}</div>
+                        <div className="text-xs text-[#0F172A]">re: {notif.job_title}</div>
                       </div>
                       <Link 
                         href={`/messages?job=${notif.job_id}&user=${notif.from_user_id}`}
-                        className="bg-slate-900 text-white px-3 py-1 rounded text-sm"
+                        className="bg-[#0F172A] text-white px-3 py-1 rounded text-sm"
                       >
                         Chat
                       </Link>
@@ -605,7 +605,7 @@ function MessagesContent() {
         {activeTab === 'declined' && (
           <div>
             {declinedList.length === 0 ? (
-              <div className="p-4 text-black text-center">
+              <div className="p-4 text-[#0F172A] text-center">
                 No declined contractors.
               </div>
             ) : (
@@ -618,8 +618,8 @@ function MessagesContent() {
                     <div className="flex justify-between items-start">
                       <div>
                         <div className="font-medium text-red-600">✗ {notif.from_name}</div>
-                        <div className="text-sm text-black">{notif.from_company}</div>
-                        <div className="text-xs text-black">re: {notif.job_title}</div>
+                        <div className="text-sm text-[#0F172A]">{notif.from_company}</div>
+                        <div className="text-xs text-[#0F172A]">re: {notif.job_title}</div>
                       </div>
                       <button 
                         onClick={() => handleUndoDecline(notif.job_id, notif.from_user_id)}
@@ -638,7 +638,7 @@ function MessagesContent() {
         {/* My Applications Tab - for subs to see their applications */}
         {activeTab === 'applications' && (
           <div>
-            <div className="p-4 text-black text-center">
+            <div className="p-4 text-[#0F172A] text-center">
               My Applications - coming soon!
             </div>
           </div>
@@ -648,7 +648,7 @@ function MessagesContent() {
         {activeTab === 'chats' && (
           <div>
             {allChats.length === 0 ? (
-              <div className="p-4 text-black text-center">
+              <div className="p-4 text-[#0F172A] text-center">
                 No conversations yet.
               </div>
             ) : (
@@ -666,9 +666,9 @@ function MessagesContent() {
                       activeConversation === chat.job_id ? 'bg-gray-100' : ''
                     }`}
                   >
-                    <div className="font-medium text-black">{chat.job_title}</div>
-                    <div className="text-sm text-black">{chat.other_user_name}</div>
-                    <div className="text-xs text-black mt-1">{chat.last_message}</div>
+                    <div className="font-medium text-[#0F172A]">{chat.job_title}</div>
+                    <div className="text-sm text-[#0F172A]">{chat.other_user_name}</div>
+                    <div className="text-xs text-[#0F172A] mt-1">{chat.last_message}</div>
                   </div>
                 ))}
               </div>
@@ -688,15 +688,15 @@ function MessagesContent() {
                   className={`flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-[70%] rounded-lg px-4 py-2 ${
+                    className={`max-w-[70%] rounded-xl px-4 py-2 ${
                       msg.sender_id === user.id
-                        ? 'bg-slate-900 text-white'
-                        : 'bg-slate-100 text-black'
+                        ? 'bg-[#0F172A] text-white'
+                        : 'bg-slate-100 text-[#0F172A]'
                     }`}
                   >
                     <p>{msg.message_text}</p>
                     <p className={`text-xs mt-1 ${
-                      msg.sender_id === user.id ? 'text-black' : 'text-black'
+                      msg.sender_id === user.id ? 'text-[#0F172A]' : 'text-[#0F172A]'
                     }`}>
                       {new Date(msg.created_at).toLocaleString()}
                     </p>
@@ -712,13 +712,13 @@ function MessagesContent() {
                   onChange={e => setNewMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type a message..."
-                  className="flex-1 border rounded-lg px-3 py-2 resize-none"
+                  className="flex-1 border border-gray-200 rounded-xl px-3 py-2 resize-none"
                   rows={1}
                 />
                 <button
                   onClick={sendMessage}
                   disabled={sending || !newMessage.trim()}
-                  className="bg-slate-900 text-white px-4 py-2 rounded-lg disabled:opacity-50"
+                  className="bg-[#0F172A] text-white px-4 py-2 rounded-xl disabled:opacity-50"
                 >
                   Send
                 </button>
@@ -726,7 +726,7 @@ function MessagesContent() {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-black">
+          <div className="flex-1 flex items-center justify-center text-[#0F172A]">
             Select a conversation or interest to view
           </div>
         )}
@@ -740,17 +740,17 @@ export default function Messages() {
     <div className="min-h-screen bg-white">
       <header className="border-b bg-white">
         <div className="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold text-black">TradeSource</Link>
+          <Link href="/" className="text-xl font-bold text-[#0F172A]">TradeSource</Link>
           <nav className="flex gap-4 items-center text-sm">
-            <Link href="/feed" className="text-black">Feed</Link>
-            <Link href="/contractors" className="text-black">Contractors</Link>
-            <Link href="/community" className="text-black">Community</Link>
-            <Link href="/jobs/post" className="text-black">Post</Link>
-            <Link href="/profile" className="text-black">Profile</Link>
+            <Link href="/feed" className="text-[#0F172A]">Feed</Link>
+            <Link href="/contractors" className="text-[#0F172A]">Contractors</Link>
+            <Link href="/community" className="text-[#0F172A]">Community</Link>
+            <Link href="/jobs/post" className="text-[#0F172A]">Post</Link>
+            <Link href="/profile" className="text-[#0F172A]">Profile</Link>
           </nav>
         </div>
       </header>
-      <Suspense fallback={<div className="p-8 text-center text-black">Loading...</div>}>
+      <Suspense fallback={<div className="p-8 text-center text-[#0F172A]">Loading...</div>}>
         <MessagesContent />
       </Suspense>
     </div>

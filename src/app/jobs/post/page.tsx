@@ -161,14 +161,14 @@ export default function PostJob() {
     <div className="min-h-screen bg-white">
       <header className="border-b">
         <div className="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
-          <Link href="/feed" className="text-xl font-bold text-black">TradeSource</Link>
+          <Link href="/feed" className="text-xl font-bold text-[#0F172A]">TradeSource</Link>
           <nav className="flex gap-4 text-sm">
-            <Link href="/feed" className="text-black">Feed</Link>
-            <Link href="/contractors" className="text-black">Contractors</Link>
-            <Link href="/community" className="text-black">Community</Link>
-            <Link href="/jobs/post" className="text-black">Post</Link>
-            <Link href="/messages" className="text-black">Messages</Link>
-            <Link href="/profile" className="text-black">Profile</Link>
+            <Link href="/feed" className="text-[#0F172A]">Feed</Link>
+            <Link href="/contractors" className="text-[#0F172A]">Contractors</Link>
+            <Link href="/community" className="text-[#0F172A]">Community</Link>
+            <Link href="/jobs/post" className="text-[#0F172A]">Post</Link>
+            <Link href="/messages" className="text-[#0F172A]">Messages</Link>
+            <Link href="/profile" className="text-[#0F172A]">Profile</Link>
           </nav>
         </div>
       </header>
@@ -177,14 +177,14 @@ export default function PostJob() {
         <h1 className="text-2xl font-bold mb-6">Post a New Job</h1>
 
         {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm">
+          <div className="bg-red-50 text-red-600 p-3 rounded-xl mb-4 text-sm">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* B2C Toggle */}
-          <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
+          <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl">
             <input
               type="checkbox"
               id="isB2C"
@@ -203,7 +203,7 @@ export default function PostJob() {
               type="text"
               required
               placeholder="e.g., Interior painting for 3-bedroom house"
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-200 rounded-xl"
               value={formData.title}
               onChange={e => setFormData({...formData, title: e.target.value})}
             />
@@ -215,7 +215,7 @@ export default function PostJob() {
               required
               rows={4}
               placeholder="Provide details about the job..."
-              className="w-full px-3 py-2 border rounded-lg"
+              className="w-full px-3 py-2 border border-gray-200 rounded-xl"
               value={formData.description}
               onChange={e => setFormData({...formData, description: e.target.value})}
             />
@@ -226,7 +226,7 @@ export default function PostJob() {
               <label className="block text-sm font-medium mb-1">County *</label>
               <select
                 required
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                 value={formData.county}
                 onChange={e => setFormData({...formData, county: e.target.value})}
               >
@@ -243,7 +243,7 @@ export default function PostJob() {
               <label className="block text-sm font-medium mb-1">Street Address</label>
               <input
                 type="text"
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                 value={formData.address}
                 onChange={e => setFormData({...formData, address: e.target.value})}
                 placeholder="123 Main St"
@@ -255,7 +255,7 @@ export default function PostJob() {
                 <label className="block text-sm font-medium mb-1">City</label>
                 <input
                   type="text"
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                   value={formData.city}
                   onChange={e => setFormData({...formData, city: e.target.value})}
                   placeholder="Philadelphia"
@@ -265,7 +265,7 @@ export default function PostJob() {
                 <label className="block text-sm font-medium mb-1">ZIP Code</label>
                 <input
                   type="text"
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                   value={formData.zip}
                   onChange={e => setFormData({...formData, zip: e.target.value})}
                   placeholder="19000"
@@ -278,7 +278,7 @@ export default function PostJob() {
                 <label className="block text-sm font-medium mb-1">Square Footage (optional)</label>
                 <input
                   type="number"
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                   value={formData.squareFootage}
                   onChange={e => setFormData({...formData, squareFootage: e.target.value})}
                   placeholder="2000"
@@ -287,7 +287,7 @@ export default function PostJob() {
               <div>
                 <label className="block text-sm font-medium mb-1">Timeline</label>
                 <select
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                   value={formData.timeline}
                   onChange={e => setFormData({...formData, timeline: e.target.value})}
                 >
@@ -302,7 +302,7 @@ export default function PostJob() {
             <div>
               <label className="block text-sm font-medium mb-1">Work Category</label>
               <select
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                 value={formData.workCategory}
                 onChange={e => setFormData({...formData, workCategory: e.target.value})}
               >
@@ -317,7 +317,7 @@ export default function PostJob() {
             <div>
               <label className="block text-sm font-medium mb-1">Scope of Work (for GCs)</label>
               <textarea
-                className="w-full px-3 py-2 border rounded-lg"
+                className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                 rows={2}
                 value={formData.jobScope}
                 onChange={e => setFormData({...formData, jobScope: e.target.value})}
@@ -331,7 +331,7 @@ export default function PostJob() {
               <div>
                 <label className="block text-sm font-medium mb-1">Job Type</label>
                 <select
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                   value={formData.jobType}
                   onChange={e => setFormData({...formData, jobType: e.target.value})}
                 >
@@ -343,7 +343,7 @@ export default function PostJob() {
               <div>
                 <label className="block text-sm font-medium mb-1">Price Type</label>
                 <select
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-xl"
                   value={formData.priceType}
                   onChange={e => setFormData({...formData, priceType: e.target.value})}
                 >
@@ -360,11 +360,11 @@ export default function PostJob() {
                 Price {formData.priceType === 'HOURLY' ? '(per hour)' : ''}
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-black">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#0F172A]">$</span>
                 <input
                   type="number"
                   required
-                  className="w-full pl-7 pr-3 py-2 border rounded-lg"
+                  className="w-full pl-7 pr-3 py-2 border border-gray-200 rounded-xl"
                   placeholder="0.00"
                   value={formData.priceAmount}
                   onChange={e => setFormData({...formData, priceAmount: e.target.value})}
@@ -376,7 +376,7 @@ export default function PostJob() {
           {/* Photos/Videos Section */}
           <div>
             <label className="block text-sm font-medium mb-2">Photos & Videos</label>
-            <p className="text-sm text-gray-500 mb-2">Add photos or videos of the job (optional)</p>
+            <p className="text-sm text-[#64748B]500 mb-2">Add photos or videos of the job (optional)</p>
             
             {/* Hidden file input */}
             <input
@@ -393,12 +393,12 @@ export default function PostJob() {
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
-              className="w-full border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition"
+              className="w-full border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-gray-400 transition"
             >
               {uploading ? (
                 <span>Uploading...</span>
               ) : (
-                <span className="text-gray-500">
+                <span className="text-[#64748B]500">
                   📷 Click to upload photos or videos
                 </span>
               )}
@@ -430,7 +430,7 @@ export default function PostJob() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-slate-900 text-white py-3 rounded-lg font-medium hover:bg-slate-800 disabled:opacity-50"
+            className="w-full bg-[#0F172A] text-white py-3 rounded-xl font-medium hover:bg-[#1E293B] disabled:opacity-50"
           >
             {loading ? 'Posting...' : 'Post Job'}
           </button>
