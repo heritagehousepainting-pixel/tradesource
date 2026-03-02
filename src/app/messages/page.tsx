@@ -17,24 +17,19 @@ interface Notification {
   message: string
   created_at: string
   read: boolean
-  status?: string
-}
-
-interface Message {
-  id: string
-  message_text: string
-  sender_id: string
-  receiver_id: string
-  created_at: string
 }
 
 interface Conversation {
+  id: string
   job_id: string
   job_title: string
   other_user_id: string
   other_user_name: string
+  other_user_company?: string
+  other_user_photo?: string
   last_message: string
   last_message_at: string
+  unread: boolean
 }
 
 function MessagesContent() {
@@ -42,18 +37,13 @@ function MessagesContent() {
   const searchParams = useSearchParams()
   const supabase = createClient()
   const [user, setUser] = useState<any>(null)
-  const [notifications, setNotifications] = useState<Notification[]>([])
   const [conversations, setConversations] = useState<Conversation[]>([])
-  const [activeConversation, setActiveConversation] = useState<string | null>(null)
-  const [messages, setMessages] = useState<Message[]>([])
+  const [activeConversation, setActiveConversation] = useState<Conversation | null>(null)
+  const [messages, setMessages] = useState<any[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [sending, setSending] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState<'interests' | 'accepted' | 'declined' | 'applications' | 'chats'>('interests')
-  const [showAcceptSuccess, setShowAcceptSuccess] = useState(false)
-  const [currentJobId, setCurrentJobId] = useState<string | null>(null)
-  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
 
   useEffect(() => {
     checkUser()
@@ -61,724 +51,312 @@ function MessagesContent() {
 
   useEffect(() => {
     if (user) {
-      loadData()
+      loadConversations()
       
-      // Real-time subscription for new messages
-      const messagesChannel = supabase
+      // Real-time subscription
+      const channel = supabase
         .channel('messages-realtime')
         .on('postgres_changes', {
           event: 'INSERT',
           schema: 'public',
           table: 'messages',
           filter: `receiver_id=eq.${user.id}`,
-        }, (payload) => {
-          console.log('New message received:', payload)
-          // Reload data to show new message
-          loadData()
-          // Show browser notification if permitted
-          if (Notification.permission === 'granted') {
-            new Notification('New Message', {
-              body: 'You have a new message on TradeSource',
-            })
-          }
-        })
+        }, () => loadConversations())
         .subscribe()
 
-      // Also listen for new notifications
-      const notifChannel = supabase
-        .channel('notifications-realtime')
-        .on('postgres_changes', {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`,
-        }, (payload) => {
-          console.log('New notification:', payload)
-          loadData()
-        })
-        .subscribe()
-
-      return () => {
-        supabase.removeChannel(messagesChannel)
-        supabase.removeChannel(notifChannel)
-      }
+      return () => { supabase.removeChannel(channel) }
     }
   }, [user])
 
-  useEffect(() => {
-    const jobId = searchParams.get('job')
-    const otherUserId = searchParams.get('user')
-    
-    if (jobId && otherUserId && user) {
-      setActiveConversation(jobId)
-      setCurrentJobId(jobId)
-      setCurrentUserId(otherUserId)
-      loadMessages(jobId, otherUserId)
-      router.replace('/messages')
-    }
-  }, [searchParams, user])
-
   const checkUser = async () => {
-    try {
-      // Request notification permission
-      if ('Notification' in window) {
-        Notification.requestPermission()
-      }
-      
-      const { data: { user }, error: authError } = await supabase.auth.getUser()
-      if (authError) {
-        console.error('Auth error:', authError)
-        router.push('/signin')
-        return
-      }
-      if (!user) {
-        router.push('/signin')
-        return
-      }
-      setUser(user)
-      setLoading(false)
-    } catch (err) {
-      console.error('Check user error:', err)
-      setError('Error loading user')
-      setLoading(false)
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      router.push('/signin')
+      return
     }
-  }
-
-  const loadData = async () => {
-    try {
-      await Promise.all([loadNotifications(), loadConversations(), loadMessageNotifications()])
-    } catch (err) {
-      console.error('Load data error:', err)
-    }
-  }
-
-  const loadNotifications = async () => {
-    try {
-      // Get jobs posted by user
-      const { data: myJobs, error: jobsError } = await supabase
-        .from('jobs')
-        .select('id, title')
-        .eq('posted_by', user.id)
-    
-      if (jobsError) {
-        console.error('Jobs error:', jobsError)
-        return
-      }
-
-      // Get interests on user's jobs (as a poster)
-      let notifications: Notification[] = []
-      
-      if (myJobs && myJobs.length > 0) {
-        const jobIds = myJobs.map(j => j.id)
-        const jobMap: Record<string, string> = {}
-        myJobs.forEach(j => {
-          jobMap[j.id] = j.title
-        })
-
-        const { data: interestsData } = await supabase
-          .from('interests')
-          .select('*, users(first_name, last_name, company_name)')
-          .in('job_id', jobIds)
-          .order('created_at', { ascending: false })
-
-        if (interestsData) {
-          notifications = interestsData.map(interest => ({
-            id: interest.id,
-            type: 'interest' as const,
-            job_id: interest.job_id,
-            job_title: jobMap[interest.job_id] || 'Job',
-            from_user_id: interest.user_id,
-            from_name: `${interest.users?.first_name || ''} ${interest.users?.last_name || ''}`.trim(),
-            from_company: interest.users?.company_name || 'Individual',
-            message: interest.message || '',
-            created_at: interest.created_at,
-            read: false,
-            status: interest.status || 'INTERESTED'
-          }))
-        }
-      }
-
-      // Get notifications where user was interested and got accepted/declined (ONLY if user is the sub, not the poster)
-      const { data: myInterests } = await supabase
-        .from('interests')
-        .select('*, jobs(title, posted_by)')
-        .eq('user_id', user.id)  // User is the sub who applied
-        .in('status', ['SELECTED', 'DECLINED'])
-        .order('created_at', { ascending: false })
-
-      // Skip myInterests section - causing duplicates in poster's view
-      // This section was for subs to see if they were accepted, but causing issues
-
-      setNotifications(notifications)
-    } catch (err) {
-      console.error('Load notifications error:', err)
-    }
-  }
-
-  // Load message notifications
-  const loadMessageNotifications = async () => {
-    try {
-      const { data: msgNotifs } = await supabase
-        .from('notifications')
-        .select('*, from_user:users(first_name, last_name), job:jobs(title)')
-        .eq('user_id', user.id)
-        .eq('type', 'message')
-        .eq('read', false)
-        .order('created_at', { ascending: false })
-        .limit(10)
-
-      if (msgNotifs && msgNotifs.length > 0) {
-        // Add to notifications state
-        const newNotifs: Notification[] = msgNotifs.map(n => ({
-          id: n.id,
-          type: 'message' as const,
-          job_id: n.job_id,
-          job_title: n.job?.title || 'Job',
-          from_user_id: n.from_user_id,
-          from_name: `${n.from_user?.first_name || ''} ${n.from_user?.last_name || ''}`.trim(),
-          from_company: 'New message',
-          message: n.message || '',
-          created_at: n.created_at,
-          read: n.read,
-          status: 'MESSAGE'
-        }))
-        
-        setNotifications(prev => [...newNotifs, ...prev])
-      }
-    } catch (err) {
-      console.error('Load message notifications error:', err)
-    }
+    setUser(user)
   }
 
   const loadConversations = async () => {
-    try {
-      // Get all messages where user is sender or receiver
-      const { data: allMessages } = await supabase
-        .from('messages')
-        .select('job_id, sender_id, receiver_id, created_at')
-        .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-        .order('created_at', { ascending: false })
+    if (!user) return
 
-      // Also get jobs where user was accepted (SELECTED)
-      const { data: acceptedJobs } = await supabase
-        .from('interests')
-        .select('job_id, jobs(title, posted_by)')
-        .eq('user_id', user.id)
-        .eq('status', 'SELECTED')
-
-      const convos: Conversation[] = []
-      const processedJobIds = new Set<string>()
-
-      // Add jobs from messages
-      if (allMessages) {
-        const uniqueJobs = [...new Set(allMessages.map(m => m.job_id))]
-        
-        for (const jobId of uniqueJobs.slice(0, 10)) {
-          if (processedJobIds.has(jobId)) continue
-          processedJobIds.add(jobId)
-
-          const jobMessages = allMessages.filter(m => m.job_id === jobId)
-          const lastMsg = jobMessages[0]
-          
-          const { data: jobData } = await supabase
-            .from('jobs')
-            .select('title, posted_by')
-            .eq('id', jobId)
-            .single()
-          
-          if (!jobData) continue
-
-          const otherUserId = lastMsg.sender_id === user.id ? lastMsg.receiver_id : lastMsg.sender_id
-          
-          const { data: userData } = await supabase
-            .from('users')
-            .select('first_name, last_name')
-            .eq('id', otherUserId)
-            .single()
-
-          const { data: lastMsgText } = await supabase
-            .from('messages')
-            .select('message_text')
-            .eq('job_id', jobId)
-            .order('created_at', { ascending: false })
-            .limit(1)
-            .single()
-
-          convos.push({
-            job_id: jobId,
-            job_title: jobData.title,
-            other_user_id: otherUserId,
-            other_user_name: userData ? `${userData.first_name} ${userData.last_name}` : 'Unknown',
-            last_message: lastMsgText?.message_text || '',
-            last_message_at: lastMsg.created_at
-          })
-        }
-      }
-
-      // Add jobs where user was accepted but no messages yet
-      if (acceptedJobs) {
-        for (const accepted of acceptedJobs) {
-          if (processedJobIds.has(accepted.job_id)) continue
-          processedJobIds.add(accepted.job_id)
-
-          convos.push({
-            job_id: accepted.job_id,
-            job_title: accepted.jobs?.[0]?.title || 'Job',
-            other_user_id: accepted.jobs?.[0]?.posted_by || '',
-            other_user_name: 'Poster',
-            last_message: 'Click to start chatting',
-            last_message_at: new Date().toISOString()
-          })
-        }
-      }
-
-      convos.sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime())
-      setConversations(convos)
-    } catch (err) {
-      console.error('Load conversations error:', err)
-    }
-  }
-
-  const loadMessages = async (jobId: string, otherUserId: string) => {
-    const { data: msgs } = await supabase
+    // Get all unique conversations
+    const { data: sentMessages } = await supabase
       .from('messages')
       .select('*')
-      .eq('job_id', jobId)
-      .or(`and(sender_id.eq.${user.id},receiver_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},receiver_id.eq.${user.id})`)
+      .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
+      .order('created_at', { ascending: false })
+
+    if (!sentMessages) {
+      setLoading(false)
+      return
+    }
+
+    // Group by conversation partner + job
+    const convMap = new Map<string, Conversation>()
+    
+    for (const msg of sentMessages) {
+      const otherId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id
+      
+      // Get job info
+      const { data: job } = await supabase
+        .from('jobs')
+        .select('title')
+        .eq('id', msg.job_id)
+        .single()
+      
+      // Get other user info
+      const { data: otherUser } = await supabase
+        .from('users')
+        .select('first_name, last_name, company_name, profile_photo_url')
+        .eq('id', otherId)
+        .single()
+      
+      const key = `${otherId}-${msg.job_id}`
+      if (!convMap.has(key) || new Date(msg.created_at) > new Date(convMap.get(key)!.last_message_at)) {
+        convMap.set(key, {
+          id: key,
+          job_id: msg.job_id,
+          job_title: job?.title || 'Job',
+          other_user_id: otherId,
+          other_user_name: otherUser ? `${otherUser.first_name} ${otherUser.last_name}`.trim() : 'User',
+          other_user_company: otherUser?.company_name,
+          other_user_photo: otherUser?.profile_photo_url,
+          last_message: msg.message_text,
+          last_message_at: msg.created_at,
+          unread: msg.receiver_id === user.id && !msg.read
+        })
+      }
+    }
+
+    // Sort by last message time
+    const sorted = Array.from(convMap.values())
+      .sort((a, b) => new Date(b.last_message_at).getTime() - new Date(a.last_message_at).getTime())
+    
+    setConversations(sorted)
+    setLoading(false)
+  }
+
+  const loadMessages = async (conv: Conversation) => {
+    const { data } = await supabase
+      .from('messages')
+      .select('*')
+      .or(`and(job_id.eq.${conv.job_id},sender_id.eq.${user.id},receiver_id.eq.${conv.other_user_id}),and(job_id.eq.${conv.job_id},sender_id.eq.${conv.other_user_id},receiver_id.eq.${user.id})`)
       .order('created_at', { ascending: true })
 
-    if (msgs) {
-      setMessages(msgs)
+    setMessages(data || [])
+    
+    // Mark as read
+    if (data) {
+      const unread = data.filter(m => m.receiver_id === user.id && !m.read)
+      if (unread.length > 0) {
+        await supabase
+          .from('messages')
+          .update({ read: true })
+          .in('id', unread.map(m => m.id))
+      }
     }
   }
 
   const sendMessage = async () => {
-    if (!newMessage.trim()) return
-
-    const jobId = currentJobId || activeConversation
-    const otherUserId = currentUserId || conversations.find(c => c.job_id === activeConversation)?.other_user_id
+    if (!newMessage.trim() || !activeConversation || !user) return
     
-    if (!jobId || !otherUserId || !user?.id) {
-      console.log('Missing info:', { jobId, otherUserId, userId: user?.id })
-      return
-    }
-
     setSending(true)
-
-    try {
-      const { error } = await supabase.from('messages').insert({
-        job_id: jobId,
+    
+    const { error } = await supabase
+      .from('messages')
+      .insert({
+        job_id: activeConversation.job_id,
         sender_id: user.id,
-        receiver_id: otherUserId,
-        message_text: newMessage,
+        receiver_id: activeConversation.other_user_id,
+        message_text: newMessage.trim(),
+        read: false
       })
 
-      console.log('Message sent:', { error })
-
-      // Also create a notification for the receiver
-      if (!error) {
-        await supabase.from('notifications').insert({
-          user_id: otherUserId,
-          type: 'message',
-          title: 'New Message',
-          message: newMessage.substring(0, 100),
-          job_id: jobId,
-          from_user_id: user.id,
-        })
-      }
-
-      if (!error) {
-        setNewMessage('')
-        loadMessages(jobId, otherUserId)
-        loadConversations()
-        loadNotifications()
-      }
-    } catch (err) {
-      console.error('Send message error:', err)
+    if (!error) {
+      setNewMessage('')
+      loadMessages(activeConversation)
+      loadConversations()
     }
-
+    
     setSending(false)
   }
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      sendMessage()
-    }
-  }
-
-  // Categorize notifications
-  const interestsList = notifications.filter(n => !n.status || n.status === 'INTERESTED')
-  const acceptedList = notifications.filter(n => n.status === 'SELECTED')
-  const declinedList = notifications.filter(n => n.status === 'DECLINED')
-
-  const getNotificationCount = () => interestsList.length
-
-  // Deduplicate acceptedList by job_id - filter out notification entries
-  const acceptedMap = new Map<string, any>()
-  acceptedList.filter(a => 
-    a.type !== 'my_response' && 
-    !a.from_name.includes('✓') &&
-    !a.from_name.includes('✗')
-  ).forEach(a => {
-    if (!acceptedMap.has(a.job_id)) {
-      acceptedMap.set(a.job_id, a)
-    }
-  })
-  const uniqueAccepted = Array.from(acceptedMap.values())
-
-  // Combine accepted + conversations for "Chats" (deduplicated by job_id)
-  const chatMap = new Map<string, any>()
-  
-  // Add accepted jobs first
-  uniqueAccepted.forEach(a => {
-    chatMap.set(a.job_id, {
-      job_id: a.job_id,
-      job_title: a.job_title,
-      other_user_id: a.from_user_id,
-      other_user_name: a.from_name,
-      last_message: a.message,
-      last_message_at: a.created_at
-    })
-  })
-  
-  // Add conversations (only if not already in map)
-  conversations.forEach(c => {
-    if (!chatMap.has(c.job_id)) {
-      chatMap.set(c.job_id, c)
-    }
-  })
-  
-  const allChats = Array.from(chatMap.values())
-
-  const handleAcceptFromMessages = async (jobId: string, userId: string, name: string) => {
-    // Update interest status
-    await supabase
-      .from('interests')
-      .update({ status: 'SELECTED' })
-      .eq('job_id', jobId)
-      .eq('user_id', userId)
-
-    // Update job status
-    await supabase
-      .from('jobs')
-      .update({ status: 'AWARDED' })
-      .eq('id', jobId)
-
-    // Reload notifications so they appear in accepted tab
-    await loadNotifications()
+  const formatTime = (dateStr: string) => {
+    const date = new Date(dateStr)
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
     
-    // Show success then switch to accepted tab and open chat
-    setShowAcceptSuccess(true)
-    setCurrentJobId(jobId)
-    setCurrentUserId(userId)
-    
-    setTimeout(() => {
-      setShowAcceptSuccess(false)
-      setActiveTab('accepted')
-      router.push(`/messages?job=${jobId}&user=${userId}`)
-    }, 1500)
+    if (days === 0) {
+      return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+    } else if (days === 1) {
+      return 'Yesterday'
+    } else if (days < 7) {
+      return date.toLocaleDateString([], { weekday: 'short' })
+    } else {
+      return date.toLocaleDateString([], { month: 'short', day: 'numeric' })
+    }
   }
 
-  const handleDeclineFromMessages = async (jobId: string, userId: string) => {
-    await supabase
-      .from('interests')
-      .update({ status: 'DECLINED' })
-      .eq('job_id', jobId)
-      .eq('user_id', userId)
-
-    loadNotifications()
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
   }
 
-  const handleUndoDecline = async (jobId: string, userId: string) => {
-    // Reset status back to interested
-    await supabase
-      .from('interests')
-      .update({ status: 'INTERESTED' })
-      .eq('job_id', jobId)
-      .eq('user_id', userId)
-
-    loadNotifications()
-  }
+  const filteredConversations = conversations.filter(c => 
+    c.other_user_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.job_title.toLowerCase().includes(searchQuery.toLowerCase())
+  )
 
   if (loading) {
-    return <div className="flex-1 flex items-center justify-center">Loading...</div>
+    return (
+      <div className="flex-1 flex items-center justify-center min-h-screen bg-white">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    )
   }
 
-  if (error) {
-    return <div className="flex-1 flex items-center justify-center text-red-500">{error}</div>
+  // If viewing a conversation (mobile)
+  if (activeConversation) {
+    return (
+      <div className="flex flex-col h-screen bg-white">
+        {/* Chat Header */}
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 flex items-center gap-3 z-10">
+          <button onClick={() => setActiveConversation(null)} className="p-1">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <Link href={`/jobs/${activeConversation.job_id}`} className="flex-1">
+            <div className="font-semibold text-gray-900">{activeConversation.other_user_name}</div>
+            <div className="text-xs text-gray-500">{activeConversation.job_title}</div>
+          </Link>
+        </div>
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {messages.map(msg => (
+            <div key={msg.id} className={`flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}>
+              <div className={`max-w-[75%] px-4 py-2 rounded-2xl ${
+                msg.sender_id === user.id 
+                  ? 'bg-blue-600 text-white rounded-br-md' 
+                  : 'bg-gray-100 text-gray-900 rounded-bl-md'
+              }`}>
+                <p className="text-sm">{msg.message_text}</p>
+                <p className={`text-xs mt-1 ${msg.sender_id === user.id ? 'text-blue-100' : 'text-gray-500'}`}>
+                  {formatTime(msg.created_at)}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Input */}
+        <div className="border-t border-gray-200 p-3 flex gap-2">
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+            placeholder="Message..."
+            className="flex-1 bg-gray-100 border-0 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            onClick={sendMessage}
+            disabled={sending || !newMessage.trim()}
+            className="bg-blue-600 text-white p-2 rounded-full disabled:opacity-50"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    )
   }
 
+  // Main Messages List (Facebook Marketplace style)
   return (
-    <div className="flex h-[calc(100vh-73px)] bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-1/3 border-r border-gray-200 overflow-y-auto bg-white">
-        <div className="p-3 md:p-3 border-b border-gray-100">
-          <h1 className="text-xl md:text-2xl font-bold text-gray-900">Messages</h1>
-        </div>
+    <div className="min-h-screen bg-white">
+      {/* Header */}
+      <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-3 z-10">
+        <h1 className="text-xl font-bold text-gray-900">Messages</h1>
         
-        {/* Premium Tabs */}
-        <div className="flex border-b border-gray-100 overflow-x-auto bg-gray-50">
-          <button
-            onClick={() => setActiveTab('interests')}
-            className={`flex-1 p-3 text-center font-semibold text-sm whitespace-nowrap transition-colors ${
-              activeTab === 'interests' 
-                ? 'bg-white text-blue-600 border-b-2 border-blue-600' 
-                : 'text-gray-500 hover:text-gray-900'
-            }`}
-          >
-            Interests ({getNotificationCount()})
-          </button>
-          <button
-            onClick={() => setActiveTab('accepted')}
-            className={`flex-1 p-3 text-center font-semibold text-sm whitespace-nowrap transition-colors ${
-              activeTab === 'accepted' 
-                ? 'bg-white text-blue-600 border-b-2 border-blue-600' 
-                : 'text-gray-500 hover:text-gray-900'
-            }`}
-          >
-            Accepted ({acceptedList.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('chats')}
-            className={`flex-1 p-3 text-center font-semibold text-sm whitespace-nowrap transition-colors ${
-              activeTab === 'chats' 
-                ? 'bg-white text-blue-600 border-b-2 border-blue-600' 
-                : 'text-gray-500 hover:text-gray-900'
-            }`}
-          >
-            Chats ({allChats.length})
-          </button>
+        {/* Search */}
+        <div className="mt-3 relative">
+          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search conversations..."
+            className="w-full bg-gray-100 border-0 rounded-full pl-10 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
-
-        {/* Interests Tab */}
-        {activeTab === 'interests' && (
-          <div>
-            {interestsList.length === 0 ? (
-              <div className="p-3 md:p-4 text-center text-gray-500">
-                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                  </svg>
-                </div>
-                <p>No new interests on your jobs.</p>
-              </div>
-            ) : (
-              <div>
-                {interestsList.map(notif => (
-                  <div
-                    key={notif.id}
-                    className="block p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
-                  >
-                    <Link href={`/jobs/${notif.job_id}`}>
-                      <div className="font-semibold text-gray-900">{notif.from_name}</div>
-                      <div className="text-sm text-gray-900">{notif.from_company}</div>
-                      <div className="text-xs text-gray-900 mt-1">re: {notif.job_title}</div>
-                      {notif.message && (
-                        <div className="mt-2 text-sm text-gray-900 italic line-clamp-2">
-                          "{notif.message}"
-                        </div>
-                      )}
-                    </Link>
-                    <div className="mt-2 flex gap-3 items-center">
-                      <Link 
-                        href={`/contractor/${notif.from_user_id}`}
-                        className="text-xs text-blue-600 hover:underline"
-                      >
-                        View Profile
-                      </Link>
-                      <button 
-                        onClick={() => handleAcceptFromMessages(notif.job_id, notif.from_user_id, notif.from_name)}
-                        className="text-xs text-green-600 hover:underline"
-                      >
-                        Accept
-                      </button>
-                      <button 
-                        onClick={() => handleDeclineFromMessages(notif.job_id, notif.from_user_id)}
-                        className="text-xs text-red-600 hover:underline"
-                      >
-                        Decline
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Accepted Tab */}
-        {activeTab === 'accepted' && (
-          <div>
-            {acceptedList.length === 0 ? (
-              <div className="p-3 text-gray-900 text-center">
-                No accepted contractors yet.
-              </div>
-            ) : (
-              <div>
-                {acceptedList.map(notif => (
-                  <div
-                    key={notif.id}
-                    className="block p-3 border-b hover:bg-gray-50"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="font-medium text-green-600">✓ {notif.from_name}</div>
-                        <div className="text-sm text-gray-900">{notif.from_company}</div>
-                        <div className="text-xs text-gray-900">re: {notif.job_title}</div>
-                      </div>
-                      <Link 
-                        href={`/messages?job=${notif.job_id}&user=${notif.from_user_id}`}
-                        className="bg-[#0F172A] text-white px-3 py-1 rounded text-sm"
-                      >
-                        Chat
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Declined Tab */}
-        {activeTab === 'declined' && (
-          <div>
-            {declinedList.length === 0 ? (
-              <div className="p-3 text-gray-900 text-center">
-                No declined contractors.
-              </div>
-            ) : (
-              <div>
-                {declinedList.map(notif => (
-                  <div
-                    key={notif.id}
-                    className="block p-3 border-b hover:bg-gray-50"
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="font-medium text-red-600">✗ {notif.from_name}</div>
-                        <div className="text-sm text-gray-900">{notif.from_company}</div>
-                        <div className="text-xs text-gray-900">re: {notif.job_title}</div>
-                      </div>
-                      <button 
-                        onClick={() => handleUndoDecline(notif.job_id, notif.from_user_id)}
-                        className="text-xs text-blue-600 hover:underline"
-                      >
-                        Undo
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* My Applications Tab - for subs to see their applications */}
-        {activeTab === 'applications' && (
-          <div>
-            <div className="p-3 text-gray-900 text-center">
-              My Applications - coming soon!
-            </div>
-          </div>
-        )}
-
-        {/* Chats Tab */}
-        {activeTab === 'chats' && (
-          <div>
-            {allChats.length === 0 ? (
-              <div className="p-3 text-gray-900 text-center">
-                No conversations yet.
-              </div>
-            ) : (
-              <div>
-                {allChats.map((chat) => (
-                  <div
-                    key={chat.job_id}
-                    onClick={() => {
-                      setActiveConversation(chat.job_id)
-                      setCurrentJobId(chat.job_id)
-                      setCurrentUserId(chat.other_user_id)
-                      loadMessages(chat.job_id, chat.other_user_id)
-                    }}
-                    className={`block p-3 border-b hover:bg-gray-50 cursor-pointer ${
-                      activeConversation === chat.job_id ? 'bg-gray-100' : ''
-                    }`}
-                  >
-                    <div className="font-medium text-gray-900">{chat.job_title}</div>
-                    <div className="text-sm text-gray-900">{chat.other_user_name}</div>
-                    <div className="text-xs text-gray-900 mt-1">{chat.last_message}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
-      {/* Message Thread */}
-      <div className="w-2/3 flex flex-col">
-        {activeConversation ? (
-          <>
-            <div className="flex-1 overflow-y-auto p-3 space-y-4">
-              {messages.map(msg => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[70%] rounded-xl px-4 py-2 ${
-                      msg.sender_id === user.id
-                        ? 'bg-[#0F172A] text-white'
-                        : 'bg-slate-100 text-gray-900'
-                    }`}
-                  >
-                    <p>{msg.message_text}</p>
-                    <p className={`text-xs mt-1 ${
-                      msg.sender_id === user.id ? 'text-gray-900' : 'text-gray-900'
-                    }`}>
-                      {new Date(msg.created_at).toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="border-t p-3">
-              <div className="flex gap-2">
-                <textarea
-                  value={newMessage}
-                  onChange={e => setNewMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Type a message..."
-                  className="flex-1 border border-gray-200 rounded-xl px-3 py-2 resize-none"
-                  rows={1}
-                />
-                <button
-                  onClick={sendMessage}
-                  disabled={sending || !newMessage.trim()}
-                  className="bg-[#0F172A] text-white px-4 py-2 rounded-xl disabled:opacity-50"
-                >
-                  Send
-                </button>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-900">
-            Select a conversation or interest to view
+      {/* Conversations List */}
+      {filteredConversations.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            </svg>
           </div>
-        )}
-      </div>
+          <p className="text-gray-500 font-medium">No messages yet</p>
+          <p className="text-gray-400 text-sm mt-1">Start a conversation by expressing interest on a job</p>
+        </div>
+      ) : (
+        <div className="divide-y divide-gray-100">
+          {filteredConversations.map(conv => (
+            <div
+              key={conv.id}
+              onClick={() => {
+                setActiveConversation(conv)
+                loadMessages(conv)
+              }}
+              className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 cursor-pointer"
+            >
+              {/* Avatar */}
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
+                {conv.other_user_photo ? (
+                  <img src={conv.other_user_photo} alt="" className="w-12 h-12 rounded-full object-cover" />
+                ) : (
+                  getInitials(conv.other_user_name)
+                )}
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex justify-between items-baseline">
+                  <h3 className="font-semibold text-gray-900 truncate">{conv.other_user_name}</h3>
+                  <span className="text-xs text-gray-500">{formatTime(conv.last_message_at)}</span>
+                </div>
+                {conv.other_user_company && (
+                  <p className="text-xs text-gray-500 truncate">{conv.other_user_company}</p>
+                )}
+                <p className="text-sm text-gray-600 truncate mt-0.5">{conv.last_message}</p>
+                <p className="text-xs text-blue-600 mt">re: {conv.job_title}-0.5</p>
+              </div>
+
+              {/* Unread indicator */}
+              {conv.unread && (
+                <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0"></div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
-export default function Messages() {
+export default function MessagesPage() {
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <Suspense fallback={<div className="p-3 md:p-4 text-center text-gray-900">Loading...</div>}>
+    <div className="min-h-screen bg-white pb-20">
+      <Suspense fallback={<div className="p-4 text-center">Loading...</div>}>
         <MessagesContent />
       </Suspense>
       <BottomNav />
