@@ -3,6 +3,13 @@ import Link from 'next/link'
 export default function Home() {
   return (
     <div className="min-h-screen bg-white">
+      {/* Install App Banner for Mobile */}
+      <div className="md:hidden bg-blue-600 text-white px-4 py-3 text-center text-sm">
+        <span>📱 Open this page in Safari and tap </span>
+        <strong>Share → Add to Home Screen</strong>
+        <span> to install as an app!</span>
+      </div>
+
       {/* Premium Header */}
       <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
