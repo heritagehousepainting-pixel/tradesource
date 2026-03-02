@@ -455,61 +455,41 @@ function MessagesContent() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-white text-[#0F172A]">
+    <div className="flex h-[calc(100vh-73px)] bg-gray-50">
       {/* Sidebar */}
-      <div className="w-1/3 border-r overflow-y-auto bg-white text-[#0F172A]">
-        <div className="p-4 border-b">
-          <h1 className="text-xl font-bold">Messages</h1>
+      <div className="w-1/3 border-r border-gray-200 overflow-y-auto bg-white">
+        <div className="p-6 border-b border-gray-100">
+          <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
         </div>
         
-        {/* Tabs */}
-        <div className="flex border-b overflow-x-auto">
+        {/* Premium Tabs */}
+        <div className="flex border-b border-gray-100 overflow-x-auto bg-gray-50">
           <button
             onClick={() => setActiveTab('interests')}
-            className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
+            className={`flex-1 p-4 text-center font-semibold text-sm whitespace-nowrap transition-colors ${
               activeTab === 'interests' 
-                ? 'border-b-2 border-slate-900 text-[#0F172A]' 
-                : 'text-[#0F172A]'
+                ? 'bg-white text-blue-600 border-b-2 border-blue-600' 
+                : 'text-gray-500 hover:text-gray-900'
             }`}
           >
             Interests ({getNotificationCount()})
           </button>
           <button
             onClick={() => setActiveTab('accepted')}
-            className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
+            className={`flex-1 p-4 text-center font-semibold text-sm whitespace-nowrap transition-colors ${
               activeTab === 'accepted' 
-                ? 'border-b-2 border-slate-900 text-[#0F172A]' 
-                : 'text-[#0F172A]'
+                ? 'bg-white text-blue-600 border-b-2 border-blue-600' 
+                : 'text-gray-500 hover:text-gray-900'
             }`}
           >
             Accepted ({acceptedList.length})
           </button>
           <button
-            onClick={() => setActiveTab('declined')}
-            className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
-              activeTab === 'declined' 
-                ? 'border-b-2 border-slate-900 text-[#0F172A]' 
-                : 'text-[#0F172A]'
-            }`}
-          >
-            Declined ({declinedList.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('applications')}
-            className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
-              activeTab === 'applications' 
-                ? 'border-b-2 border-black text-[#0F172A]' 
-                : 'text-[#0F172A]'
-            }`}
-          >
-            My Apps
-          </button>
-          <button
             onClick={() => setActiveTab('chats')}
-            className={`flex-1 p-3 text-center font-medium whitespace-nowrap ${
+            className={`flex-1 p-4 text-center font-semibold text-sm whitespace-nowrap transition-colors ${
               activeTab === 'chats' 
-                ? 'border-b-2 border-black text-[#0F172A]' 
-                : 'text-[#0F172A]'
+                ? 'bg-white text-blue-600 border-b-2 border-blue-600' 
+                : 'text-gray-500 hover:text-gray-900'
             }`}
           >
             Chats ({allChats.length})
@@ -520,22 +500,27 @@ function MessagesContent() {
         {activeTab === 'interests' && (
           <div>
             {interestsList.length === 0 ? (
-              <div className="p-4 text-[#0F172A] text-center">
-                No new interests on your jobs.
+              <div className="p-8 text-center text-gray-500">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                  </svg>
+                </div>
+                <p>No new interests on your jobs.</p>
               </div>
             ) : (
               <div>
                 {interestsList.map(notif => (
                   <div
                     key={notif.id}
-                    className="block p-4 border-b hover:bg-slate-50"
+                    className="block p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
                   >
                     <Link href={`/jobs/${notif.job_id}`}>
-                      <div className="font-medium cursor-pointer">{notif.from_name}</div>
-                      <div className="text-sm text-[#0F172A]">{notif.from_company}</div>
-                      <div className="text-xs text-[#0F172A] mt-1">re: {notif.job_title}</div>
+                      <div className="font-semibold text-gray-900">{notif.from_name}</div>
+                      <div className="text-sm text-gray-900">{notif.from_company}</div>
+                      <div className="text-xs text-gray-900 mt-1">re: {notif.job_title}</div>
                       {notif.message && (
-                        <div className="mt-2 text-sm text-[#0F172A] italic line-clamp-2">
+                        <div className="mt-2 text-sm text-gray-900 italic line-clamp-2">
                           "{notif.message}"
                         </div>
                       )}
@@ -571,7 +556,7 @@ function MessagesContent() {
         {activeTab === 'accepted' && (
           <div>
             {acceptedList.length === 0 ? (
-              <div className="p-4 text-[#0F172A] text-center">
+              <div className="p-4 text-gray-900 text-center">
                 No accepted contractors yet.
               </div>
             ) : (
@@ -579,13 +564,13 @@ function MessagesContent() {
                 {acceptedList.map(notif => (
                   <div
                     key={notif.id}
-                    className="block p-4 border-b hover:bg-slate-50"
+                    className="block p-4 border-b hover:bg-gray-50"
                   >
                     <div className="flex justify-between items-start">
                       <div>
                         <div className="font-medium text-green-600">✓ {notif.from_name}</div>
-                        <div className="text-sm text-[#0F172A]">{notif.from_company}</div>
-                        <div className="text-xs text-[#0F172A]">re: {notif.job_title}</div>
+                        <div className="text-sm text-gray-900">{notif.from_company}</div>
+                        <div className="text-xs text-gray-900">re: {notif.job_title}</div>
                       </div>
                       <Link 
                         href={`/messages?job=${notif.job_id}&user=${notif.from_user_id}`}
@@ -605,7 +590,7 @@ function MessagesContent() {
         {activeTab === 'declined' && (
           <div>
             {declinedList.length === 0 ? (
-              <div className="p-4 text-[#0F172A] text-center">
+              <div className="p-4 text-gray-900 text-center">
                 No declined contractors.
               </div>
             ) : (
@@ -613,13 +598,13 @@ function MessagesContent() {
                 {declinedList.map(notif => (
                   <div
                     key={notif.id}
-                    className="block p-4 border-b hover:bg-slate-50"
+                    className="block p-4 border-b hover:bg-gray-50"
                   >
                     <div className="flex justify-between items-start">
                       <div>
                         <div className="font-medium text-red-600">✗ {notif.from_name}</div>
-                        <div className="text-sm text-[#0F172A]">{notif.from_company}</div>
-                        <div className="text-xs text-[#0F172A]">re: {notif.job_title}</div>
+                        <div className="text-sm text-gray-900">{notif.from_company}</div>
+                        <div className="text-xs text-gray-900">re: {notif.job_title}</div>
                       </div>
                       <button 
                         onClick={() => handleUndoDecline(notif.job_id, notif.from_user_id)}
@@ -638,7 +623,7 @@ function MessagesContent() {
         {/* My Applications Tab - for subs to see their applications */}
         {activeTab === 'applications' && (
           <div>
-            <div className="p-4 text-[#0F172A] text-center">
+            <div className="p-4 text-gray-900 text-center">
               My Applications - coming soon!
             </div>
           </div>
@@ -648,7 +633,7 @@ function MessagesContent() {
         {activeTab === 'chats' && (
           <div>
             {allChats.length === 0 ? (
-              <div className="p-4 text-[#0F172A] text-center">
+              <div className="p-4 text-gray-900 text-center">
                 No conversations yet.
               </div>
             ) : (
@@ -666,9 +651,9 @@ function MessagesContent() {
                       activeConversation === chat.job_id ? 'bg-gray-100' : ''
                     }`}
                   >
-                    <div className="font-medium text-[#0F172A]">{chat.job_title}</div>
-                    <div className="text-sm text-[#0F172A]">{chat.other_user_name}</div>
-                    <div className="text-xs text-[#0F172A] mt-1">{chat.last_message}</div>
+                    <div className="font-medium text-gray-900">{chat.job_title}</div>
+                    <div className="text-sm text-gray-900">{chat.other_user_name}</div>
+                    <div className="text-xs text-gray-900 mt-1">{chat.last_message}</div>
                   </div>
                 ))}
               </div>
@@ -691,12 +676,12 @@ function MessagesContent() {
                     className={`max-w-[70%] rounded-xl px-4 py-2 ${
                       msg.sender_id === user.id
                         ? 'bg-[#0F172A] text-white'
-                        : 'bg-slate-100 text-[#0F172A]'
+                        : 'bg-slate-100 text-gray-900'
                     }`}
                   >
                     <p>{msg.message_text}</p>
                     <p className={`text-xs mt-1 ${
-                      msg.sender_id === user.id ? 'text-[#0F172A]' : 'text-[#0F172A]'
+                      msg.sender_id === user.id ? 'text-gray-900' : 'text-gray-900'
                     }`}>
                       {new Date(msg.created_at).toLocaleString()}
                     </p>
@@ -726,7 +711,7 @@ function MessagesContent() {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-[#0F172A]">
+          <div className="flex-1 flex items-center justify-center text-gray-900">
             Select a conversation or interest to view
           </div>
         )}
