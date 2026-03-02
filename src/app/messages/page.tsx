@@ -354,11 +354,6 @@ function MessagesContent() {
       </div>
     )
   }
-          </button>
-        </div>
-      </div>
-    )
-  }
 
   // Main Messages List
   if (loading) {
