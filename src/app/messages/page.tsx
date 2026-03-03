@@ -272,6 +272,7 @@ function MessagesContent() {
   }
 
   const handleDecline = async (notif: Notification) => {
+    console.log('Decline clicked for:', notif.id, notif.from_name)
     try {
       const { error } = await supabase
         .from('interests')
@@ -285,11 +286,12 @@ function MessagesContent() {
         return
       }
       
+      console.log('Decline success, removing from list')
       // Remove from local notifications immediately
       setNotifications(prev => prev.filter(n => n.id !== notif.id))
       loadData()
     } catch (err) {
-      console.error('Decline error:', err)
+      console.error('Decline exception:', err)
     }
   }
 
@@ -472,7 +474,10 @@ function MessagesContent() {
                         </button>
                         <button
                           type="button"
-                          onClick={() => handleDecline(notif)}
+                          onClick={(e) => {
+                            console.log('Decline button clicked', notif.id)
+                            handleDecline(notif)
+                          }}
                           className="px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm hover:bg-gray-50"
                         >
                           Decline

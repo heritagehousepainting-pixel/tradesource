@@ -122,6 +122,17 @@ export default function Feed() {
     fetchJobs()
   }, [countyFilter, typeFilter])
 
+  // Re-fetch jobs when page becomes visible (e.g., after navigation)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchJobs()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
+  }, [])
+
   const handleSignOut = async () => {
     await supabase.auth.signOut()
     router.push('/')
@@ -130,24 +141,37 @@ export default function Feed() {
   const deleteJob = async (jobId: string) => {
     if (!user) return
     
-    // Delete messages
-    await supabase.from('messages').delete().eq('job_id', jobId)
-    // Delete notifications
-    await supabase.from('notifications').delete().eq('job_id', jobId)
-    // Log deletion
-    await supabase.from('job_history').insert({
-      user_id: user.id,
-      job_id: jobId,
-      action: 'DELETED'
-    })
-    // Delete job from DB
-    const { error } = await supabase.from('jobs').delete().eq('id', jobId)
-    if (error) {
-      console.error('Delete error:', error)
-      return
-    }
-    // Update local state - use functional update to avoid stale closure
+    // Optimistic update - remove immediately from UI
     setJobs(prevJobs => prevJobs.filter(j => j.id !== jobId))
+    
+    try {
+      // Delete messages
+      await supabase.from('messages').delete().eq('job_id', jobId)
+      // Delete notifications
+      await supabase.from('notifications').delete().eq('job_id', jobId)
+      // Log deletion
+      await supabase.from('job_history').insert({
+        user_id: user.id,
+        job_id: jobId,
+        action: 'DELETED'
+      })
+      // Delete job from DB
+      const { error } = await supabase.from('jobs').delete().eq('id', jobId)
+      
+      if (error) {
+        console.error('Delete error:', error)
+        // Re-fetch on error to sync with DB
+        fetchJobs()
+        alert('Failed to delete job')
+        return
+      }
+      
+      console.log('Job deleted successfully:', jobId)
+    } catch (err) {
+      console.error('Delete exception:', err)
+      // Re-fetch on error
+      fetchJobs()
+    }
   }
 
   const filteredJobs = jobs.filter(job => 
