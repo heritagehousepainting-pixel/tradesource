@@ -170,8 +170,7 @@ export default function Feed() {
   }
 
   const deleteJob = async (jobId: string) => {
-    console.log('=== DELETE JOB START ===', jobId)
-    console.log('User:', user?.id)
+    console.log('Marking job as cancelled:', jobId)
     
     if (!user) {
       alert('Please sign in')
@@ -179,34 +178,24 @@ export default function Feed() {
     }
     
     try {
-      // Delete in exact order - wait for each to complete
-      console.log('1. Deleting interests...')
-      await supabase.from('interests').delete().eq('job_id', jobId)
-      console.log('2. Deleting messages...')
-      await supabase.from('messages').delete().eq('job_id', jobId)
-      console.log('3. Deleting notifications...')
-      await supabase.from('notifications').delete().eq('job_id', jobId)
-      console.log('4. Deleting job_history...')
-      await supabase.from('job_history').delete().eq('job_id', jobId)
-      
-      // Now delete the job
-      console.log('5. Deleting job:', jobId)
-      const { error } = await supabase.from('jobs').delete().eq('id', jobId)
-      console.log('Delete result, error:', error)
+      // Just mark as cancelled instead of deleting (avoids FK issues)
+      const { error } = await supabase
+        .from('jobs')
+        .update({ status: 'CANCELLED' })
+        .eq('id', jobId)
       
       if (error) {
-        console.error('Delete error:', error)
-        alert('Delete failed: ' + error.message)
+        console.error('Update error:', error)
+        alert('Failed: ' + error.message)
         return
       }
       
-      console.log('Delete successful, updating UI')
+      // Remove from UI
       setJobs(prevJobs => prevJobs.filter(j => j.id !== jobId))
-      
-      alert('Job deleted!')
+      alert('Job cancelled!')
     } catch (err) {
-      console.error('Delete exception:', err)
-      alert('Delete failed')
+      console.error('Error:', err)
+      alert('Failed to cancel job')
     }
   }
 
