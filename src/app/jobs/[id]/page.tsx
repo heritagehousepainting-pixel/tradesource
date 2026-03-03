@@ -24,6 +24,7 @@ interface Job {
   posted_by: string
   awarded_to: string
   media_urls: string[]
+  timeline?: string
   users: {
     first_name: string
     last_name: string
