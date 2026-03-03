@@ -12,7 +12,7 @@ test.describe('TradeSource Full Job Cycle', () => {
     await page.fill('input[placeholder="John"]', 'Test');
     await page.fill('input[placeholder="Smith"]', 'Contractor');
     await page.fill('input[placeholder="Your company (optional)"]', 'Test Contracting LLC');
-    await page.selectOption('select', 'painting'); // Select trade type
+    await page.selectOption('select', 'PAINTER'); // Select trade type
     await page.click('button[type="submit"]');
     
     // Wait for redirect or error
@@ -34,7 +34,7 @@ test.describe('TradeSource Full Job Cycle', () => {
     await page.fill('textarea[placeholder*="description"]', 'Need interior painting for 1500 sq ft living room. Walls only, no ceilings.');
     await page.fill('input[placeholder*="location"]', 'Ambler, PA');
     await page.fill('input[placeholder*="budget"]', '2500');
-    await page.selectOption('select[name="category"]', 'painting');
+    await page.selectOption('select', 'PAINTER'); // Select trade type
     await page.click('button[type="submit"]');
     
     // Wait for redirect to feed

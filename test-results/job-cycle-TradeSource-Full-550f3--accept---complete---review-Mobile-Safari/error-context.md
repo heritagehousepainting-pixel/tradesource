@@ -1,7 +1,7 @@
 # Page snapshot
 
 ```yaml
-- generic [active] [ref=e1]:
+- generic [ref=e1]:
   - generic [ref=e2]:
     - banner [ref=e3]:
       - link "TradeSource" [ref=e5]:
@@ -16,22 +16,19 @@
             - heading "Join as Contractor" [level=1] [ref=e13]
             - paragraph [ref=e14]: Create your account to access quality trade jobs
           - generic [ref=e15]:
-            - img [ref=e16]
-            - text: email rate limit exceeded
-          - generic [ref=e18]:
-            - generic [ref=e19]:
+            - generic [ref=e16]:
+              - generic [ref=e17]:
+                - generic [ref=e18]: First Name
+                - textbox "John" [ref=e19]: Test
               - generic [ref=e20]:
-                - generic [ref=e21]: First Name
-                - textbox "John" [ref=e22]: Test
-              - generic [ref=e23]:
-                - generic [ref=e24]: Last Name
-                - textbox "Smith" [ref=e25]: Contractor
+                - generic [ref=e21]: Last Name
+                - textbox "Smith" [ref=e22]: Contractor
+            - generic [ref=e23]:
+              - generic [ref=e24]: Company Name
+              - textbox "Your company (optional)" [active] [ref=e25]: Test Contracting LLC
             - generic [ref=e26]:
-              - generic [ref=e27]: Company Name
-              - textbox "Your company (optional)" [ref=e28]: Test Contracting LLC
-            - generic [ref=e29]:
-              - generic [ref=e30]: Trade Type
-              - combobox [ref=e31]:
+              - generic [ref=e27]: Trade Type
+              - combobox [ref=e28]:
                 - option "Painter" [selected]
                 - option "General Contractor"
                 - option "Electrician"
@@ -42,27 +39,27 @@
                 - option "Drywall"
                 - option "Flooring"
                 - option "Landscaping"
+            - generic [ref=e29]:
+              - generic [ref=e30]: Email
+              - textbox "you@company.com" [ref=e31]: contractor@test.com
             - generic [ref=e32]:
-              - generic [ref=e33]: Email
-              - textbox "you@company.com" [ref=e34]: contractor@test.com
-            - generic [ref=e35]:
-              - generic [ref=e36]: Password
-              - textbox "••••••••" [ref=e37]: TestPassword123!
-            - button "Create Contractor Account" [ref=e38]
-          - generic [ref=e39]:
-            - paragraph [ref=e40]:
+              - generic [ref=e33]: Password
+              - textbox "••••••••" [ref=e34]: TestPassword123!
+            - button "Create Contractor Account" [ref=e35]
+          - generic [ref=e36]:
+            - paragraph [ref=e37]:
               - text: Already have an account?
-              - link "Sign in" [ref=e41]:
+              - link "Sign in" [ref=e38]:
                 - /url: /signin
-            - paragraph [ref=e42]:
+            - paragraph [ref=e39]:
               - text: Are you a homeowner?
-              - link "Sign up here" [ref=e43]:
+              - link "Sign up here" [ref=e40]:
                 - /url: /homeowner/signup
-        - link "Back to home" [ref=e45]:
+        - link "Back to home" [ref=e42]:
           - /url: /
-          - img [ref=e46]
+          - img [ref=e43]
           - text: Back to home
-  - button "Open Next.js Dev Tools" [ref=e53] [cursor=pointer]:
-    - img [ref=e54]
-  - alert [ref=e59]
+  - button "Open Next.js Dev Tools" [ref=e50] [cursor=pointer]:
+    - img [ref=e51]
+  - alert [ref=e56]
 ```
