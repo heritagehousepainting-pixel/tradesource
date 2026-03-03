@@ -1,0 +1,65 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - link "TradeSource" [ref=e5]:
+        - /url: /
+    - main [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]:
+          - generic [ref=e9]:
+            - img [ref=e10]
+            - text: Verified Contractor Network
+          - generic [ref=e12]:
+            - heading "Join as Contractor" [level=1] [ref=e13]
+            - paragraph [ref=e14]: Create your account to access quality trade jobs
+          - generic [ref=e15]:
+            - generic [ref=e16]:
+              - generic [ref=e17]:
+                - generic [ref=e18]: First Name
+                - textbox "John" [ref=e19]
+              - generic [ref=e20]:
+                - generic [ref=e21]: Last Name
+                - textbox "Smith" [ref=e22]
+            - generic [ref=e23]:
+              - generic [ref=e24]: Company Name
+              - textbox "Your company (optional)" [ref=e25]
+            - generic [ref=e26]:
+              - generic [ref=e27]: Trade Type
+              - combobox [ref=e28]:
+                - option "Painter" [selected]
+                - option "General Contractor"
+                - option "Electrician"
+                - option "Plumber"
+                - option "HVAC"
+                - option "Roofing"
+                - option "Carpenter"
+                - option "Drywall"
+                - option "Flooring"
+                - option "Landscaping"
+            - generic [ref=e29]:
+              - generic [ref=e30]: Email
+              - textbox "you@company.com" [ref=e31]
+            - generic [ref=e32]:
+              - generic [ref=e33]: Password
+              - textbox "••••••••" [ref=e34]
+            - button "Create Contractor Account" [ref=e35]
+          - generic [ref=e36]:
+            - paragraph [ref=e37]:
+              - text: Already have an account?
+              - link "Sign in" [ref=e38]:
+                - /url: /signin
+            - paragraph [ref=e39]:
+              - text: Are you a homeowner?
+              - link "Sign up here" [ref=e40]:
+                - /url: /homeowner/signup
+        - link "Back to home" [ref=e42]:
+          - /url: /
+          - img [ref=e43]
+          - text: Back to home
+  - button "Open Next.js Dev Tools" [ref=e50] [cursor=pointer]:
+    - img [ref=e51]
+  - alert [ref=e56]
+```

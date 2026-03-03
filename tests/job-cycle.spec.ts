@@ -7,12 +7,12 @@ test.describe('TradeSource Full Job Cycle', () => {
     // ===== CONTRACTOR SIGNUP =====
     console.log('1. Testing contractor signup...');
     await page.goto('http://localhost:3000/contractor/signup');
-    await page.fill('input[name="email"]', 'contractor@test.com');
-    await page.fill('input[name="password"]', 'TestPassword123!');
-    await page.fill('input[name="firstName"]', 'Test');
-    await page.fill('input[name="lastName"]', 'Contractor');
-    await page.fill('input[name="companyName"]', 'Test Contracting LLC');
-    await page.click('button[type="submit"]');
+    await page.fill('input[placeholder*="email"]', 'contractor@test.com');
+    await page.fill('input[placeholder*="password"]', 'TestPassword123!');
+    await page.fill('input[placeholder="John"]', 'Test');
+    await page.fill('input[placeholder="Smith"]', 'Contractor');
+    await page.fill('input[placeholder*="company"]', 'Test Contracting LLC');
+    await page.click('button:has-text("Sign Up")');
     
     // Wait for redirect to feed
     await page.waitForURL('**/feed');
@@ -21,10 +21,10 @@ test.describe('TradeSource Full Job Cycle', () => {
     // ===== POST A JOB =====
     console.log('2. Testing job posting...');
     await page.goto('http://localhost:3000/jobs/post');
-    await page.fill('input[name="title"]', 'Interior Painting - Living Room');
-    await page.fill('textarea[name="description"]', 'Need interior painting for 1500 sq ft living room. Walls only, no ceilings.');
-    await page.fill('input[name="location"]', 'Ambler, PA');
-    await page.fill('input[name="budget"]', '2500');
+    await page.fill('input[placeholder*="title"]', 'Interior Painting - Living Room');
+    await page.fill('textarea[placeholder*="description"]', 'Need interior painting for 1500 sq ft living room. Walls only, no ceilings.');
+    await page.fill('input[placeholder*="location"]', 'Ambler, PA');
+    await page.fill('input[placeholder*="budget"]', '2500');
     await page.selectOption('select[name="category"]', 'painting');
     await page.click('button[type="submit"]');
     
@@ -36,10 +36,10 @@ test.describe('TradeSource Full Job Cycle', () => {
     console.log('3. Testing logout and new user signup...');
     await page.click('text=Sign Out');
     await page.goto('http://localhost:3000/homeowner/signup');
-    await page.fill('input[name="email"]', 'homeowner@test.com');
-    await page.fill('input[name="password"]', 'TestPassword123!');
-    await page.fill('input[name="firstName"]', 'Test');
-    await page.fill('input[name="lastName"]', 'Homeowner');
+    await page.fill('input[placeholder*="email"]', 'homeowner@test.com');
+    await page.fill('input[placeholder*="password"]', 'TestPassword123!');
+    await page.fill('input[placeholder="John"]', 'Test');
+    await page.fill('input[placeholder="Smith"]', 'Homeowner');
     await page.click('button[type="submit"]');
     
     await page.waitForURL('**/feed');
@@ -61,8 +61,8 @@ test.describe('TradeSource Full Job Cycle', () => {
 
     // ===== SUBMIT PROPOSAL =====
     console.log('6. Testing proposal submission...');
-    await page.fill('textarea[name="message"]', 'I can complete this job next week. Licensed and insured.');
-    await page.fill('input[name="price"]', '2200');
+    await page.fill('textarea[placeholder*="message"]', 'I can complete this job next week. Licensed and insured.');
+    await page.fill('input[placeholder*="price"]', '2200');
     await page.click('button:has-text("Submit Proposal")');
     
     // Wait for confirmation
@@ -73,8 +73,8 @@ test.describe('TradeSource Full Job Cycle', () => {
     console.log('7. Testing contractor login...');
     await page.click('text=Sign Out');
     await page.goto('http://localhost:3000/signin');
-    await page.fill('input[name="email"]', 'contractor@test.com');
-    await page.fill('input[name="password"]', 'TestPassword123!');
+    await page.fill('input[placeholder*="email"]', 'contractor@test.com');
+    await page.fill('input[placeholder*="password"]', 'TestPassword123!');
     await page.click('button[type="submit"]');
     
     await page.waitForURL('**/feed');
@@ -102,8 +102,8 @@ test.describe('TradeSource Full Job Cycle', () => {
     // ===== LEAVE REVIEW =====
     console.log('11. Testing review submission...');
     await page.click('button:has-text("Leave Review")');
-    await page.fill('textarea[name="review"]', 'Great work! Very professional and on time.');
-    await page.fill('input[name="rating"]', '5');
+    await page.fill('textarea[placeholder*="review"]', 'Great work! Very professional and on time.');
+    await page.fill('input[placeholder*="rating"]', '5');
     await page.click('button:has-text("Submit Review")');
     await page.waitForSelector('text=Review submitted');
     console.log('✓ Review submission passed');
