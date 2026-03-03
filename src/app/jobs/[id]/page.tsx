@@ -307,7 +307,7 @@ export default function JobDetail() {
             </div>
             <div className="bg-gray-50 rounded-lg p-3">
               <p className="text-xs text-gray-500">Timeline</p>
-              <p className="font-semibold text-gray-900">{job.job_type}</p>
+              <p className="font-semibold text-gray-900">{job.timeline || job.job_type || 'Flexible'}</p>
             </div>
           </div>
 
