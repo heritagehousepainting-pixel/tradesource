@@ -272,42 +272,44 @@ function MessagesContent() {
   }
 
   const handleDecline = async (notif: Notification) => {
-    console.log('=== DECLINE CLICKED ===', notif.id, notif)
-    alert('Processing decline...')
+    alert('1. Starting decline...')
+    console.log('=== DECLINE ===', notif)
     try {
-      // First verify the interest exists
+      alert('2. Checking interest...')
       const { data: existing } = await supabase
         .from('interests')
-        .select('id, status')
+        .select('id')
         .eq('job_id', notif.job_id)
         .eq('user_id', notif.from_user_id)
       
-      console.log('Existing interest:', existing)
+      alert('3. Found: ' + (existing?.length || 0))
       
-      if (!existing || existing.length === 0) {
-        console.log('No interest found to decline')
+      if (!existing?.length) {
         alert('No interest found')
         return
       }
       
+      alert('4. Updating...')
       const { error } = await supabase
         .from('interests')
         .update({ status: 'DECLINED' })
         .eq('job_id', notif.job_id)
         .eq('user_id', notif.from_user_id)
       
+      alert('5. Result: ' + (error?.message || 'ok'))
+      
       if (error) {
-        console.error('Decline error:', error)
-        alert('Failed to decline: ' + error.message)
+        alert('Failed: ' + error.message)
         return
       }
       
-      console.log('Decline success, refetching...')
-      // Refetch all data
+      alert('6. Refreshing...')
       await loadData()
-    } catch (err) {
-      console.error('Decline exception:', err)
+      alert('Done!')
+    } catch (err: any) {
+      alert('Error: ' + err.message)
     }
+  }
   }
 
   const formatTime = (dateStr: string) => {
