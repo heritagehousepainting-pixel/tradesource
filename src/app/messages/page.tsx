@@ -319,8 +319,11 @@ function MessagesContent() {
             </svg>
           </button>
           <Link href={`/jobs/${activeConversation.job_id}`} className="flex-1">
-            <div className="font-semibold text-gray-900">{activeConversation.other_user_name}</div>
-            <div className="text-xs text-gray-500">{activeConversation.job_title}</div>
+            <div className="font-semibold text-gray-900">
+              {activeConversation.other_user_name || 'User'}
+              {activeConversation.other_user_company && ` - ${activeConversation.other_user_company}`}
+            </div>
+            <div className="text-xs text-gray-500">{activeConversation.job_title || 'Job'}</div>
           </Link>
         </div>
 
