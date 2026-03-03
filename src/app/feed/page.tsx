@@ -322,13 +322,18 @@ export default function Feed() {
                         onClick={async (e) => {
                           e.preventDefault()
                           e.stopPropagation()
-                          // Delete immediately
+                          // Delete messages first
+                          await supabase.from('messages').delete().eq('job_id', job.id)
+                          // Delete notifications
+                          await supabase.from('notifications').delete().eq('job_id', job.id)
+                          // Log deletion
                           await supabase.from('job_history').insert({
                             user_id: user.id,
                             job_id: job.id,
                             job_title: job.title,
                             action: 'DELETED'
                           })
+                          // Delete job
                           await supabase.from('jobs').delete().eq('id', job.id)
                           fetchJobs()
                         }}

@@ -190,6 +190,9 @@ export default function JobDetail() {
   const handleMarkComplete = async () => {
     if (!user || !job) return
     
+    // Delete messages for this job (job closed)
+    await supabase.from('messages').delete().eq('job_id', job.id)
+    
     // Update job status
     await supabase
       .from('jobs')
