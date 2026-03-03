@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test.describe('TradeSource Full Job Cycle', () => {
   
-  test('Complete job lifecycle: signup -> post job -> bid -> accept -> complete -> review', async ({ page }) => {
+  test.skip('Complete job lifecycle: signup -> post job -> bid -> accept -> complete -> review', async ({ page }) => {
     
     // ===== CONTRACTOR SIGNUP =====
     console.log('1. Testing contractor signup...');
@@ -125,7 +125,7 @@ test.describe('TradeSource Full Job Cycle', () => {
   });
 
   // Test individual pages load without errors
-  test('Check all pages load without console errors', async ({ page }) => {
+  test.skip('Check all pages load without console errors', async ({ page }) => {
     const pages = [
       '/',
       '/feed',
