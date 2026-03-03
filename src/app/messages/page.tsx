@@ -236,11 +236,12 @@ function MessagesContent() {
     })
 
     // Create initial message to start conversation
+    const jobTitle = notif.job_title || 'your project'
     await supabase.from('messages').insert({
       job_id: notif.job_id,
       sender_id: user.id,
       receiver_id: notif.from_user_id,
-      message_text: `Hi! I've accepted your interest for "${notif.job_title}". Let's discuss the details!`,
+      message_text: `Hi! I've accepted your interest for "${jobTitle}". Let's discuss the details!`,
       read: false
     })
 
@@ -258,11 +259,11 @@ function MessagesContent() {
       const newConv: Conversation = {
         id: `${notif.from_user_id}-${notif.job_id}`,
         job_id: notif.job_id,
-        job_title: notif.job_title,
+        job_title: notif.job_title || 'Project',
         other_user_id: notif.from_user_id,
-        other_user_name: notif.from_name,
+        other_user_name: notif.from_name || 'User',
         other_user_company: notif.from_company,
-        last_message: `Hi! I've accepted your interest for "${notif.job_title}". Let's discuss the details!`,
+        last_message: `Hi! I've accepted your interest for "${jobTitle}". Let's discuss the details!`,
         last_message_at: new Date().toISOString(),
         unread: false
       }
