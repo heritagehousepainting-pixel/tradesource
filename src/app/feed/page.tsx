@@ -122,6 +122,7 @@ export default function Feed() {
     let query = supabase
       .from('jobs')
       .select('*')
+      .neq('status', 'CANCELLED') // Exclude cancelled jobs
       .order('created_at', { ascending: false })
       .limit(100)
 
@@ -170,7 +171,7 @@ export default function Feed() {
   }
 
   const deleteJob = async (jobId: string) => {
-    console.log('Marking job as cancelled:', jobId)
+    console.log('Cancelling job:', jobId)
     
     if (!user) {
       alert('Please sign in')
@@ -178,14 +179,27 @@ export default function Feed() {
     }
     
     try {
-      // Just mark as cancelled instead of deleting (avoids FK issues)
-      const { error } = await supabase
+      // Check first if user owns this job
+      const job = jobs.find(j => j.id === jobId)
+      if (!job) {
+        alert('Job not found')
+        return
+      }
+      if (job.posted_by !== user.id) {
+        alert('You can only cancel your own jobs')
+        return
+      }
+      
+      // Mark as cancelled
+      const { data, error } = await supabase
         .from('jobs')
         .update({ status: 'CANCELLED' })
         .eq('id', jobId)
+        .select()
+      
+      console.log('Cancel result:', data, error)
       
       if (error) {
-        console.error('Update error:', error)
         alert('Failed: ' + error.message)
         return
       }
@@ -193,9 +207,9 @@ export default function Feed() {
       // Remove from UI
       setJobs(prevJobs => prevJobs.filter(j => j.id !== jobId))
       alert('Job cancelled!')
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error:', err)
-      alert('Failed to cancel job')
+      alert('Failed: ' + err.message)
     }
   }
 
