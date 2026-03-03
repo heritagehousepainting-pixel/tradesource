@@ -272,13 +272,25 @@ function MessagesContent() {
   }
 
   const handleDecline = async (notif: Notification) => {
-    await supabase
-      .from('interests')
-      .update({ status: 'DECLINED' })
-      .eq('job_id', notif.job_id)
-      .eq('user_id', notif.from_user_id)
-    
-    loadData()
+    try {
+      const { error } = await supabase
+        .from('interests')
+        .update({ status: 'DECLINED' })
+        .eq('job_id', notif.job_id)
+        .eq('user_id', notif.from_user_id)
+      
+      if (error) {
+        console.error('Decline error:', error)
+        alert('Failed to decline: ' + error.message)
+        return
+      }
+      
+      // Remove from local notifications immediately
+      setNotifications(prev => prev.filter(n => n.id !== notif.id))
+      loadData()
+    } catch (err) {
+      console.error('Decline error:', err)
+    }
   }
 
   const formatTime = (dateStr: string) => {
@@ -459,8 +471,9 @@ function MessagesContent() {
                           ✓ Accept
                         </button>
                         <button
+                          type="button"
                           onClick={() => handleDecline(notif)}
-                          className="px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm"
+                          className="px-4 py-2 border border-gray-200 text-gray-600 rounded-lg text-sm hover:bg-gray-50"
                         >
                           Decline
                         </button>

@@ -140,10 +140,14 @@ export default function Feed() {
       job_id: jobId,
       action: 'DELETED'
     })
-    // Delete job
-    await supabase.from('jobs').delete().eq('id', jobId)
-    // Update local state
-    setJobs(jobs.filter(j => j.id !== jobId))
+    // Delete job from DB
+    const { error } = await supabase.from('jobs').delete().eq('id', jobId)
+    if (error) {
+      console.error('Delete error:', error)
+      return
+    }
+    // Update local state - use functional update to avoid stale closure
+    setJobs(prevJobs => prevJobs.filter(j => j.id !== jobId))
   }
 
   const filteredJobs = jobs.filter(job => 
@@ -270,7 +274,7 @@ export default function Feed() {
                           ? 'bg-blue-50 text-blue-700 border border-blue-100' 
                           : 'bg-green-50 text-green-700 border border-green-100'
                       }`}>
-                        {job.is_b2c ? '🏠 Homeowner' : '💼 Overflow'}
+                        {job.is_b2c ? '🏠 Homeowner' : '💼 Contractor'}
                       </span>
                       <span className="text-xs text-gray-400">{timeAgo(job.created_at)}</span>
                     </div>
