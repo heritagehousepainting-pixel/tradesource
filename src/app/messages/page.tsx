@@ -272,9 +272,9 @@ function MessagesContent() {
   }
 
   const handleDecline = async (notif: Notification) => {
-    alert('1. Starting decline...')
     console.log('=== DECLINE ===', notif)
     try {
+      alert('1. Starting decline...')
       alert('2. Checking interest...')
       const { data: existing } = await supabase
         .from('interests')
