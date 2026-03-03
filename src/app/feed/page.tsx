@@ -43,6 +43,33 @@ export default function Feed() {
     checkUser()
   }, [])
 
+  // Refetch on page focus/visibility and also on a timer for reliability
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (!document.hidden) {
+        console.log('Page visible, fetching jobs...')
+        fetchJobs()
+      }
+    }
+    
+    // Fetch when component mounts
+    fetchJobs()
+    
+    // Also fetch when page becomes visible
+    document.addEventListener('visibilitychange', handleVisibility)
+    
+    // Backup: fetch every 30 seconds
+    const backupInterval = setInterval(() => {
+      console.log('Backup fetch...')
+      fetchJobs()
+    }, 30000)
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility)
+      clearInterval(backupInterval)
+    }
+  }, [])
+
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
@@ -112,8 +139,14 @@ export default function Feed() {
 
     const { data, error } = await query
     
+    const { data, error } = await query
+    
     if (!error && data) {
-      setJobs(data)
+      // Remove duplicates by ID
+      const uniqueJobs = data.filter((job, index, self) => 
+        index === self.findIndex(j => j.id === job.id)
+      )
+      setJobs(uniqueJobs)
     }
     setLoading(false)
   }

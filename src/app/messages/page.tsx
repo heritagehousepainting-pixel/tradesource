@@ -272,8 +272,23 @@ function MessagesContent() {
   }
 
   const handleDecline = async (notif: Notification) => {
-    console.log('Decline clicked for:', notif.id, notif.from_name)
+    console.log('=== DECLINE CLICKED ===', notif.id, notif)
     try {
+      // First verify the interest exists
+      const { data: existing } = await supabase
+        .from('interests')
+        .select('id, status')
+        .eq('job_id', notif.job_id)
+        .eq('user_id', notif.from_user_id)
+      
+      console.log('Existing interest:', existing)
+      
+      if (!existing || existing.length === 0) {
+        console.log('No interest found to decline')
+        alert('No interest found')
+        return
+      }
+      
       const { error } = await supabase
         .from('interests')
         .update({ status: 'DECLINED' })
@@ -286,10 +301,9 @@ function MessagesContent() {
         return
       }
       
-      console.log('Decline success, removing from list')
-      // Remove from local notifications immediately
-      setNotifications(prev => prev.filter(n => n.id !== notif.id))
-      loadData()
+      console.log('Decline success, refetching...')
+      // Refetch all data
+      await loadData()
     } catch (err) {
       console.error('Decline exception:', err)
     }
