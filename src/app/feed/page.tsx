@@ -178,7 +178,23 @@ export default function Feed() {
 
         {/* Premium Filters */}
         <div className="bg-white rounded-xl md:rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
-          <div className="flex flex-wrap gap-4">
+          {/* Search Bar */}
+          <div className="relative mb-4">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search jobs..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label="Search jobs"
+              className="w-full pl-10 pr-4 py-3 bg-gray-50 border-0 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          {/* Filter Selects */}
+          <div className="flex flex-wrap gap-3">
             <select 
               value={countyFilter}
               onChange={(e) => setCountyFilter(e.target.value)}
@@ -298,7 +314,8 @@ export default function Feed() {
                     )}
                   </div>
                   
-                  {job.posted_by === user?.id && (
+                  {/* Action Buttons */}
+                  {job.posted_by === user?.id ? (
                     <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end">
                       <button
                         onClick={async (e) => {
@@ -314,10 +331,19 @@ export default function Feed() {
                             fetchJobs()
                           }
                         }}
-                        className="text-red-500 text-xs md:text-sm hover:text-red-700 transition-colors"
+                        className="text-red-500 text-sm hover:text-red-700 transition-colors"
                       >
                         Delete job
                       </button>
+                    </div>
+                  ) : (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <Link
+                        href={`/jobs/${job.id}`}
+                        className="block w-full text-center py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl"
+                      >
+                        I'm Interested
+                      </Link>
                     </div>
                   )}
                 </div>
