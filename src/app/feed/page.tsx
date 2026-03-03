@@ -179,7 +179,27 @@ export default function Feed() {
     }
     
     try {
-      // Direct delete - just delete the job
+      // Delete interests first (due to foreign key constraint)
+      console.log('Deleting interests...')
+      await supabase.from('interests').delete().eq('job_id', jobId)
+      
+      // Delete messages
+      console.log('Deleting messages...')
+      await supabase.from('messages').delete().eq('job_id', jobId)
+      
+      // Delete notifications
+      console.log('Deleting notifications...')
+      await supabase.from('notifications').delete().eq('job_id', jobId)
+      
+      // Log deletion
+      console.log('Logging deletion...')
+      await supabase.from('job_history').insert({
+        user_id: user.id,
+        job_id: jobId,
+        action: 'DELETED'
+      })
+      
+      // Now delete the job
       console.log('Deleting job:', jobId)
       const { data, error } = await supabase.from('jobs').delete().eq('id', jobId).select()
       console.log('Delete result:', data, error)
@@ -191,12 +211,7 @@ export default function Feed() {
       }
       
       console.log('Delete successful, updating UI')
-      // Update local state
-      setJobs(prevJobs => {
-        const updated = prevJobs.filter(j => j.id !== jobId)
-        console.log('Jobs after filter:', updated.length)
-        return updated
-      })
+      setJobs(prevJobs => prevJobs.filter(j => j.id !== jobId))
       
       alert('Job deleted!')
     } catch (err) {
