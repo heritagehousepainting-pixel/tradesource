@@ -157,6 +157,7 @@ export default function JobDetail() {
         title: 'New Interest',
         message: `${user.email} is interested in your job: ${job.title}`,
         job_id: job.id,
+        job_title: job.title,
         from_user_id: user.id,
       })
       
