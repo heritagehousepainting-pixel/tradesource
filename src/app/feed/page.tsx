@@ -318,9 +318,14 @@ export default function Feed() {
                 
                 {/* Action Buttons */}
                 <div className="mt-4 pt-4 border-t border-gray-100">
-                  {user && job.posted_by === user.id ? (
+                  {user?.id === job.posted_by ? (
                     <button
-                      onClick={() => deleteJob(job.id)}
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        deleteJob(job.id)
+                      }}
                       className="w-full py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors"
                     >
                       🗑️ Delete Job
