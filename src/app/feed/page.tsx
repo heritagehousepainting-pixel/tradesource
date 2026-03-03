@@ -179,29 +179,19 @@ export default function Feed() {
     }
     
     try {
-      // Delete interests first (due to foreign key constraint)
-      console.log('Deleting interests...')
+      // Delete in exact order - wait for each to complete
+      console.log('1. Deleting interests...')
       await supabase.from('interests').delete().eq('job_id', jobId)
-      
-      // Delete messages
-      console.log('Deleting messages...')
+      console.log('2. Deleting messages...')
       await supabase.from('messages').delete().eq('job_id', jobId)
-      
-      // Delete notifications
-      console.log('Deleting notifications...')
+      console.log('3. Deleting notifications...')
       await supabase.from('notifications').delete().eq('job_id', jobId)
-      
-      // Log deletion
-      console.log('Logging deletion...')
-      await supabase.from('job_history').insert({
-        user_id: user.id,
-        job_id: jobId,
-        action: 'DELETED'
-      })
+      console.log('4. Deleting job_history...')
+      await supabase.from('job_history').delete().eq('job_id', jobId)
       
       // Now delete the job
-      console.log('Deleting job:', jobId)
-      const { data, error } = await supabase.from('jobs').delete().eq('id', jobId).select()
+      console.log('5. Deleting job:', jobId)
+      const { error } = await supabase.from('jobs').delete().eq('id', jobId)
       console.log('Delete result:', data, error)
       
       if (error) {
