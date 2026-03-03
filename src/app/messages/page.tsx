@@ -273,6 +273,7 @@ function MessagesContent() {
 
   const handleDecline = async (notif: Notification) => {
     console.log('=== DECLINE CLICKED ===', notif.id, notif)
+    alert('Processing decline...')
     try {
       // First verify the interest exists
       const { data: existing } = await supabase
