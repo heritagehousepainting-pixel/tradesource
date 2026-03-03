@@ -316,24 +316,25 @@ export default function Feed() {
                   
                   {/* Action Buttons */}
                   {job.posted_by === user?.id ? (
-                    <div className="mt-4 pt-4 border-t border-gray-100 flex justify-end">
+                    <div className="mt-4 pt-4 border-t border-gray-100 flex gap-3">
                       <button
+                        type="button"
                         onClick={async (e) => {
                           e.preventDefault()
-                          if (confirm('Delete this job?')) {
-                            await supabase.from('job_history').insert({
-                              user_id: user.id,
-                              job_id: job.id,
-                              job_title: job.title,
-                              action: 'DELETED'
-                            })
-                            await supabase.from('jobs').delete().eq('id', job.id)
-                            fetchJobs()
-                          }
+                          e.stopPropagation()
+                          // Delete immediately
+                          await supabase.from('job_history').insert({
+                            user_id: user.id,
+                            job_id: job.id,
+                            job_title: job.title,
+                            action: 'DELETED'
+                          })
+                          await supabase.from('jobs').delete().eq('id', job.id)
+                          fetchJobs()
                         }}
-                        className="text-red-500 text-sm hover:text-red-700 transition-colors"
+                        className="px-4 py-2 text-red-500 text-sm hover:text-red-700 transition-colors"
                       >
-                        Delete job
+                        🗑️ Delete
                       </button>
                     </div>
                   ) : (
