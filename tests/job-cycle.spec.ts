@@ -7,11 +7,11 @@ test.describe('TradeSource Full Job Cycle', () => {
     // ===== CONTRACTOR SIGNUP =====
     console.log('1. Testing contractor signup...');
     await page.goto('http://localhost:3000/contractor/signup');
-    await page.fill('input[placeholder*="email"]', 'contractor@test.com');
-    await page.fill('input[placeholder*="password"]', 'TestPassword123!');
+    await page.fill('input[placeholder="you@company.com"]', 'contractor@test.com');
+    await page.fill('input[placeholder="••••••••"]', 'TestPassword123!');
     await page.fill('input[placeholder="John"]', 'Test');
     await page.fill('input[placeholder="Smith"]', 'Contractor');
-    await page.fill('input[placeholder*="company"]', 'Test Contracting LLC');
+    await page.fill('input[placeholder="Your company (optional)"]', 'Test Contracting LLC');
     await page.click('button:has-text("Sign Up")');
     
     // Wait for redirect to feed
@@ -36,8 +36,8 @@ test.describe('TradeSource Full Job Cycle', () => {
     console.log('3. Testing logout and new user signup...');
     await page.click('text=Sign Out');
     await page.goto('http://localhost:3000/homeowner/signup');
-    await page.fill('input[placeholder*="email"]', 'homeowner@test.com');
-    await page.fill('input[placeholder*="password"]', 'TestPassword123!');
+    await page.fill('input[placeholder="you@company.com"]', 'homeowner@test.com');
+    await page.fill('input[placeholder="••••••••"]', 'TestPassword123!');
     await page.fill('input[placeholder="John"]', 'Test');
     await page.fill('input[placeholder="Smith"]', 'Homeowner');
     await page.click('button[type="submit"]');
@@ -73,8 +73,8 @@ test.describe('TradeSource Full Job Cycle', () => {
     console.log('7. Testing contractor login...');
     await page.click('text=Sign Out');
     await page.goto('http://localhost:3000/signin');
-    await page.fill('input[placeholder*="email"]', 'contractor@test.com');
-    await page.fill('input[placeholder*="password"]', 'TestPassword123!');
+    await page.fill('input[placeholder="you@company.com"]', 'contractor@test.com');
+    await page.fill('input[placeholder="••••••••"]', 'TestPassword123!');
     await page.click('button[type="submit"]');
     
     await page.waitForURL('**/feed');
