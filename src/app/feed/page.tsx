@@ -192,7 +192,7 @@ export default function Feed() {
       // Now delete the job
       console.log('5. Deleting job:', jobId)
       const { error } = await supabase.from('jobs').delete().eq('id', jobId)
-      console.log('Delete result:', data, error)
+      console.log('Delete result, error:', error)
       
       if (error) {
         console.error('Delete error:', error)
