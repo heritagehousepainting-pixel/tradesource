@@ -172,38 +172,38 @@ export default function Feed() {
   }
 
   const deleteJob = async (jobId: string) => {
-    if (!user) return
+    console.log('=== DELETE JOB START ===', jobId)
+    console.log('User:', user?.id)
     
-    // Optimistic update - remove immediately from UI
-    setJobs(prevJobs => prevJobs.filter(j => j.id !== jobId))
+    if (!user) {
+      alert('Please sign in')
+      return
+    }
     
     try {
-      // Delete messages
-      await supabase.from('messages').delete().eq('job_id', jobId)
-      // Delete notifications
-      await supabase.from('notifications').delete().eq('job_id', jobId)
-      // Log deletion
-      await supabase.from('job_history').insert({
-        user_id: user.id,
-        job_id: jobId,
-        action: 'DELETED'
-      })
-      // Delete job from DB
-      const { error } = await supabase.from('jobs').delete().eq('id', jobId)
+      // Direct delete - just delete the job
+      console.log('Deleting job:', jobId)
+      const { data, error } = await supabase.from('jobs').delete().eq('id', jobId).select()
+      console.log('Delete result:', data, error)
       
       if (error) {
         console.error('Delete error:', error)
-        // Re-fetch on error to sync with DB
-        fetchJobs()
-        alert('Failed to delete job')
+        alert('Delete failed: ' + error.message)
         return
       }
       
-      console.log('Job deleted successfully:', jobId)
+      console.log('Delete successful, updating UI')
+      // Update local state
+      setJobs(prevJobs => {
+        const updated = prevJobs.filter(j => j.id !== jobId)
+        console.log('Jobs after filter:', updated.length)
+        return updated
+      })
+      
+      alert('Job deleted!')
     } catch (err) {
       console.error('Delete exception:', err)
-      // Re-fetch on error
-      fetchJobs()
+      alert('Delete failed')
     }
   }
 
@@ -377,27 +377,27 @@ export default function Feed() {
                   )}
                 </div>
                 
-                {/* Action Buttons */}
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  {user?.id === job.posted_by ? (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        deleteJob(job.id)
-                      }}
-                      className="w-full py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors"
-                    >
-                      🗑️ Delete Job
-                    </button>
-                  ) : (
-                    <Link
-                      href={`/jobs/${job.id}`}
-                      className="block w-full text-center py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl"
-                    >
-                      I'm Interested
-                    </Link>
+                {/* Action Buttons - Show both for debugging */}
+                <div className="mt-4 pt-4 border-t border-gray-100 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      console.log('DELETE CLICKED - user:', user?.id, 'job posted_by:', job.posted_by)
+                      deleteJob(job.id)
+                    }}
+                    className="flex-1 py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors"
+                  >
+                    🗑️ Delete
+                  </button>
+                  <Link
+                    href={`/jobs/${job.id}`}
+                    className="flex-1 block text-center py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all"
+                  >
+                    View Job
+                  </Link>
+                </div>
                   )}
                 </div>
               </div>
