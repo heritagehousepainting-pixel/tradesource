@@ -63,6 +63,10 @@ export default function PostJob() {
     try {
       if (!user) throw new Error('Not authenticated')
 
+      // Determine if homeowner or contractor based on user_type
+      const isHomeowner = userProfile?.user_type === 'homeowner'
+      const isContractor = userProfile?.user_type === 'contractor'
+
       const jobData = {
         posted_by: user.id,
         title: formData.title,
@@ -76,7 +80,7 @@ export default function PostJob() {
         job_type: 'B2C_PROJECT',
         price_type: formData.priceType,
         price_amount: parseInt(formData.priceAmount) || 0,
-        is_b2c: true,
+        is_b2c: isHomeowner || !isContractor, // Homeowner = true, Contractor = false
         square_footage: formData.squareFootage ? parseInt(formData.squareFootage) : null,
         timeline: formData.timeline,
         job_scope: formData.jobScope,
