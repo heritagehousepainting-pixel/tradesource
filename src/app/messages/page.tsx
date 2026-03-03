@@ -310,7 +310,6 @@ function MessagesContent() {
       alert('Error: ' + err.message)
     }
   }
-  }
 
   const formatTime = (dateStr: string) => {
     const date = new Date(dateStr)
