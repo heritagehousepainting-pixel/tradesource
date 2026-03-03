@@ -12,7 +12,7 @@ test.describe('TradeSource Full Job Cycle', () => {
     await page.fill('input[placeholder="John"]', 'Test');
     await page.fill('input[placeholder="Smith"]', 'Contractor');
     await page.fill('input[placeholder="Your company (optional)"]', 'Test Contracting LLC');
-    await page.click('button:has-text("Sign Up")');
+    await page.click('button[type="submit"]');
     
     // Wait for redirect to feed
     await page.waitForURL('**/feed');

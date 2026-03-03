@@ -1,7 +1,7 @@
 # Page snapshot
 
 ```yaml
-- generic [active] [ref=e1]:
+- generic [ref=e1]:
   - generic [ref=e2]:
     - banner [ref=e3]:
       - link "TradeSource" [ref=e5]:
@@ -19,13 +19,13 @@
             - generic [ref=e16]:
               - generic [ref=e17]:
                 - generic [ref=e18]: First Name
-                - textbox "John" [ref=e19]
+                - textbox "John" [ref=e19]: Test
               - generic [ref=e20]:
                 - generic [ref=e21]: Last Name
-                - textbox "Smith" [ref=e22]
+                - textbox "Smith" [ref=e22]: Contractor
             - generic [ref=e23]:
               - generic [ref=e24]: Company Name
-              - textbox "Your company (optional)" [ref=e25]
+              - textbox "Your company (optional)" [active] [ref=e25]: Test Contracting LLC
             - generic [ref=e26]:
               - generic [ref=e27]: Trade Type
               - combobox [ref=e28]:
@@ -41,10 +41,10 @@
                 - option "Landscaping"
             - generic [ref=e29]:
               - generic [ref=e30]: Email
-              - textbox "you@company.com" [ref=e31]
+              - textbox "you@company.com" [ref=e31]: contractor@test.com
             - generic [ref=e32]:
               - generic [ref=e33]: Password
-              - textbox "••••••••" [ref=e34]
+              - textbox "••••••••" [ref=e34]: TestPassword123!
             - button "Create Contractor Account" [ref=e35]
           - generic [ref=e36]:
             - paragraph [ref=e37]:
