@@ -139,8 +139,6 @@ export default function Feed() {
 
     const { data, error } = await query
     
-    const { data, error } = await query
-    
     if (!error && data) {
       // Remove duplicates by ID
       const uniqueJobs = data.filter((job, index, self) => 
@@ -397,8 +395,6 @@ export default function Feed() {
                   >
                     View Job
                   </Link>
-                </div>
-                  )}
                 </div>
               </div>
             ))}
