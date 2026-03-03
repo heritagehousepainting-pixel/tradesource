@@ -37,7 +37,6 @@ export default function Feed() {
   const [searchQuery, setSearchQuery] = useState('')
   const [notificationCount, setNotificationCount] = useState(0)
 
-  // Check if user is a contractor who needs verification
   const isUnverifiedContractor = userProfile?.user_type === 'CONTRACTOR' && userProfile?.verification_status !== 'APPROVED'
 
   useEffect(() => {
@@ -52,12 +51,10 @@ export default function Feed() {
     }
     setUser(user)
     
-    // Request notification permission
     if ('Notification' in window && Notification.permission === 'default') {
       Notification.requestPermission()
     }
     
-    // Check if admin and get full profile
     const { data: userData } = await supabase
       .from('users')
       .select('*')
@@ -69,7 +66,6 @@ export default function Feed() {
       setIsAdmin(userData.email === 'heritagehousepainting@gmail.com')
     }
     
-    // Get notification count
     const { data: notifData } = await supabase
       .from('notifications')
       .select('id')
@@ -78,7 +74,6 @@ export default function Feed() {
     
     if (notifData) setNotificationCount(notifData.length)
 
-    // Real-time subscription for new notifications
     const channel = supabase
       .channel('feed-notifications')
       .on('postgres_changes', {
@@ -86,16 +81,8 @@ export default function Feed() {
         schema: 'public',
         table: 'notifications',
         filter: `user_id=eq.${user.id}`,
-      }, (payload) => {
-        console.log('New notification:', payload)
-        // Refresh notification count
+      }, () => {
         setNotificationCount(prev => prev + 1)
-        // Show browser notification
-        if (Notification.permission === 'granted') {
-          new Notification('New Notification', {
-            body: 'You have a new notification on TradeSource',
-          })
-        }
       })
       .subscribe()
 
@@ -140,14 +127,31 @@ export default function Feed() {
     router.push('/')
   }
 
+  const deleteJob = async (jobId: string) => {
+    if (!user) return
+    
+    // Delete messages
+    await supabase.from('messages').delete().eq('job_id', jobId)
+    // Delete notifications
+    await supabase.from('notifications').delete().eq('job_id', jobId)
+    // Log deletion
+    await supabase.from('job_history').insert({
+      user_id: user.id,
+      job_id: jobId,
+      action: 'DELETED'
+    })
+    // Delete job
+    await supabase.from('jobs').delete().eq('id', jobId)
+    // Update local state
+    setJobs(jobs.filter(j => j.id !== jobId))
+  }
+
   const filteredJobs = jobs.filter(job => 
-    // Filter by search
     (searchQuery === '' || 
     job.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     job.description?.toLowerCase().includes(searchQuery.toLowerCase()))
   )
 
-  // Format time ago
   const timeAgo = (date: string) => {
     const now = new Date()
     const jobDate = new Date(date)
@@ -162,7 +166,6 @@ export default function Feed() {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <main className="max-w-6xl mx-auto px-3 md:px-6 py-4 md:py-8">
-        {/* Page Title */}
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Job Feed</h1>
@@ -176,9 +179,7 @@ export default function Feed() {
           </Link>
         </div>
 
-        {/* Premium Filters */}
         <div className="bg-white rounded-xl md:rounded-2xl p-4 shadow-sm border border-gray-100 mb-6">
-          {/* Search Bar */}
           <div className="relative mb-4">
             <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -193,12 +194,11 @@ export default function Feed() {
             />
           </div>
 
-          {/* Filter Selects */}
           <div className="flex flex-wrap gap-3">
             <select 
               value={countyFilter}
               onChange={(e) => setCountyFilter(e.target.value)}
-              className="flex-1 min-w-[180px] px-4 py-3 bg-gray-50 border-0 rounded-xl text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 min-w-[140px] px-4 py-3 bg-gray-50 border-0 rounded-xl text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Counties</option>
               <option value="Montgomery">Montgomery</option>
@@ -212,7 +212,7 @@ export default function Feed() {
             <select 
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="flex-1 min-w-[180px] px-4 py-3 bg-gray-50 border-0 rounded-xl text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 min-w-[140px] px-4 py-3 bg-gray-50 border-0 rounded-xl text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">All Types</option>
               <option value="Interior Painting">Interior Painting</option>
@@ -226,7 +226,7 @@ export default function Feed() {
             <select 
               value={timelineFilter}
               onChange={(e) => setTimelineFilter(e.target.value)}
-              className="flex-1 min-w-[180px] px-4 py-3 bg-gray-50 border-0 rounded-xl text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 min-w-[140px] px-4 py-3 bg-gray-50 border-0 rounded-xl text-xs md:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">Any Timeline</option>
               <option value="ASAP">ASAP</option>
@@ -236,7 +236,6 @@ export default function Feed() {
           </div>
         </div>
 
-        {/* Jobs List */}
         {loading ? (
           <div className="space-y-4">
             {[1,2,3].map(i => (
@@ -262,98 +261,80 @@ export default function Feed() {
         ) : (
           <div className="space-y-4">
             {filteredJobs.map(job => (
-              <Link href={`/jobs/${job.id}`} key={job.id} className="block">
-                <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-200 hover:border-blue-300 hover:shadow-xl hover:shadow-blue-900/5 transition-all duration-300 group">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className={`text-xs px-3 py-1 rounded-full font-medium ${
-                          job.is_b2c 
-                            ? 'bg-blue-50 text-blue-700 border border-blue-100' 
-                            : 'bg-green-50 text-green-700 border border-green-100'
-                        }`}>
-                          {job.is_b2c ? '🏠 Homeowner' : '💼 Overflow'}
-                        </span>
-                        <span className="text-xs text-gray-400">{timeAgo(job.created_at)}</span>
-                      </div>
-                      <h3 className="text-lg font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+              <div key={job.id} className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-200 hover:border-blue-300 hover:shadow-xl transition-all">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className={`text-xs px-3 py-1 rounded-full font-medium ${
+                        job.is_b2c 
+                          ? 'bg-blue-50 text-blue-700 border border-blue-100' 
+                          : 'bg-green-50 text-green-700 border border-green-100'
+                      }`}>
+                        {job.is_b2c ? '🏠 Homeowner' : '💼 Overflow'}
+                      </span>
+                      <span className="text-xs text-gray-400">{timeAgo(job.created_at)}</span>
+                    </div>
+                    <Link href={`/jobs/${job.id}`}>
+                      <h3 className="text-lg font-bold text-gray-900 hover:text-blue-600 transition-colors">
                         {job.title}
                       </h3>
-                    </div>
-                    <div className="text-right">
-                      <div className={`text-2xl font-bold ${isUnverifiedContractor ? 'blur-sm' : 'text-gray-900'}`}>
-                        {isUnverifiedContractor ? '••••••' : `$${job.price_amount?.toLocaleString()}`}
-                      </div>
-                      <div className="text-xs text-gray-500">{job.price_type}</div>
-                    </div>
+                    </Link>
                   </div>
-                  
+                  <div className="text-right">
+                    <div className={`text-2xl font-bold ${isUnverifiedContractor ? 'blur-sm' : 'text-gray-900'}`}>
+                      {isUnverifiedContractor ? '••••••' : `$${job.price_amount?.toLocaleString()}`}
+                    </div>
+                    <div className="text-xs text-gray-500">{job.price_type}</div>
+                  </div>
+                </div>
+                
+                <Link href={`/jobs/${job.id}`}>
                   <p className="text-gray-500 text-xs md:text-sm mb-4 line-clamp-2">{job.description}</p>
-                  
-                  <div className="flex flex-wrap gap-3">
+                </Link>
+                
+                <div className="flex flex-wrap gap-3">
+                  <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg text-xs md:text-sm text-gray-600">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    {job.county}
+                  </span>
+                  <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg text-xs md:text-sm text-gray-600">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    {job.work_category}
+                  </span>
+                  {job.timeline && (
                     <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg text-xs md:text-sm text-gray-600">
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      {job.county}
+                      {job.timeline.replace('_', ' ')}
                     </span>
-                    <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg text-xs md:text-sm text-gray-600">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                      </svg>
-                      {job.work_category}
-                    </span>
-                    {job.timeline && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 rounded-lg text-xs md:text-sm text-gray-600">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {job.timeline.replace('_', ' ')}
-                      </span>
-                    )}
-                  </div>
-                  
-                  {/* Action Buttons */}
-                  {job.posted_by === user?.id ? (
-                    <div className="mt-4 pt-4 border-t border-gray-100 flex gap-3">
-                      <button
-                        type="button"
-                        onClick={async (e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          // Delete messages first
-                          await supabase.from('messages').delete().eq('job_id', job.id)
-                          // Delete notifications
-                          await supabase.from('notifications').delete().eq('job_id', job.id)
-                          // Log deletion
-                          await supabase.from('job_history').insert({
-                            user_id: user.id,
-                            job_id: job.id,
-                            job_title: job.title,
-                            action: 'DELETED'
-                          })
-                          // Delete job
-                          await supabase.from('jobs').delete().eq('id', job.id)
-                          fetchJobs()
-                        }}
-                        className="px-4 py-2 text-red-500 text-sm hover:text-red-700 transition-colors"
-                      >
-                        🗑️ Delete
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="mt-4 pt-4 border-t border-gray-100">
-                      <Link
-                        href={`/jobs/${job.id}`}
-                        className="block w-full text-center py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl"
-                      >
-                        I'm Interested
-                      </Link>
-                    </div>
                   )}
                 </div>
-              </Link>
+                
+                {/* Action Buttons */}
+                <div className="mt-4 pt-4 border-t border-gray-100">
+                  {user && job.posted_by === user.id ? (
+                    <button
+                      onClick={() => deleteJob(job.id)}
+                      className="w-full py-3 bg-red-500 text-white rounded-xl font-semibold hover:bg-red-600 transition-colors"
+                    >
+                      🗑️ Delete Job
+                    </button>
+                  ) : (
+                    <Link
+                      href={`/jobs/${job.id}`}
+                      className="block w-full text-center py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-lg hover:shadow-xl"
+                    >
+                      I'm Interested
+                    </Link>
+                  )}
+                </div>
+              </div>
             ))}
           </div>
         )}
